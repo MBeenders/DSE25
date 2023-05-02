@@ -1,18 +1,20 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.transforms import Bbox
 import matplotlib
 from datetime import datetime
 
 
-data = pd.read_csv("files/file_04.csv", parse_dates=['Started', 'Due'], dayfirst=True)
+data = pd.read_csv("files/file_10_bottom.csv", parse_dates=['Started', 'Due'], dayfirst=True)
 print(data.columns)
 
 font = {'family': 'monospace',
         'color': 'black',
         'weight': 'normal',
-        'size': 7}
+        'size': 10}
 
+print(data.Task.str.len().max())
 
 def change_to_initials(frame):
     initials_register = {"Charlie Kendall": "CK",
@@ -50,12 +52,17 @@ def add_colour(frame):
         elif task_type == 2:
             colour_row.append("#F8CECC")
         elif task_type == 3:
-            colour_row.append("#FFF2CC")
+            if "Document" in row["Task"]:
+                colour_row.append("#FFF2CC")
+            else:
+                colour_row.append("#FFE6CC")
         else:
+            print(row)
             raise False
 
     frame['colour'] = colour_row
 
+# FFF2CC
 
 def add_spaces(frame):
     longest_string = frame.Code.str.len().max()
@@ -86,7 +93,7 @@ max_indent = 4
 for row in description_data:
     indent = row[1].count('.')
     task = f'{row[1].strip()}. {row[0]}'
-    changed = f'{" " * indent}{task:<40}{" " * (max_indent - indent)}{row[2]:>5}{row[3]:>5}'
+    changed = f'{" " * indent}{task:<57}{" " * (max_indent - indent)}{row[2]:>10}{row[3]:>10}'
     descriptions.append(changed)
 
 data["Description"] = descriptions
@@ -99,10 +106,10 @@ data = data.sort_values("Code", key=lambda ser: ser.apply(lambda x: -sum([weight
 # data = data.sort_values(["Code"], ascending=[False])
 
 # Add row number to description
-max_index = len(data.index)
+max_index = len(data.index)  + 113
 descriptions = []
 for index, row in data.iterrows():
-    descriptions.append(f'{max_index - index:<4} {row[17]}')
+    descriptions.append(f'{max_index - index:<4} {row["Description"]}')
 data['Description'] = descriptions
 
 # create title row
@@ -111,7 +118,9 @@ data['Description'] = descriptions
 # title_row['colour'] = '#F8CECC'
 # data = pd.concat([data.loc[:], title_row]).reset_index(drop=True)
 
-fig, ax1 = plt.subplots(1, figsize=(11.7, 16.5 * 1.5))
+# fig, ax1 = plt.subplots(1, figsize=(11.7, 16.5 * 1.5))
+fig, ax1 = plt.subplots(1, figsize=(11.7, 16.5))
+
 
 # Add weekends
 for weekend in range(9):
@@ -185,21 +194,33 @@ for i in range(9):
 ax_top.text(1 / n * (7 * 9 + 2.5), 1.008, 'Week 10', transform=ax_top.transAxes, ha='center', fontsize=9)
 
 # Add column names
-ax_top.text(-0.205, 1.002, 'Task', transform=ax_top.transAxes, fontsize=6)
-ax_top.text(-0.06, 1.002, 'Person', transform=ax_top.transAxes, fontsize=6)
-ax_top.text(-0.025, 1.002, 'Time', transform=ax_top.transAxes, fontsize=6)
+ax_top.text(-0.255, 1.002, 'Task', transform=ax_top.transAxes, fontsize=8)
+ax_top.text(-0.12, 1.002, 'Person', transform=ax_top.transAxes, fontsize=8)
+ax_top.text(-0.05, 1.002, 'Time', transform=ax_top.transAxes, fontsize=8)
 
 # Color top-level tasks
+# for tl in ax1.get_yticklabels():
+#     tl.set(fontsize=3)
+#     tl.set_linespacing(1.0)
+#     txt = tl.get_text()
+#     if txt[6:8] == '. ':
+#         txt += ' (!)'
+#         tl.set_backgroundcolor('#DAE8FC')
+#     elif txt[9:11] == '. ':
+#         txt += ' (!)'
+#         tl.set_backgroundcolor('#E1D5E7')
+#     tl.set_text(txt)
+
 for tl in ax1.get_yticklabels():
-    tl.set(fontsize=4)
+    tl.set(fontsize=6)
     tl.set_linespacing(1.0)
     txt = tl.get_text()
     if txt[6:8] == '. ':
         txt += ' (!)'
-        tl.set_backgroundcolor('#DAE8FC')
+        tl.set_bbox(dict(facecolor='#DAE8FC', edgecolor='none', pad=2))
     elif txt[9:11] == '. ':
         txt += ' (!)'
-        tl.set_backgroundcolor('#E1D5E7')
+        tl.set_bbox(dict(facecolor='#E1D5E7', edgecolor='none', pad=2))
     tl.set_text(txt)
 
 # Text
@@ -208,6 +229,9 @@ for tl in ax1.get_yticklabels():
 
 n = len(data.index)
 ax1.set_ylim(-0.5, n - 0.5)
+
+ax1.set_xlim(0, data.end_num.max())
+ax_top.set_xlim(0, data.end_num.max())
 
 # Show
 fig.tight_layout()
