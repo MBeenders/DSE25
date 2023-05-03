@@ -1,0 +1,56 @@
+{
+  "colors":
+  {
+    "RGB":
+    {
+      "Primary": "(0, 166, 214)",
+      "Secondary_09": "(12, 35, 64)",
+      "Secondary_07": "(0, 184, 200)",
+      "Secondary_08": "(0, 118, 194)",
+      "Secondary_01": "(111, 29, 119)",
+      "Secondary_05": "(239, 96, 163)",
+      "Secondary_02": "(165, 0, 52)",
+      "Secondary_06": "(224, 60, 49)",
+      "Secondary_04": "(237, 104, 66)",
+      "Secondary_03": "(255, 184, 28)",
+      "Secondary_10": "(108, 194, 74)",
+      "Secondary_11": "(0, 155, 119)",
+      "Text_Light": "(255, 255, 255)",
+      "Text_Dark": "(0, 0, 0)"
+    },
+    "HEX":
+    {
+      "Primary": "#00A6D6",
+      "Secondary_09": "#0C2340",
+      "Secondary_07": "#00B8C8",
+      "Secondary_08": "#0076C2",
+      "Secondary_01": "#6F1D77",
+      "Secondary_05": "#EF60A3",
+      "Secondary_02": "#A50034",
+      "Secondary_06": "#E03C31",
+      "Secondary_04": "#EC6842",
+      "Secondary_03": "#FFB81C",
+      "Secondary_10": "#6CC24A",
+      "Secondary_11": "#009B77",
+      "Text_Light": "#FFFFFF",
+      "Text_Dark": "#000000"
+    }
+  },
+  "fonts":
+  {
+    "main":
+    {
+      "family": "Arial",
+      "color": "black",
+      "weight": "normal",
+      "size": 10
+    },
+    "gantt_chart":
+    {
+      "family": "monospace",
+      "color": "black",
+      "weight": "normal",
+      "size": 10
+    }
+  }
+}

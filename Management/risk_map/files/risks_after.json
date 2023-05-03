@@ -1,0 +1,107 @@
+{
+  "RSK-ORG-01":
+  {
+    "Probability": 3,
+    "Impact": 2
+  },
+  "RSK-ORG-02":
+  {
+    "Probability": 1,
+    "Impact": 5
+  },
+  "RSK-ORG-03":
+  {
+    "Probability": 1,
+    "Impact": 4
+  },
+  "RSK-ORG-04":
+  {
+    "Probability": 2,
+    "Impact": 4
+  },
+  "RSK-ORG-05":
+  {
+    "Probability": 2,
+    "Impact": 3
+  },
+  "RSK-ORG-06":
+  {
+    "Probability": 2,
+    "Impact": 4
+  },
+  "RSK-ORG-07":
+  {
+    "Probability": 3,
+    "Impact": 3
+  },
+  "RSK-ORG-08":
+  {
+    "Probability": 1,
+    "Impact": 3
+  },
+  "RSK-ORG-09":
+  {
+    "Probability": 1,
+    "Impact": 5
+  },
+  "RSK-ORG-10":
+  {
+    "Probability": 2,
+    "Impact": 3
+  },
+  "RSK-ORG-11":
+  {
+    "Probability": 2,
+    "Impact": 4
+  },
+  "RSK-ORG-12":
+  {
+    "Probability": 2,
+    "Impact": 3
+  },
+  "RSK-ORG-13":
+  {
+    "Probability": 2,
+    "Impact": 4
+  },
+  "RSK-ORG-14":
+  {
+    "Probability": 1,
+    "Impact": 5
+  },
+  "RSK-ORG-15":
+  {
+    "Probability": 2,
+    "Impact": 4
+  },
+  "RSK-ORG-16":
+  {
+    "Probability": 2,
+    "Impact": 5
+  },
+  "RSK-ORG-17":
+  {
+    "Probability": 2,
+    "Impact": 4
+  },
+  "RSK-ORG-18":
+  {
+    "Probability": 2,
+    "Impact": 3
+  },
+  "RSK-ORG-19":
+  {
+    "Probability": 2,
+    "Impact": 1
+  },
+  "RSK-ORG-20":
+  {
+    "Probability": 2,
+    "Impact": 1
+  },
+  "RSK-ORG-21":
+  {
+    "Probability": 1,
+    "Impact": 5
+  }
+}

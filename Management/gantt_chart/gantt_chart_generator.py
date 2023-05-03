@@ -1,12 +1,13 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import json
 from matplotlib.transforms import Bbox
 import matplotlib
 from datetime import datetime
 
 
-data = pd.read_csv("files/file_10_bottom.csv", parse_dates=['Started', 'Due'], dayfirst=True)
+data = pd.read_csv("management/gantt_chart/files/file_09_b.csv", parse_dates=['Started', 'Due'], dayfirst=True)
 print(data.columns)
 
 font = {'family': 'monospace',
@@ -14,7 +15,15 @@ font = {'family': 'monospace',
         'weight': 'normal',
         'size': 10}
 
+
+with open("Styles/diagrams_net.json") as style_file:
+    style = style_file.read()
+
+print(style)
+
+
 print(data.Task.str.len().max())
+
 
 def change_to_initials(frame):
     initials_register = {"Charlie Kendall": "CK",
@@ -106,7 +115,7 @@ data = data.sort_values("Code", key=lambda ser: ser.apply(lambda x: -sum([weight
 # data = data.sort_values(["Code"], ascending=[False])
 
 # Add row number to description
-max_index = len(data.index)  + 113
+max_index = len(data.index) + 113
 descriptions = []
 for index, row in data.iterrows():
     descriptions.append(f'{max_index - index:<4} {row["Description"]}')
@@ -222,7 +231,7 @@ for tl in ax1.get_yticklabels():
         txt += ' (!)'
         tl.set_bbox(dict(facecolor='#E1D5E7', edgecolor='none', pad=2))
     tl.set_text(txt)
-
+# #FFE6CC
 # Text
 # plt.text(-40, amount_of_tasks, f"{'Code':<10} {'Task':<27}{'Resp.':<5} {'Hr.':<5}", fontdict=font, size=12)
 
@@ -235,5 +244,5 @@ ax_top.set_xlim(0, data.end_num.max())
 
 # Show
 fig.tight_layout()
-plt.savefig('test.pdf')
+plt.savefig('management/gantt_chart/output/test.pdf')
 # plt.show()

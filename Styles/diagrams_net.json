@@ -1,0 +1,42 @@
+{
+  "colors":
+  {
+    "RGB":
+    {
+      "Primary": "(218, 232, 252)",
+      "Secondary_01": "(225, 213, 231)",
+      "Secondary_02": "(248, 206, 204)",
+      "Secondary_03": "(255, 242, 204)",
+      "Secondary_04": "(255, 230, 204)",
+      "Text_Light": "(0, 0, 0)",
+      "Text_Dark": "(0, 0, 0)"
+    },
+    "HEX":
+    {
+      "Primary": "#DAE8FC",
+      "Secondary_01": "#E1D5E7",
+      "Secondary_02": "#F8CECC",
+      "Secondary_03": "#FFF2CC",
+      "Secondary_04": "#FFE6CC",
+      "Text_Light": "#000000",
+      "Text_Dark": "#000000"
+    }
+  },
+  "fonts":
+  {
+    "main":
+    {
+      "family": "Arial",
+      "color": "black",
+      "weight": "normal",
+      "size": 10
+    },
+    "gantt_chart":
+    {
+      "family": "monospace",
+      "color": "black",
+      "weight": "normal",
+      "size": 10
+    }
+  }
+}
