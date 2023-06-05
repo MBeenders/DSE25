@@ -1,5 +1,6 @@
 from sizing.rocket import Rocket
 import pandas as pd
+import pickle
 import os
 
 
@@ -42,6 +43,27 @@ def initialize_rocket(file_name: str):
     insert_values(data, rocket)  # Insert csv values into Rocket class
 
     return rocket
+
+
+def import_rocket_iteration(file_name: str):
+    """
+    :param file_name: Name of the file that needs to be imported
+    :return Rocket class
+    Imports a Rocket class from a previous iteration
+    """
+    with open(f'files/{file_name}.pickle', 'rb') as file:
+        return pickle.load(file)
+
+
+def export_rocket_iteration(file_name: str, rocket: Rocket, run_id: int):
+    """
+    :param file_name: Name under which the file will be exported
+    :param rocket: The filled Rocket class
+    :param run_id: ID of the current run
+    Saves the entire class in the archive as a pickle file.
+    """
+    with open(f'files/archive/{file_name}_{run_id}.{rocket.id}.pickle', 'wb') as file:
+        pickle.dump(rocket, file)
 
 
 def export_catia_parameters(file_name: str, rocket: Rocket):
