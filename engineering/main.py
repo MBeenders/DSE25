@@ -9,7 +9,7 @@ import file_manager as fm
 
 
 class Runner:
-    def __init__(self, file_name: str, run_id: int):
+    def __init__(self, file_name: str = "initial_values", run_id: int = 0):
         """
         :param file_name: Name of the rocket initialization file
         :param run_id: ID of the current run
