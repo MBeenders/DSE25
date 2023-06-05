@@ -30,12 +30,11 @@ class Solid:
         self.thrust: float = 10000  # N
 
     def burn(self, dt: float):
-        print(self.burn_rate, dt)
-        print(self.mass_fuel, self.burn_rate * dt)
-        self.mass_fuel -= self.burn_rate * dt
-
-        print(self.mass_fuel)
         if self.mass_fuel > 0:
-            return self.thrust, self.mass_fuel
+            self.mass_fuel -= self.burn_rate * dt
+            if self.mass_fuel > 0:
+                return self.thrust, self.mass_fuel
+            else:
+                return self.thrust, 0
         else:
             return 0, self.mass_fuel

@@ -11,7 +11,7 @@ def convert_csv(name: str):
     converted_data: dict = {}
     for index, row in data.iterrows():
         if row["Risk ID"] != "":
-            converted_data[row["Risk ID"]] = {"Probability": row["Probability"], "Severity": row["Severity"]}
+            converted_data[row["Risk ID"]] = {"Probability": int(row["Probability"]), "Severity": int(row["Severity"])}
 
     return converted_data
 
@@ -28,6 +28,7 @@ def convert_to_list(data: dict):
 
 class RiskMapGenerator:
     def __init__(self, file_start: str, style: str, file_after: str = None, csv: bool = False):
+        self.directory_start = file_start
         self.figure, self.ax = plt.subplots()
 
         with open(f"styles/{style}.json") as style_file:
@@ -47,13 +48,13 @@ class RiskMapGenerator:
                     self.risks_after: dict = json.load(risk_file)
 
         self.indexes, self.rows = convert_to_list(self.risks_start)
-
         self.start_labels = np.zeros((5, 5, len(self.risks_start)), dtype=int)
         if file_after:
             self.after_labels = np.zeros((5, 5, len(self.risks_after)), dtype=int)
 
     def __create_plot(self, risks, after: bool = False):
         i = 0
+        k = 0
         for name, risk in risks.items():
             i += 1
             if int(risk["Probability"]) * int(risk["Severity"]) > 16:
@@ -71,10 +72,14 @@ class RiskMapGenerator:
             if after:
                 self.after_labels[risk["Severity"] - 1][risk["Probability"] - 1][int(name.split("-")[-1]) - 1] = i
             else:
+                if risk["Severity"] == 4 and risk["Probability"] == 1:
+                    k += 1
                 self.start_labels[risk["Severity"] - 1][risk["Probability"] - 1][int(name.split("-")[-1]) - 1] = i
+                print(risk["Severity"] - 1, risk["Probability"] - 1, int(name.split("-")[-1]) - 1)
+        print(k)
 
     def __add_labels(self, risks, labels):
-        wrap_at = 4
+        wrap_at = 5
         for i in range(len(labels)):
             for j in range(len(labels[i])):
                 non_zeros = labels[i][j][labels[i][j] != 0]
@@ -82,8 +87,10 @@ class RiskMapGenerator:
                 for k, value in enumerate(non_zeros):
                     if k <= wrap_at - 1:
                         self.ax.text((j + 1.1), (i + 1 + row_offset - k * 0.18 - 0.05), self.indexes[value - 1][8:], fontsize=9)
+                    elif k <= wrap_at * 2 - 1:
+                        self.ax.text((j + 1.4), (i + 1 + row_offset - (k - wrap_at) * 0.18 - 0.05), self.indexes[value - 1][8:], fontsize=9)
                     else:
-                        self.ax.text((j + 1.45), (i + 1 + row_offset - (k-wrap_at) * 0.18 - 0.05), self.indexes[value - 1][8:], fontsize=9)
+                        self.ax.text((j + 1.7), (i + 1 + row_offset - (k - wrap_at * 2) * 0.18 - 0.05), self.indexes[value - 1][8:], fontsize=9)
 
     def __add_background(self):
         self.ax.fill([0, 0, 12, 9.02],
@@ -108,12 +115,14 @@ class RiskMapGenerator:
         self.ax.set_xlim(0.5, 3.5)
         self.ax.set_ylim(0.5, 5.5)
 
-        plt.xlabel("Probability")
-        plt.ylabel("Severity")
+        plt.xlabel("Probability", weight='bold')
+        plt.ylabel("Severity", weight='bold')
+        plt.xticks([1, 2, 3], ['Low', 'Medium', 'High'])
+        plt.yticks([1, 2, 3, 4, 5], ['Very low', 'Low', 'Medium', 'High', 'Severe'])
         plt.tight_layout()
-        plt.savefig('management/risk_map/output/technical_risks_after.pdf')
-        # plt.show()
+        # plt.savefig(f'management/risk_map/output/{self.directory_start}.pdf')
+        plt.show()
 
 
-generator = RiskMapGenerator("technical_risks_after", "tudelft_house_style", csv=True)
+generator = RiskMapGenerator("technical_risks_after_3", "tudelft_house_style", csv=True)
 generator.run()
