@@ -1,40 +1,46 @@
 import numpy as np
 
 
+class Subsystem:
+    def __init__(self, name: str):
+        self.name: str = name
+        self.mass: float = 0  # [kg]
+        self.length: float = 0  # [m]
+        self.diameter: float = 0  # [m]
+        self.power_in: float = 0  # [W]
+        self.power_out: float = 0  # [W]
+
+
 class Rocket:
     def __init__(self):
-        self.mass: float = 0
-        self.length: float = 0
-        self.diameter: float = 0
-        self.power_in: float = 0
-        self.power_out: float = 0
+        # Global parameters
+        self.mass: float = 0  # [kg]
+        self.length: float = 0  # [m]
+        self.diameter: float = 0  # [m]
+        self.power_in: float = 0  # [W]
+        self.power_out: float = 0  # [W]
 
+        # Subsystems
         self.engine = self.Engine()
         self.structure = self.Structure()
         self.recovery = self.Recovery()
         self.electronics = self.Electronics()
         self.payload = self.Payload()
         
-    class Engine:
+    class Engine(Subsystem):
         def __init__(self):
-            self.mass: float = 0
-            self.length: float = 0
-            self.diameter: float = 0
-            self.power_in: float = 0
-            self.power_out: float = 0
+            Subsystem.__init__(self, "Engine")
 
-    class Structure:
+    class Structure(Subsystem):
         def __init__(self):
-            self.mass: float = 0
-            self.length: float = 0
-            self.diameter: float = 0
-            self.power_in: float = 0
-            self.power_out: float = 0
+            Subsystem.__init__(self, "Structure")
 
-    class Recovery:
+    class Recovery(Subsystem):
         def __init__(self):
-            self.mass: float = 0  # Total mass of recovery system [kg]
+            # General parameters
+            Subsystem.__init__(self, "Recovery")
 
+            # Subsystems
             self.drogue = self.Drogue()
             self.main_parachute = self.MainParachute()
 
@@ -48,18 +54,15 @@ class Rocket:
                 self.mass: float = 0  # [kg]
                 self.area: float = 0  # [m^2]
 
-    class Electronics:
+    class Electronics(Subsystem):
         def __init__(self):
-            self.mass: float = 0
-            self.length: float = 0
-            self.diameter: float = 0
-            self.power_in: float = 0
-            self.power_out: float = 0
+            Subsystem.__init__(self, "Electronics")
 
-    class Payload:
+    class Payload(Subsystem):
         def __init__(self):
-            self.mass: float = 0
-            self.length: float = 0
-            self.diameter: float = 0
-            self.power_in: float = 0
-            self.power_out: float = 0
+            Subsystem.__init__(self, "Payload")
+
+
+if __name__ == "__main__":
+    test_rocket = Rocket()
+    print(test_rocket.engine.name)
