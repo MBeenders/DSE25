@@ -1,11 +1,12 @@
-import numpy as np
-from engineering.rocket import Rocket
+from rocket import Rocket
 
 
 def run(rocket: Rocket):
     """
-    :param rocket:
-    :return:
+    :param rocket: Original Rocket class
+    :return: Updated Rocket class
     """
+
+    # Put sizing code here
 
     pass
