@@ -2,6 +2,10 @@ from rocket import Rocket
 
 
 def do_stuff(rocket: Rocket):
+    """
+    :param rocket: Rocket class
+    :return: None
+    """
     rocket.mass = 5
 
 
