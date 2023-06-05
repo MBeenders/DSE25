@@ -44,5 +44,13 @@ def initialize_rocket(file_name: str):
     return rocket
 
 
+def export_catia_parameters(file_name: str, rocket: Rocket):
+    """
+    :param file_name: Name under which the file will be exported
+    :param rocket: The filled Rocket class
+    """
+    pass
+
+
 if __name__ == "__main__":
     initialize_rocket("initial_values")

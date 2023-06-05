@@ -1,6 +1,7 @@
 {
-  "sizing_selection": ["engine", "recovery"],
-  "catia_export":
+  "sizing_selection": ["engine_1", "engine_2", "recovery_1"],
+  "export_catia": true,
+  "catia_variables":
   {
     "engine_1":
     {

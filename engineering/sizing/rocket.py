@@ -3,6 +3,7 @@ import numpy as np
 
 class Subsystem:
     def __init__(self, name: str):
+        self.id: str = "0.0"
         self.name: str = name
         self.mass: float = 0  # [kg]
         self.length: float = 0  # [m]
@@ -20,6 +21,7 @@ class Subsystem:
 class Rocket:
     def __init__(self):
         # Global parameters
+        self.id: str = "0"
         self.mass: float = 0  # [kg]
         self.length: float = 0  # [m]
         self.diameter: float = 0  # [m]
@@ -27,13 +29,13 @@ class Rocket:
         self.power_out: float = 0  # [W]
 
         # Subsystems
-        self.engine_1 = self.Engine("First stage Engine")
-        self.engine_2 = self.Engine("Second stage Engine")
-        self.recovery_1 = self.Recovery("First stage parachutes")
-        self.recovery_2 = self.Recovery("Second stage parachutes")
-        self.structure = self.Structure()
-        self.electronics = self.Electronics()
-        self.payload = self.Payload()
+        self.engine_1: Subsystem = self.Engine("First stage Engine")
+        self.engine_2: Subsystem = self.Engine("Second stage Engine")
+        self.recovery_1: Subsystem = self.Recovery("First stage parachutes")
+        self.recovery_2: Subsystem = self.Recovery("Second stage parachutes")
+        self.structure: Subsystem = self.Structure()
+        self.electronics: Subsystem = self.Electronics()
+        self.payload: Subsystem = self.Payload()
 
     def __setitem__(self, key, item):
         self.__dict__[key] = item

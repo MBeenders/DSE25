@@ -6,7 +6,7 @@ def do_stuff(rocket: Rocket):
     :param rocket: Rocket class
     :return: None
     """
-    rocket.mass = 5
+    pass
 
 
 def run(rocket: Rocket) -> Rocket:
@@ -15,9 +15,7 @@ def run(rocket: Rocket) -> Rocket:
     :return: Updated Rocket class
     """
 
-    print(f"Mass before functions: {rocket.mass}")
     do_stuff(rocket)
-    print(f"Mass after functions: {rocket.mass}")
 
     return rocket
 
