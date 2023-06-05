@@ -1,4 +1,4 @@
-from rocket import Rocket
+from engineering.sizing.rocket import Rocket
 
 
 def do_stuff(rocket: Rocket):
