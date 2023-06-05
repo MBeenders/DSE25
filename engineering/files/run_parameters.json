@@ -1,0 +1,11 @@
+{
+  "sizing_selection": ["engine", "recovery"],
+  "catia_export":
+  {
+    "engine_1":
+    {
+      "length": "[m]",
+      "diameter": "[m]"
+    }
+  }
+}

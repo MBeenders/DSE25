@@ -9,7 +9,7 @@ def do_stuff(rocket: Rocket):
     rocket.mass = 5
 
 
-def run(rocket: Rocket):
+def run(rocket: Rocket) -> Rocket:
     """
     :param rocket: Original Rocket class
     :return: Updated Rocket class
@@ -19,7 +19,7 @@ def run(rocket: Rocket):
     do_stuff(rocket)
     print(f"Mass after functions: {rocket.mass}")
 
-    pass
+    return rocket
 
 
 if __name__ == "__main__":
