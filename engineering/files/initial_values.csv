@@ -1,0 +1,6 @@
+Subsystem,Variable,Value,Unit
+engine_1,mass,10,kg
+engine_1,length,1,m
+engine_1,diameter,0.15,m
+engine_1,isp,1000,s
+"recovery_1, drogue",mass,1,kg
