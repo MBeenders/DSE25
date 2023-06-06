@@ -1,6 +1,7 @@
 import copy
 import json
 
+from simulators.simulator import Simulator
 from sizing.rocket import Rocket
 from sizing.engine import run as run_engine_sizing
 from sizing.recovery import run as run_recovery_sizing
@@ -16,17 +17,18 @@ class Runner:
         """
         self.run_id = run_id
 
-        if file_name[:7] == "archive":  # If name starts with archive, import the class from the archive
-            self.rocket: Rocket = fm.import_rocket_iteration(file_name)
-        else:  # If not, than just create a new class from the initialization file
-            self.rocket: Rocket = fm.initialize_rocket(file_name)
-
-        self.new_rocket: Rocket = Rocket()
-
         # Import the run parameters
         self.run_parameters_file = open("files/run_parameters.json")
         self.run_parameters: dict = json.load(self.run_parameters_file)
         self.selection: list[str] = self.run_parameters["sizing_selection"]
+
+        simulator: Simulator = Simulator()
+        if file_name[:7] == "archive":  # If name starts with archive, import the class from the archive
+            self.rocket: Rocket = fm.import_rocket_iteration(file_name)
+        else:  # If not, then just create a new class from the initialization file
+            self.rocket: Rocket = fm.initialize_rocket(file_name, simulator, self.run_parameters)
+
+        self.new_rocket: Rocket = Rocket(simulator)
 
         # Import requirements
         self.requirements = fm.import_csv("requirements")
@@ -59,9 +61,52 @@ class Runner:
         serial_num += 1
         self.new_rocket.id = serial_num
 
-    def check_compliance(self):
+    def check_compliance(self, show_within_limit=False):
+        def check_value(required_value, rocket_value, comparison_type, variable):
+            def correct(difference, name):
+                if show_within_limit:
+                    print(f"{name} within limit; difference {difference}")
+
+            def incorrect(difference, name):
+                print(f"{name} out of limit! Difference {difference}")
+
+            if str(comparison_type) == ">":
+                if rocket_value > required_value:  # Correct
+                    correct(rocket_value - required_value, variable)
+                else:  # Incorrect
+                    incorrect(rocket_value - required_value, variable)
+            elif str(comparison_type) == "<":
+                if rocket_value < required_value:  # Correct
+                    correct(rocket_value - required_value, variable)
+                else:  # Incorrect
+                    incorrect(rocket_value - required_value, variable)
+            elif str(comparison_type) == "=":
+                if rocket_value == required_value:  # Correct
+                    correct(rocket_value - required_value, variable)
+                else:  # Incorrect
+                    incorrect(rocket_value - required_value, variable)
+            else:
+                raise ValueError(f"Comparison type not well defined for variable {variable}")
+
+        def add_line(system, line, rocket_sub):
+            if len(system) > 1:
+                rocket_sub = rocket_sub[system[0]]
+                system.pop(0)
+                add_line(system, line, rocket_sub)
+
+            else:
+                check_value(line["Value"], rocket_sub[line["Variable"]], line["Type"], line["Variable"])
+
         for index, row in self.requirements.iterrows():
-            print(row["Variable"])
+            if int(row['Stage']) == 0:
+                if row["Subsystem"] == "simulation":
+                    check_value(row["Value"], self.rocket.simulator[row["Variable"]], row["Type"], row["Variable"])
+                elif row["Subsystem"] == "rocket":
+                    check_value(row["Value"], self.rocket[row["Variable"]], row["Type"], row["Variable"])
+                else:
+                    raise NameError(f"Subsystem '{row['Subsystem']}' is not recognised for compliance checking, use 'simulation' or 'rocket'")
+            else:
+                add_line(row["Subsystem"].split(", "), row, self.rocket[f"stage{int(row['Stage'])}"])
 
     def save_iteration(self):
         fm.export_rocket_iteration("rocket", self.new_rocket, self.run_id)
