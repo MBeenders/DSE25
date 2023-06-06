@@ -1,6 +1,6 @@
-Subsystem,Variable,Value,Unit
-engine_1,mass,10,kg
-engine_1,length,1,m
-engine_1,diameter,0.15,m
-engine_1,isp,1000,s
-"recovery_1, drogue",mass,1,kg
+Stage,Subsystem,Variable,Value,Unit
+1,engine,mass,10,kg
+1,engine,length,1,m
+1,engine,diameter,0.15,m
+1,engine,isp,1000,s
+1,"recovery, drogue",mass,1,kg

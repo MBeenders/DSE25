@@ -1,19 +1,23 @@
 {
-  "sizing_selection": ["engine_1", "engine_2", "recovery_1"],
+  "sizing_selection": ["stage1_engine", "stage2_engine", "stage1_recovery"],
   "export_catia": true,
   "catia_variables":
   {
-    "engine_1":
+    "stage_1":
     {
-      "length": "[m]",
-      "diameter": "[m]"
-    },
-    "recovery_1":
-    {
-      "drogue":
+      "engine":
       {
-        "area": "[m^2]"
-      }
+        "length": "[m]",
+        "diameter": "[m]"
+      },
+      "recovery":
+      {
+        "drogue":
+        {
+          "area": "[m^2]"
+        }
+      },
+      "mass": "[kg]"
     },
     "mass": "[kg]"
   }

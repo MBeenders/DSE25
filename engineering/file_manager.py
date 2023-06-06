@@ -17,7 +17,7 @@ def insert_values(data: pd.DataFrame, rocket: Rocket):
     :param data: Pandas Dataframe file with initialization values
     :param rocket: Rocket class
     """
-    rocket_subsystem = rocket
+    rocket_stage = rocket
 
     def add_line(subsystem, line, rocket_sub):
         if len(subsystem) > 1:
@@ -29,7 +29,7 @@ def insert_values(data: pd.DataFrame, rocket: Rocket):
             rocket_sub[subsystem[0]][line["Variable"]] = line["Value"]
 
     for index, row in data.iterrows():
-        add_line(row["Subsystem"].split(", "), row, rocket_subsystem)
+        add_line(row["Subsystem"].split(", "), row, rocket_stage[f"stage_{int(row['Stage'])}"])
 
 
 def initialize_rocket(file_name: str):

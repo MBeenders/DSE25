@@ -34,21 +34,22 @@ class Runner:
         subsystem.id = f"{self.rocket.id}.{serial_num}"
 
     def run_sizing(self):
-        sized_dict: dict = {}  # Dictionary with all sized classes
-        if "engine_1" in self.selection:
-            sized_dict["engine_1"] = run_engine_sizing(copy.deepcopy(self.rocket))["engine_1"]
-        if "engine_2" in self.selection:
-            sized_dict["engine_2"] = run_engine_sizing(copy.deepcopy(self.rocket))["engine_2"]
-        if "recovery_1" in self.selection:
-            sized_dict["recovery_1"] = run_recovery_sizing(copy.deepcopy(self.rocket))["recovery_1"]
-        if "recovery_2" in self.selection:
-            sized_dict["recovery_2"] = run_recovery_sizing(copy.deepcopy(self.rocket))["recovery_2"]
-        if "structure" in self.selection:
-            sized_dict["structure"] = run_structure_sizing(copy.deepcopy(self.rocket))["structure"]
+        sized_dict: dict = {"stage_1": {}, "stage_2": {}}  # Dictionary with all sized classes
+        if "stage1_engine" in self.selection:
+            sized_dict["stage_1"]["engine"] = run_engine_sizing(copy.deepcopy(self.rocket))["stage_1"]["engine"]
+        if "stage2_engine" in self.selection:
+            sized_dict["stage_2"]["engine"] = run_engine_sizing(copy.deepcopy(self.rocket))["stage_2"]["engine"]
+        if "stage1_recovery" in self.selection:
+            sized_dict["stage_1"]["recovery"] = run_recovery_sizing(copy.deepcopy(self.rocket))["stage_1"]["recovery"]
+        if "stage2_recovery" in self.selection:
+            sized_dict["stage_2"]["recovery"] = run_recovery_sizing(copy.deepcopy(self.rocket))["stage_2"]["recovery"]
+        if "stage1_structure" in self.selection:
+            sized_dict["stage_1"]["structure"] = run_structure_sizing(copy.deepcopy(self.rocket))["stage_1"]["structure"]
 
-        for key, item in sized_dict.items():
-            self.give_id(item)
-            self.new_rocket[key] = item
+        for stage_name, stage_classes in sized_dict.items():
+            for subsystem_name, subsystem_data in stage_classes.items():
+                self.give_id(subsystem_data)
+                self.new_rocket[stage_name][subsystem_name] = subsystem_data
 
         # Increase Rocket ID by 1
         serial_num = int(self.rocket.id)
