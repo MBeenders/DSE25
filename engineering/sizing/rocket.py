@@ -50,6 +50,8 @@ class Engine(Subsystem):
         Subsystem.__init__(self, name)  # General parameters
 
         self.isp: float = 0
+        self.oxidizer: dict = {}
+        self.fuel: dict = {}
 
 
 class Recovery(Subsystem):
@@ -100,7 +102,7 @@ class Payload(Subsystem):
 
 
 class Rocket:
-    def __init__(self):
+    def __init__(self, simulator):
         # Global parameters
         self.id: str = "0"
         self.mass: float = 0  # [kg]
@@ -108,6 +110,9 @@ class Rocket:
         self.diameter: float = 0  # [m]
         self.power_in: float = 0  # [W]
         self.power_out: float = 0  # [W]
+
+        # Simulator
+        self.simulator = simulator
 
         # Stage
         self.stage1: Stage = self.Stage1("First Stage")

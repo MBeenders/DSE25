@@ -1,9 +1,22 @@
 {
   "sizing_selection": ["stage1_engine", "stage2_engine", "stage1_recovery"],
+  "engine_chemicals":
+  {
+    "stage1":
+    {
+      "oxidizer": "example_chemical",
+      "fuel": "example_chemical"
+    },
+    "stage2":
+    {
+      "oxidizer": "example_chemical",
+      "fuel": "example_chemical"
+    }
+  },
   "export_catia": true,
   "catia_variables":
   {
-    "stage_1":
+    "stage1":
     {
       "engine":
       {

@@ -1,0 +1,3 @@
+Requirement,Stage,Subsystem,Variable,Value,Type,Unit
+Minimum apogee is 90 km,0,simulation,apogee,90000,>,m
+The payload shall have a mass smaller than 40 kg,2,payload,mass,40,<,kg
