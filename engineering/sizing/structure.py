@@ -1,4 +1,5 @@
 from engineering.sizing.rocket import Rocket
+import numpy as np
 
 
 def do_stuff(rocket: Rocket):
