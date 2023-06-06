@@ -7,6 +7,14 @@
     {
       "length": "[m]",
       "diameter": "[m]"
-    }
+    },
+    "recovery_1":
+    {
+      "drogue":
+      {
+        "area": "[m^2]"
+      }
+    },
+    "mass": "[kg]"
   }
 }

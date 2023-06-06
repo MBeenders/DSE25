@@ -58,6 +58,9 @@ class Runner:
     def save_iteration(self):
         fm.export_rocket_iteration("rocket", self.new_rocket, self.run_id)
 
+    def export_to_catia(self):
+        fm.export_catia_parameters("catia", self.new_rocket, self.run_parameters["catia_variables"])
+
     def close(self):
         self.run_parameters_file.close()
 
@@ -66,4 +69,5 @@ if __name__ == "__main__":
     runner = Runner("initial_values", 0)
     runner.run_sizing()
     runner.save_iteration()
+    runner.export_to_catia()
     runner.close()

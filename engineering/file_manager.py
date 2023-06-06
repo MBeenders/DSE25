@@ -66,12 +66,29 @@ def export_rocket_iteration(file_name: str, rocket: Rocket, run_id: int):
         pickle.dump(rocket, file)
 
 
-def export_catia_parameters(file_name: str, rocket: Rocket):
+def export_catia_parameters(file_name: str, rocket: Rocket, variables: dict):
     """
     :param file_name: Name under which the file will be exported
     :param rocket: The filled Rocket class
+    :param variables: A list of strings linked to the variables that will be exported to catia
     """
-    pass
+
+    parameters: dict = {"iteration": str(rocket.id)}
+
+    def get_info(total_name, item, subsystem: Rocket):
+        if type(item) == dict:
+            for key2, item2 in item.items():
+                get_info(f"{total_name}_{key2}", item2, subsystem[key2])
+
+        else:
+            parameters[f"{total_name} {item}"] = subsystem
+
+    for name, value in variables.items():
+        get_info(name, value, rocket[name])
+
+    data = pd.DataFrame.from_dict(parameters, orient="index").transpose()
+    output_path = f"files/catia/{file_name}.csv"
+    data.to_csv(output_path, mode='a', header=not os.path.exists(output_path))
 
 
 if __name__ == "__main__":
