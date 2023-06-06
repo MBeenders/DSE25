@@ -18,6 +18,8 @@ class Stage:
         self.electronics: Subsystem | None = None
         self.payload: Subsystem | None = None
 
+        self.dry_mass: float = 0 # [kg]
+
     def __setitem__(self, key, item):
         self.__dict__[key] = item
 
@@ -65,6 +67,8 @@ class Recovery(Subsystem):
         self.drogue = self.Drogue(name)
         self.main_parachute = self.MainParachute(name)
 
+        self.descent_rate: float = 0 # [m/s]
+
     class Drogue(Subsystem):
         def __init__(self, name: str):
             """
@@ -74,6 +78,7 @@ class Recovery(Subsystem):
 
             # Specific parameters
             self.area: float = 0  # [m^2]
+            self.c_D: float = 0
 
     class MainParachute(Subsystem):
         def __init__(self, name: str):
@@ -84,6 +89,7 @@ class Recovery(Subsystem):
 
             # Specific parameters
             self.area: float = 0  # [m^2]
+            self.c_D: float = 0
 
 
 class Structure(Subsystem):

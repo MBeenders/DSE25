@@ -1,5 +1,9 @@
 from engineering.sizing.rocket import Rocket
 
+#Constant values:
+g = 9.80665
+
+
 
 def do_stuff(rocket: Rocket):
     """
@@ -16,6 +20,7 @@ def run(rocket: Rocket) -> Rocket:
     """
 
     do_stuff(rocket)
+    #print(rocket.stage1.recovery.descent_rate)
 
     return rocket
 

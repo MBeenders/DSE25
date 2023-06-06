@@ -4,3 +4,8 @@ Stage,Subsystem,Variable,Value,Unit
 1,engine,diameter,0.15,m
 1,engine,isp,1000,s
 1,"recovery, drogue",mass,1,kg
+1,recovery,descent_rate,14,m/s
+2,recovery,descent_rate,10,m/s
+2,"recovery, drogue",c_D,0.3,-
+1,"recovery, main_parachute",c_D,0.65,-
+2,"recovery, main_parachute",c_D,0.85,-
