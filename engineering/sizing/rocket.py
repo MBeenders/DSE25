@@ -110,8 +110,8 @@ class Rocket:
         self.power_out: float = 0  # [W]
 
         # Stage
-        self.stage_1: Stage = self.Stage1("First Stage")
-        self.stage_2: Stage = self.Stage2("Second Stage")
+        self.stage1: Stage = self.Stage1("First Stage")
+        self.stage2: Stage = self.Stage2("Second Stage")
 
     def __setitem__(self, key, item):
         self.__dict__[key] = item
@@ -130,8 +130,6 @@ class Rocket:
             self.engine: Subsystem = Engine("First stage Engine")
             self.recovery: Subsystem = Recovery("First stage parachutes")
             self.structure: Subsystem = Structure()
-            self.electronics: Subsystem = Electronics()
-            self.payload: Subsystem = Payload()
 
     class Stage2(Stage):
         def __init__(self, name: str):
@@ -141,12 +139,14 @@ class Rocket:
             super().__init__(name)  # General parameters
 
             # Specific
-            self.engine: Subsystem = Engine("First stage Engine")
-            self.recovery: Subsystem = Recovery("First stage parachutes")
+            self.engine: Subsystem = Engine("Second stage Engine")
+            self.recovery: Subsystem = Recovery("Second stage Parachutes")
             self.structure: Subsystem = Structure()
+            self.electronics: Subsystem = Electronics()
+            self.payload: Subsystem = Payload()
 
 
 if __name__ == "__main__":
     test_rocket: Rocket = Rocket()
-    print(test_rocket.stage_1.engine.mass)
-    print(test_rocket.stage_2.engine.isp)
+    print(test_rocket.stage1.engine.mass)
+    print(test_rocket.stage2.engine.isp)

@@ -28,23 +28,26 @@ class Runner:
         self.run_parameters: dict = json.load(self.run_parameters_file)
         self.selection: list[str] = self.run_parameters["sizing_selection"]
 
+        # Import requirements
+        self.requirements = fm.import_csv("requirements")
+
     def give_id(self, subsystem):
         serial_num = int(subsystem.id.split(".")[1])
         serial_num += 1
         subsystem.id = f"{self.rocket.id}.{serial_num}"
 
     def run_sizing(self):
-        sized_dict: dict = {"stage_1": {}, "stage_2": {}}  # Dictionary with all sized classes
+        sized_dict: dict = {"stage1": {}, "stage2": {}}  # Dictionary with all sized classes
         if "stage1_engine" in self.selection:
-            sized_dict["stage_1"]["engine"] = run_engine_sizing(copy.deepcopy(self.rocket))["stage_1"]["engine"]
+            sized_dict["stage1"]["engine"] = run_engine_sizing(copy.deepcopy(self.rocket))["stage1"]["engine"]
         if "stage2_engine" in self.selection:
-            sized_dict["stage_2"]["engine"] = run_engine_sizing(copy.deepcopy(self.rocket))["stage_2"]["engine"]
+            sized_dict["stage2"]["engine"] = run_engine_sizing(copy.deepcopy(self.rocket))["stage2"]["engine"]
         if "stage1_recovery" in self.selection:
-            sized_dict["stage_1"]["recovery"] = run_recovery_sizing(copy.deepcopy(self.rocket))["stage_1"]["recovery"]
+            sized_dict["stage1"]["recovery"] = run_recovery_sizing(copy.deepcopy(self.rocket))["stage1"]["recovery"]
         if "stage2_recovery" in self.selection:
-            sized_dict["stage_2"]["recovery"] = run_recovery_sizing(copy.deepcopy(self.rocket))["stage_2"]["recovery"]
+            sized_dict["stage2"]["recovery"] = run_recovery_sizing(copy.deepcopy(self.rocket))["stage2"]["recovery"]
         if "stage1_structure" in self.selection:
-            sized_dict["stage_1"]["structure"] = run_structure_sizing(copy.deepcopy(self.rocket))["stage_1"]["structure"]
+            sized_dict["stage1"]["structure"] = run_structure_sizing(copy.deepcopy(self.rocket))["stage1"]["structure"]
 
         for stage_name, stage_classes in sized_dict.items():
             for subsystem_name, subsystem_data in stage_classes.items():
@@ -55,6 +58,10 @@ class Runner:
         serial_num = int(self.rocket.id)
         serial_num += 1
         self.new_rocket.id = serial_num
+
+    def check_compliance(self):
+        for index, row in self.requirements.iterrows():
+            print(row["Variable"])
 
     def save_iteration(self):
         fm.export_rocket_iteration("rocket", self.new_rocket, self.run_id)
@@ -69,6 +76,5 @@ class Runner:
 if __name__ == "__main__":
     runner = Runner("initial_values", 0)
     runner.run_sizing()
-    runner.save_iteration()
-    runner.export_to_catia()
+    runner.check_compliance()
     runner.close()

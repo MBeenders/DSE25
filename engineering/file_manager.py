@@ -29,10 +29,10 @@ def insert_values(data: pd.DataFrame, rocket: Rocket):
             rocket_sub[subsystem[0]][line["Variable"]] = line["Value"]
 
     for index, row in data.iterrows():
-        add_line(row["Subsystem"].split(", "), row, rocket_stage[f"stage_{int(row['Stage'])}"])
+        add_line(row["Subsystem"].split(", "), row, rocket_stage[f"stage{int(row['Stage'])}"])
 
 
-def initialize_rocket(file_name: str):
+def initialize_rocket(file_name: str) -> Rocket:
     """
     :param file_name: Name of csv file, must be in "files" folder
     :return: A filled Rocket class
@@ -45,7 +45,7 @@ def initialize_rocket(file_name: str):
     return rocket
 
 
-def import_rocket_iteration(file_name: str):
+def import_rocket_iteration(file_name: str) -> Rocket:
     """
     :param file_name: Name of the file that needs to be imported
     :return Rocket class
@@ -88,7 +88,7 @@ def export_catia_parameters(file_name: str, rocket: Rocket, variables: dict):
 
     data = pd.DataFrame.from_dict(parameters, orient="index").transpose()
     output_path = f"files/catia/{file_name}.csv"
-    data.to_csv(output_path, mode='a', header=not os.path.exists(output_path))
+    data.to_csv(output_path, mode='a', header=not os.path.exists(output_path), index=False)
 
 
 if __name__ == "__main__":
