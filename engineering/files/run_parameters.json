@@ -1,12 +1,37 @@
 {
-  "sizing_selection": ["engine_1", "engine_2", "recovery_1"],
+  "sizing_selection": ["stage1_engine", "stage2_engine", "stage1_recovery"],
+  "engine_chemicals":
+  {
+    "stage1":
+    {
+      "oxidizer": "example_chemical",
+      "fuel": "example_chemical"
+    },
+    "stage2":
+    {
+      "oxidizer": "example_chemical",
+      "fuel": "example_chemical"
+    }
+  },
   "export_catia": true,
   "catia_variables":
   {
-    "engine_1":
+    "stage1":
     {
-      "length": "[m]",
-      "diameter": "[m]"
-    }
+      "engine":
+      {
+        "length": "[m]",
+        "diameter": "[m]"
+      },
+      "recovery":
+      {
+        "drogue":
+        {
+          "area": "[m^2]"
+        }
+      },
+      "mass": "[kg]"
+    },
+    "mass": "[kg]"
   }
 }
