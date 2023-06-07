@@ -43,6 +43,11 @@ def noise_received(bandwidth, antenna_SNR, gain):
     noise = antenna_temp*k*bandwidth
     return noise
 
+def doppler_shift(vel, frequency):
+    wavelenght = c/frequency
+    shift = vel/wavelenght
+    return shift
+
     
 
 def do_stuff(rocket: Rocket):
@@ -50,8 +55,109 @@ def do_stuff(rocket: Rocket):
     :param rocket: Rocket class
     :return: None
     """
+    #Stage 1
 
-    pass
+    #telemetry
+
+    frequency = rocket.stage1.electronics.communicationsystem.frequency
+    datarate = rocket.stage1.electronics.datarate
+    margin = rocket.stage1.electronics.communicationsystem.margin
+    
+    gain_rx_db = antenna_gain(rocket.stage1.electronics.communicationsystem.diameter_antenna_gs, frequency, rocket.stage1.electronics.communicationsystem. antenna_efficiency_gs)
+    power = W_to_dB(rocket.stage1.electronics.communicationsystem.power_com)
+    gain_tx_db = W_to_dB(rocket.stage1.electronics.communicationsystem.gain_tx)
+    power_rec = power_received(gain_rx_db, gain_tx_db, rocket.stage1.electronics.communicationsystem.max_range, frequency, power, 0)
+    min_bw = minimum_bandwidth_required(datarate, rocket.stage1.electronics.communicationsystem.modulation)
+    
+    N0 = noise_received(min_bw, rocket.stage1.electronics.communicationsystem.antenna_SNR, gain_rx_db)
+
+    SNR = power_rec/N0
+
+    capacity = (min_bw*np.log10(1+SNR))
+
+    assert capacity > (datarate*(1+margin)), f" max capacity less than {datarate*(1+margin)} expected, got: {capacity}"
+
+    rocket.stage1.electronics.communicationsystem.capacity = capacity
+
+    rocket.stage1.electronics.communicationsystem.SNR = SNR
+
+    delta_freq = doppler_shift(rocket.stage1.electronics.communicationsystem.max_speed, frequency)
+
+    assert min_bw > delta_freq, f"bandwidth greater than {delta_freq} expected, got: {min_bw}"
+    assert min_bw < (10*10^6), f"bandwidth less than 10 MHz expected, got: {min_bw}"
+    rocket.stage1.electronics.communicationsystem.bandwidth = min_bw
+
+
+    #power
+    power_total = rocket.stage1.electronics.communicationsystem.power_com + rocket.stage1.electronics.power_sensors
+    time = rocket.stage1.electronics.time
+
+    energy = power_total*time/3600
+
+    rocket.stage1.electronics.powersystem.tot_power = power_total
+    rocket.stage1.electronics.powersystem.mass_bat = energy/rocket.stage1.electronics.powersystem.power_density
+    rocket.stage1.electronics.powersystem.volume_bat = energy/rocket.stage1.electronics.powersystem.power_volume
+
+    #blackbox
+    storage = datarate*time*(1+rocket.stage1.electronics.blackbox.margin)
+    rocket.stage1.electronics.blackbox.storage = storage
+
+    #Stage 2
+
+        #telemetry
+
+    frequency = rocket.stage2.electronics.communicationsystem.frequency
+    datarate = rocket.stage2.electronics.datarate
+    margin = rocket.stage2.electronics.communicationsystem.margin
+    
+    gain_rx_db = antenna_gain(rocket.stage2.electronics.communicationsystem.diameter_antenna_gs, frequency, rocket.stage2.electronics.communicationsystem. antenna_efficiency_gs)
+    power = W_to_dB(rocket.stage2.electronics.communicationsystem.power_com)
+    gain_tx_db = W_to_dB(rocket.stage2.electronics.communicationsystem.gain_tx)
+    power_rec = power_received(gain_rx_db, gain_tx_db, rocket.stage2.electronics.communicationsystem.max_range, frequency, power, 0)
+    min_bw = minimum_bandwidth_required(datarate, rocket.stage2.electronics.communicationsystem.modulation)
+    
+    N0 = noise_received(min_bw, rocket.stage2.electronics.communicationsystem.antenna_SNR, gain_rx_db)
+
+    SNR = power_rec/N0
+
+    capacity = (min_bw*np.log10(1+SNR))
+
+    assert capacity > (datarate*(1+margin)), f" max capacity less than {datarate*(1+margin)} expected, got: {capacity}"
+
+    rocket.stage2.electronics.communicationsystem.capacity = capacity
+
+    rocket.stage2.electronics.communicationsystem.SNR = SNR
+
+    delta_freq = doppler_shift(rocket.stage2.electronics.communicationsystem.max_speed, frequency)
+
+    assert min_bw > delta_freq, f"bandwidth greater than {delta_freq} expected, got: {min_bw}"
+    assert min_bw < (10*10^6), f"bandwidth less than 10 MHz expected, got: {min_bw}"
+    rocket.stage2.electronics.communicationsystem.bandwidth = min_bw
+
+
+    #power
+    power_total = rocket.stage2.electronics.communicationsystem.power_com + rocket.stage2.electronics.power_sensors
+    time = rocket.stage2.electronics.time
+
+    energy = power_total*time/3600
+
+    rocket.stage2.electronics.powersystem.tot_power = power_total
+    rocket.stage2.electronics.powersystem.mass_bat = energy/rocket.stage2.electronics.powersystem.power_density
+    rocket.stage2.electronics.powersystem.volume_bat = energy/rocket.stage2.electronics.powersystem.power_volume
+
+    #blackbox
+    storage = datarate*time*(1+rocket.stage2.electronics.blackbox.margin)
+    rocket.stage2.electronics.blackbox.storage = storage
+
+
+
+
+
+
+
+
+
+    
 
 
 def run(rocket: Rocket) -> Rocket:
