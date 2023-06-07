@@ -4,10 +4,10 @@ import numpy as np
 
 # 3:1 Haack minimum drag noses
 c = 0 # Optimisation coefficient        [-]
-X = 0.24 # Axial distance from the nose [m]
-L = 1.5 # Model length                  [m]
-D = 0.5 # Model base diameter           [m]
-R = 0.25 # Model base radius            [m]
+X = 0.024 # Axial distance from the nose [m]
+L = 0.45 # Model length                  [m]
+D = 0.15 # Model base diameter           [m]
+R = 0.075 # Model base radius            [m]
 
 phi = np.arccos(1-2*(X/L)) # [rad]
 
