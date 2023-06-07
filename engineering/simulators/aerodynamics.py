@@ -61,12 +61,61 @@ def drag(velocity: np.ndarray, height: float) -> np.ndarray:
     :param velocity:
     :param height:
     :return:
+    #Barrowman presents methods for computing the drag of both fully turbulent
+    boundary layers and partially-laminar layers. Both methods were implemented
+    and tested, but the difference in apogee altitude was less than 5%
+    in with all tested designs. Therefore, the boundary layer is assumed to be
+    fully turbulent in all cases. (OpenRocket technical documentation, p. 43)
     """
+    # Assume fully turbulent boundary layer
+
+    # SKIN FRICTION DRAG (C_f), applies to the wetted area of body and fins.
+    R_s = 0.5 # Surface roughness in micrometres
+    R_crit = 500000 # Critical reynolds number where transition occurs.
+    x = R_crit * 0.000015 / velocity # Position of transition
+    S_w = 0 # Total wetted surface area of body and fins
+    C_f = 0.032 * (R_s/x)**0.2 # Derived by Barrowman for fully turbulent flow, assuming a smooth surface.
+
+    # Taking into account compressibility and geometry effects
+    a = np.sqrt(1.4*287*temp(height))
+    M = velocity/a
+
+    if M < 1:
+        C_f_c = C_f * (1-0.1*M**2)
+        C_f_c_l = C_f * (1+0.18*M**2)**(-1)
+
+        if C_f_c_l>C_f_c:
+            C_f_c = C_f_c_l
+        else:
+            C_f_c = C_f_c
+
+    elif M >= 1:
+        C_f_c = C_f * (1+0.15*M**2)**(-0.58)
+        C_f_c_l = C_f * (1 + 0.18 * M ** 2) ** (-1)
+
+        if C_f_c_l > C_f_c:
+            C_f_c = C_f_c_l
+        else:
+            C_f_c = C_f_c
+
+    # The body wetted area is corrected for its cylindrical geometry, and the fins for their finite thickness.
+    f_B = 15 # Fineness ratio of the rocket ===== MAKE VARIABLE FORM
+    S_w_b = 4000 # Wet surface area of body [m^2] ===== MAKE VARIABLE FORM
+    S_w_fin = 20 # Wet surface area of body [m^2] ===== MAKE VARIABLE FORM
+    t_fin = 0.005 # Thickness of fins [m] ===== MAKE VARIABLE FORM
+    mac_fin = 0.5 # Mean aerodynamic chord length of fins [m] ===== MAKE VARIABLE FORM
+    C_D_f = C_f_c * (((1+(1/(2*f_B)))*S_w_b) + ((1+(2*t_fin/mac_fin))*S_w_fin))/(S_ref)
+    D_f = C_D_f * (0.5 * S_w * density(height) * velocity ** 2)  # Total frictional drag force of vehicle [N]
+
+    # BODY PRESSURE DRAG
+    
+
     drag_coefficient: float = 0.5  # -
     radius: float = 0.3  # m
     frontal_area: float = np.pi * radius**2  # m^2
+    force_drag = drag_coefficient * frontal_area * 0.5 * density(height) * velocity**2
 
-    return drag_coefficient * frontal_area * 0.5 * density(height) * velocity**2
+    return force_drag
 
 
 if __name__ == "__main__":
