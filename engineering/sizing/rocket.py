@@ -85,6 +85,8 @@ class Recovery(Subsystem):
         self.main_parachute = self.MainParachute(name)
 
         self.descent_rate: float = 0 # [m/s]
+        self.material_density: float = 0 # [kg/m^3]
+        self.material_cost: float = 0 # [euros/m^2]
 
     class Drogue(Subsystem):
         def __init__(self, name: str):
