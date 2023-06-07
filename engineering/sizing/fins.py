@@ -48,7 +48,7 @@ def do_stuff(rocket: Rocket):
     if t < t_separation:
         AOA_fin_lower = fincantlower - np.arctan(centroidlower*rotrate/v) # Effective angle of attack of the centroid of the fin
         clift1fin = 2 * np.pi * AOA_fin_lower #Coeffient of lift of a flat plate
-        cdrag1fin = #Coefficient of drag of a flat plate
+        cdrag1fin = 0.05 #Coefficient of drag of a flat plate
         lift1fin = 0.5 * rho * (v**2 + (rotrate*centroidlower)**2) * S * clift1fin
         drag1fin = 0.5 * rho * (v**2 + (rotrate*centroidlower)**2) * S * cdrag1fin
         moment1fin = (np.cos(centroidlower*rotrate/v)*lift1fin - drag1fin*np.sin(centroidlower*rotrate/v)) * centroidlower #Moment averaged at centroid
@@ -59,7 +59,7 @@ def do_stuff(rocket: Rocket):
     #Upper stage
     AOA_fin_upper = fincantupper - np.arctan(centroidupper*rotrate/v)
     clift1finu = 2 * np.pi * AOA_fin_upper
-    cdrag1finu =
+    cdrag1finu = 0.05
     lift1finu = 0.5 * rho * (v**2 + (rotrate*centroidlower)**2) * S * clift1finu
     drag1finu = 0.5 * rho * (v**2 + (rotrate*centroidlower)**2) * S * cdrag1finu
     moment1finu = (np.cos(centroidupper*rotrate/v)*lift1finu - drag1finu*np.sin(centroidupper*rotrate/v)) * centroidupper
