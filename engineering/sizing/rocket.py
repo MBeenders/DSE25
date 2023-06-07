@@ -85,8 +85,10 @@ class Recovery(Subsystem):
         self.main_parachute = self.MainParachute(name)
 
         self.descent_rate: float = 0 # [m/s]
-        self.material_density: float = 0 # [kg/m^3]
+        self.material_density: float = 0 # [kg/m^2]
         self.material_cost: float = 0 # [euros/m^2]
+        self.line_density: float = 0 # [kg/m]
+        self.line_cost: float = 0 # [euros/m
 
     class Drogue(Subsystem):
         def __init__(self, name: str):
@@ -98,6 +100,8 @@ class Recovery(Subsystem):
             # Specific parameters
             self.area: float = 0  # [m^2]
             self.c_D: float = 0
+            self.line_l_d: float = 0 # [-] Suspension line length over nominal diameter ratio
+            self.n_line: float = 0 # [-] Number of suspension lines
 
     class MainParachute(Subsystem):
         def __init__(self, name: str):
@@ -109,6 +113,8 @@ class Recovery(Subsystem):
             # Specific parameters
             self.area: float = 0  # [m^2]
             self.c_D: float = 0
+            self.line_l_d: float = 0  # [-] Suspension line length over nominal diameter ratio
+            self.n_line: float = 0  # [-] Number of suspension lines
 
 
 class Structure(Subsystem):
