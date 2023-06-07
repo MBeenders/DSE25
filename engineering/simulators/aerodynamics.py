@@ -108,6 +108,8 @@ def drag(velocity: np.ndarray, height: float) -> np.ndarray:
     D_f = C_D_f * (0.5 * S_w * density(height) * velocity ** 2)  # Total frictional drag force of vehicle [N]
 
     # BODY PRESSURE DRAG
+    phi = 22 * np.pi/180 # Nose cone joint angle [rad] ===== MAKE VARIABLE FORM
+    C_D_nc = 0.8 * np.sin(phi)**2 # Approximate nose pressure drag coefficient at M=0
     
 
     drag_coefficient: float = 0.5  # -
