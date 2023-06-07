@@ -116,9 +116,48 @@ class Structure(Subsystem):
         Subsystem.__init__(self, "Structure")  # General parameters
 
 
-class Electronics(Subsystem):
-    def __init__(self):
-        Subsystem.__init__(self, "Electronics")  # General parameters
+class Electronics(Subsystem): #should be 3 objects one for the 1st stage electronics, one for the 2nd stage electronics, and one for the payload (though payload should not have a separate communication system)
+    def __init__(self, name: str):
+        Subsystem.__init__(self, f"{name}Electronics")
+        # General parameters
+        self.time: float
+        self.power_sensors: float
+
+
+        self.powersystem = self.Power(name)
+        self.communicationsystem = self.Communication(name)
+        self.blackbox = self.Blackbox(name)
+    
+    class Power(Subsystem):
+        def __init__(self, name: str):
+            Subsystem.__init__(self, f"{name} Power")
+            self.avg_voltage: float
+            self.dod: float
+            self.mass_bat: float
+            self.tot_power: float
+            self.power_density: float
+            self.power_volume: float
+            self.margin: float
+
+    
+    class Communication(Subsystem):
+        def __init__(self, name: str):
+            Subsystem.__init__(self, f"{name} Communication")
+            self.frequency: float
+            self.power_com: float
+            self.area_antenna_gs: float
+            self.antenna_snr: float
+            self.antenna_efficiency_gs: float
+            self.margin: float
+            self.max_range: int
+
+    
+    class Blackbox(Subsystem):
+        def __init__(self, name: str):
+            Subsystem.__init__(self, f"{name} Blackbox")
+            self.datarate: int
+            self.margin: float
+
 
 
 class Payload(Subsystem):
