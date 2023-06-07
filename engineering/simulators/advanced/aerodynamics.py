@@ -14,11 +14,12 @@ layers: np.ndarray = np.array([[0, -0.0065], # ground
                               [400000, 0], # Assume constant from here
                               ]) 
 
-@njit()
-def density(height: float) -> float:
 
-    g0 = 9.80665 # m/s^2
-    R = 287.0 # J/kgK
+@njit()
+def isa(height: float) -> tuple:
+
+    g0 = 9.80665  # m/s^2
+    R = 287.0  # J/kgK
 
     T0 = 288.15
     p0 = 101325
@@ -26,21 +27,21 @@ def density(height: float) -> float:
     p = p0
 
     if height > layers[-1][0]:
-        return 0.0
+        return 0, 0, 0
 
     h = min(height, layers[-1][0])
 
-    for i in range(1, len(layers)): # Start in troposphere
+    for i in range(1, len(layers)):  # Start in troposphere
         layer = layers[i]
         alpha = layer[1]
-        delta_h = layer[0] - layers[i-1][0] # Full layer thickness
+        delta_h = layer[0] - layers[i-1][0]  # Full layer thickness
         if h <= layer[0]:
             # Final layer
             delta_h = h - layers[i-1][0]
 
         last_T = T
         T += alpha * delta_h
-        if alpha == 0: # isothermal
+        if alpha == 0:  # isothermal
             p *= np.exp(-g0/(R*T) * delta_h)
         else:
             p *= (T/last_T)**(-g0/(alpha * R))
@@ -52,29 +53,25 @@ def density(height: float) -> float:
 
     rho = p/(R*T)
     
-    return rho
+    return T, p, rho
 
 
-@njit()
-def drag(velocity: np.ndarray, height: float) -> np.ndarray:
+def drag(rocket, velocity: np.ndarray, density: float) -> np.ndarray:
     """
-    :param velocity:
-    :param height:
-    :return:
+    :param velocity: [m/s]
+    :param density: [kg/m^3]
+    :return: Drag force [N]
     """
-    drag_coefficient: float = 0.5  # -
-    radius: float = 0.3  # m
-    frontal_area: float = np.pi * radius**2  # m^2
 
-    return drag_coefficient * frontal_area * 0.5 * density(height) * velocity**2
+    return 0  # Force
 
 
 if __name__ == "__main__":
     # Density vs altitude example
-    hs = np.linspace(0,200000, 100)
+    hs = np.linspace(0, 200000, 100)
     rhos = []
     for h in hs:
-        rhos.append(density(h))
+        rhos.append(isa(h)[2])
 
     import matplotlib.pyplot as plt
     plt.plot(rhos, hs)

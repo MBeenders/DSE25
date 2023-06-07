@@ -21,7 +21,7 @@ spec = [("mass_fuel", float32),
 
 
 @jitclass(spec)
-class Solid:
+class Engine:
     def __init__(self):
         self.mass_fuel: float = 100  # kg
         self.burn_time: float = 10  # s

@@ -62,13 +62,15 @@ class Runner:
         self.new_rocket.id = serial_num
 
     def check_compliance(self, show_within_limit=False):
+        print("Checking compliance with the requirements")
+
         def check_value(required_value, rocket_value, comparison_type, variable):
             def correct(difference, name):
                 if show_within_limit:
-                    print(f"{name} within limit; difference {difference}")
+                    print(f"\t{name} within limit; difference {difference}")
 
             def incorrect(difference, name):
-                print(f"{name} out of limit! Difference {difference}")
+                print(f"\t{name} out of limit! Difference {difference}")
 
             if str(comparison_type) == ">":
                 if rocket_value > required_value:  # Correct
@@ -122,4 +124,5 @@ if __name__ == "__main__":
     runner = Runner("initial_values", 0)
     runner.run_sizing()
     runner.check_compliance()
+    runner.export_to_catia()
     runner.close()
