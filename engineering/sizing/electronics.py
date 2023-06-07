@@ -39,7 +39,7 @@ def minimum_bandwidth_required(datarate, modulation_choice):
 
 
 def noise_received(bandwidth, antenna_SNR, gain):
-    antenna_temp = dB_to_W(antenna_SNR)/dB_to_W(gain)
+    antenna_temp = dB_to_W(gain)/dB_to_W(antenna_SNR)
     noise = antenna_temp*k*bandwidth
     return noise
 
