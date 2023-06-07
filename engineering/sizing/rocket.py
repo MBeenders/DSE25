@@ -239,6 +239,7 @@ class Rocket:
             self.engine: Subsystem = Engine("First stage Engine")
             self.recovery: Subsystem = Recovery("First stage parachutes")
             self.structure: Subsystem = Structure()
+            self.electronics: Subsystem = Electronics("First stage electronics")
 
     class Stage2(Stage):
         def __init__(self, name: str):
@@ -251,7 +252,7 @@ class Rocket:
             self.engine: Subsystem = Engine("Second stage Engine")
             self.recovery: Subsystem = Recovery("Second stage Parachutes")
             self.structure: Subsystem = Structure()
-            self.electronics: Subsystem = Electronics()
+            self.electronics: Subsystem = Electronics("Second stage electronics")
             self.payload: Subsystem = Payload()
 
 
