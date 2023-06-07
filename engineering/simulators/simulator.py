@@ -3,25 +3,35 @@ from numba.experimental import jitclass
 from numba import int32, float64
 import numpy as np
 
-from simple.dynamics import run as dynamics_run
-from simple.engines import Engine
-from simple.gravity import gravity
-from simple.aerodynamics import drag, isa
 
 rocket_specs = [("max_iterations", int32),
                 ("locations", float64[:, :]),
                 ("velocities", float64[:, :]),
+                ("angles", float64[:, :]),
+                ("mass", float64[:]),
+                ("thrust_curve", float64[:]),
+                ("fuel_mass", float64[:]),
+                ("mmoi", float64[:]),
                 ("pressure", float64[:]),
                 ("temperature", float64[:]),
                 ("density", float64[:])]
 
 
 @jitclass(rocket_specs)
-class RocketData:
+class FlightData:
     def __init__(self, max_iterations: int):
         # Dynamics
         self.locations: np.array = np.zeros((max_iterations, 2), float64)
         self.velocities: np.array = np.zeros((max_iterations, 2), float64)
+        self.angles: np.array = np.zeros((max_iterations, 1), float64)
+
+        # General properties
+        self.mass: np.array = np.zeros(max_iterations, float64)
+
+        # Engine
+        self.thrust_curve: np.array = np.zeros(max_iterations, float64)  # Thrust curve
+        self.fuel_mass: np.array = np.zeros(max_iterations, float64)  # Total Engine mass over time
+        self.mmoi: np.array = np.zeros(max_iterations, float64)  # MMOI over time
 
         # Atmosphere
         self.pressure: np.array = np.zeros(max_iterations, float64)
@@ -30,19 +40,54 @@ class RocketData:
 
 
 class Simulator:
-    def __init__(self):
+    def __init__(self, mission_profile: dict, dynamics_run, gravity, drag, isa):
+        # Functions
+        self.dynamics_run = dynamics_run
+        self.gravity = gravity
+        self.drag = drag
+        self.isa = isa
+
+        # Values
         self.apogee: float = 0
-        self.rocket: RocketData = RocketData(10000)
-        self.engine: Engine = Engine()
+        self.stages: dict = {}
+        self.mission_profile: dict = mission_profile
 
     def run(self):
-        self.rocket.velocities[0][1] = 10E-5
-        dynamics_run(self.rocket, self.engine, gravity, drag, isa)
-        self.trim_lists()
+        self.stages["Total"].velocities[0][1] = 10E-5
+        print(self.stages["Total"].fuel_mass)
+        self.dynamics_run(self.stages["Total"], self.gravity, self.drag, self.isa)
+        self.trim_lists(self.stages["Total"])
 
-    def trim_lists(self):
-        self.rocket.locations = self.rocket.locations[~np.all(self.rocket.locations == 0, axis=1)]
-        self.rocket.velocities = self.rocket.velocities[~np.all(self.rocket.velocities == 0, axis=1)]
+    def create_stages(self, rocket):
+        if self.mission_profile["stages"] == 2:
+            # Total stage
+            self.stages["Total"] = FlightData(10000)
+            self.stages["Total"].mass[0] = rocket.mass
+            self.stages["Total"].thrust_curve = rocket.stage1.engine.thrust_curve
+            self.stages["Total"].fuel_mass = rocket.stage1.engine.fuel_mass
+            self.stages["Total"].mmoi = rocket.stage1.engine.mmoi
+
+            # Separation
+            # Stage 1
+            self.stages["Stage1"] = FlightData(10000)
+            self.stages["Stage1"].mass[0] = rocket.stage1.mass
+
+            # Stage 2
+            self.stages["Stage2"] = FlightData(10000)
+            self.stages["Stage2"].mass[0] = rocket.stage2.mass
+            self.stages["Stage2"].thrust_curve = rocket.stage2.engine.thrust_curve
+            self.stages["Stage2"].fuel_mass = rocket.stage2.engine.fuel_mass
+            self.stages["Stage2"].mmoi = rocket.stage2.engine.mmoi
+        else:
+            raise ModuleNotFoundError("Only 2-Stage rockets are supported atm")
+
+    @staticmethod
+    def trim_lists(rocket: FlightData):
+        rocket.locations = rocket.locations[~np.all(rocket.locations == 0, axis=1)]
+        rocket.velocities = rocket.velocities[~np.all(rocket.velocities == 0, axis=1)]
+
+    def insert_engine(self, engine):
+        pass
 
     def __setitem__(self, key, item):
         self.__dict__[key] = item
@@ -52,5 +97,11 @@ class Simulator:
 
 
 if __name__ == "__main__":
-    sim = Simulator()
-    sim.run()
+    profile = {"stages": 2,
+               "launch": {"exact", 0},
+               "engine1_ignition": {"exact", 0},
+               "engine2_ignition": {"delay", 2},
+               "separation": {"delay", 1}
+               }
+
+    sim = Simulator(profile)

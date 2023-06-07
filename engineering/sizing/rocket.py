@@ -55,7 +55,12 @@ class Engine(Subsystem):
         self.oxidizer: dict = {}
         self.fuel: dict = {}
 
-        self.mass_flow_rate: np.ndarray = np.ones((2, 1000), dtype=float) # Mass flow rate profile engine
+        # Sim stuff
+        self.thrust_curve: np.array = np.zeros(10000, dtype=float)  # Engine thrust curve over time
+        self.fuel_mass: np.array = np.zeros(10000, dtype=float)  # Total engine mass over time
+        self.mmoi: np.array = np.zeros(10000, dtype=float)  # Mass Moment of Inertia over time
+
+        self.mass_flow_rate: np.ndarray = np.ones((2, 1000), dtype=float)  # Mass flow rate profile engine
         self.mass_fuel_start: float = 100 # Fuel mass at start of burn [kg]
         self.rho_fuel: float = 1800 # Density of the fuel [kg/m^3]
         self.height_fuel: float = 0.5 # Length of the fuel grain (all stacked) [m]

@@ -3,7 +3,7 @@ from numba import njit
 
 
 @njit()
-def run(flight, engine, gravity, drag, isa, dt: float = 0.1, start_time: float = 0, end_time: float = 100):
+def run(flight, gravity, drag, isa, dt: float = 0.1, start_time: float = 0, end_time: float = 100):
     mass_rocket: float = 50
     mass_fuel: float = 100
     mass_total: float = mass_rocket + mass_fuel
@@ -11,12 +11,13 @@ def run(flight, engine, gravity, drag, isa, dt: float = 0.1, start_time: float =
     for i, time in enumerate(np.linspace(start_time, end_time, int((end_time-start_time) / dt))):
         if flight.locations[i][1] >= 0:
             # Atmosphere
-            flight.temperature, flight.pressure, flight.density = isa(flight.locations[i])
-            
+            flight.temperature[i], flight.pressure[i], flight.density[i] = isa(flight.locations[i][1])
+
             # Calculate forces
             force_gravity = gravity(flight.locations[i][1], mass_total)
-            force_drag = drag(flight.velocities[i], flight.locations[i][1])
-            force_thrust, mass_fuel = engine.burn(dt)
+            force_drag = drag(flight.velocities[i], flight.density[i])
+            force_thrust = flight.thrust_curve[i]
+            # mass_fuel = flight.fuel_mass[i]
 
             # New mass
             mass_total: float = mass_rocket + mass_fuel
