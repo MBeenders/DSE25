@@ -14,7 +14,7 @@ def do_stuff(rocket: Rocket):
     # Maximum fin flutter must lie above the maximum rocket speed
 
     G = 26900000000  # shear modulus [Pa]
-    # a = M / v # speed of sound [m/s]
+    a = 220 # speed of sound [m/s]
     t = 0.005  # wing thickness [m]
     c_r = 0.4  # root chord length [m]
     c_t = 0.1  # tip chord length [m]
@@ -26,7 +26,7 @@ def do_stuff(rocket: Rocket):
     finnumberlower = 4  # Number of fins on the lower stage
     finnumberupper = 4  # Number of fins on the upper stage
 
-    v_f = np.sqrt(G / ((1.337 * p * (1 + TR) * AR ** 3) / (2 * (AR + 2) * (t / c_r) ** 3)))  # fin flutter speed [m/s]
+    v_f = a * np.sqrt(G / ((1.337 * p * (1 + TR) * AR ** 3) / (2 * (AR + 2) * (t / c_r) ** 3)))  # fin flutter speed [m/s]
     print(v_f)
 
     # Fin thickness
