@@ -120,6 +120,7 @@ class Runner:
 
 if __name__ == "__main__":
     runner = Runner("initial_values", 0)
-    runner.run_sizing()
-    runner.check_compliance()
-    runner.close()
+    runner.rocket.stage1.engine.calculate_moi(20)
+    # runner.run_sizing()
+    # runner.check_compliance()
+    # runner.close()
