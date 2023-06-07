@@ -53,6 +53,23 @@ class Engine(Subsystem):
         self.oxidizer: dict = {}
         self.fuel: dict = {}
 
+        self.mass_flow_rate: np.ndarray = np.ones((2, 1000), dtype=float) # Mass flow rate profile engine
+        self.mass_fuel_start: float = 100 # Fuel mass at start of burn [kg]
+        self.rho_fuel: float = 1800 # Density of the fuel [kg/m^3]
+        self.height_fuel: float = 0.5 # Length of the fuel grain (all stacked) [m]
+        self.inner_diameter: float = 0.18 # Inner diameter of motor, so diameter of fuel grain [m]
+        self.MMOI_casing: float = 1 # Mass moment of inertia of dry engine (everything excluding fuel) [kg*m^2]
+
+    def calculate_moi(self, time: float):
+        mass_lost = sum(self.mass_flow_rate[1][:time])  # Burnt fuel up to now
+        mass_fuel = self.mass_fuel_start - mass_lost  # Fuel mass left
+        Section_area = mass_fuel/ (self.rho_fuel * self.height_fuel)  # Area of a grain section at the moment, assuming perfect radial burning
+        r2 = self.inner_diameter/2   # Diameter to radius
+        r1_sq = r2**2 - (Section_area/np.pi) # Square of the inner radius of the grain section at the moment
+        MMOI_fuel = 0.5*mass_fuel*(r1_sq + r2**2) # Mass moment of inertia of the fuel alone
+        MMOI_engine = MMOI_fuel + self.MMOI_casing
+        return MMOI_engine
+
 
 class Recovery(Subsystem):
     def __init__(self, name: str):
