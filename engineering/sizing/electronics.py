@@ -48,16 +48,8 @@ def doppler_shift(vel, frequency):
     shift = vel/wavelenght
     return shift
 
-    
-
-def do_stuff(rocket: Rocket):
-    """
-    :param rocket: Rocket class
-    :return: None
-    """
-    #Stage 1
-
-    #telemetry
+def stage1_electronics(rocket: Rocket):
+        #telemetry
 
     frequency = rocket.stage1.electronics.communicationsystem.frequency
     datarate = rocket.stage1.electronics.datarate
@@ -67,7 +59,7 @@ def do_stuff(rocket: Rocket):
     power = W_to_dB(rocket.stage1.electronics.communicationsystem.power_com)
     gain_tx_db = W_to_dB(rocket.stage1.electronics.communicationsystem.gain_tx)
     power_rec = power_received(gain_rx_db, gain_tx_db, rocket.stage1.electronics.communicationsystem.max_range, frequency, power, 0)
-    min_bw = minimum_bandwidth_required(datarate, rocket.stage1.electronics.communicationsystem.modulation)
+    min_bw = minimum_bandwidth_required(datarate, rocket.stage1.electronics.communicationsystem.modulation)*(1+margin)
     
     N0 = noise_received(min_bw, rocket.stage1.electronics.communicationsystem.antenna_SNR, gain_rx_db)
 
@@ -78,14 +70,17 @@ def do_stuff(rocket: Rocket):
     assert capacity > (datarate*(1+margin)), f" max capacity less than {datarate*(1+margin)} expected, got: {capacity}"
 
     rocket.stage1.electronics.communicationsystem.capacity = capacity
+    print("State 1 maximum allowable datarate is: ",capacity)
 
     rocket.stage1.electronics.communicationsystem.SNR = SNR
+    print("State 1 total signal to noise ratio: ",SNR)
 
     delta_freq = doppler_shift(rocket.stage1.electronics.communicationsystem.max_speed, frequency)
-
+    print("Expected doppler shift stage 1: ", delta_freq)
     assert min_bw > delta_freq, f"bandwidth greater than {delta_freq} expected, got: {min_bw}"
     assert min_bw < (10*10^6), f"bandwidth less than 10 MHz expected, got: {min_bw}"
     rocket.stage1.electronics.communicationsystem.bandwidth = min_bw
+    print("State 1 total required bandwidth: ",min_bw)
 
 
     #power
@@ -94,17 +89,23 @@ def do_stuff(rocket: Rocket):
 
     energy = power_total*time/3600
 
-    rocket.stage1.electronics.powersystem.tot_power = power_total
+    rocket.stage1.electronics.powersystem.tot_power = power_total/(1-rocket.stage1.electronics.powersystem.dod)
+    print("Stage 1 total required battery power: ", rocket.stage1.electronics.powersystem.tot_power)
     rocket.stage1.electronics.powersystem.mass_bat = energy/rocket.stage1.electronics.powersystem.power_density
+    print("Stage 1 total required battery mass: ", rocket.stage1.electronics.powersystem.mass_bat)
     rocket.stage1.electronics.powersystem.volume_bat = energy/rocket.stage1.electronics.powersystem.power_volume
+    print("Stage 1 total required battery volume: ", rocket.stage1.electronics.powersystem.mass_volume)
+    bat_Ah = ((rocket.stage1.electronics.powersystem.tot_power)/rocket.stage1.electronics.powersystem.avg_voltage)*time
+    rocket.stage1.electronics.powersystem.bat_size = bat_Ah
+    print("State 1 total required battery Ah: ", bat_Ah)
 
     #blackbox
     storage = datarate*time*(1+rocket.stage1.electronics.blackbox.margin)
+    print("State 1 total required storage: ",storage)
     rocket.stage1.electronics.blackbox.storage = storage
 
-    #Stage 2
-
-        #telemetry
+def stage2_electronics(rocket: Rocket):
+    #telemetry
 
     frequency = rocket.stage2.electronics.communicationsystem.frequency
     datarate = rocket.stage2.electronics.datarate
@@ -125,15 +126,19 @@ def do_stuff(rocket: Rocket):
     assert capacity > (datarate*(1+margin)), f" max capacity less than {datarate*(1+margin)} expected, got: {capacity}"
 
     rocket.stage2.electronics.communicationsystem.capacity = capacity
+    print("State 2 maximum allowable datarate is: ",capacity)
+
 
     rocket.stage2.electronics.communicationsystem.SNR = SNR
+    print("State 2 total signal to noise ratio: ",SNR)
 
     delta_freq = doppler_shift(rocket.stage2.electronics.communicationsystem.max_speed, frequency)
+    print("Expected doppler shift stage 2: ", delta_freq)
 
     assert min_bw > delta_freq, f"bandwidth greater than {delta_freq} expected, got: {min_bw}"
     assert min_bw < (10*10^6), f"bandwidth less than 10 MHz expected, got: {min_bw}"
     rocket.stage2.electronics.communicationsystem.bandwidth = min_bw
-
+    print("State 2 total required bandwidth: ",min_bw)
 
     #power
     power_total = rocket.stage2.electronics.communicationsystem.power_com + rocket.stage2.electronics.power_sensors
@@ -141,13 +146,68 @@ def do_stuff(rocket: Rocket):
 
     energy = power_total*time/3600
 
-    rocket.stage2.electronics.powersystem.tot_power = power_total
+    rocket.stage2.electronics.powersystem.tot_power = power_total/(1-rocket.stage2.electronics.powersystem.dod)
+    print("Stage 2 total required battery power: ", rocket.stage2.electronics.powersystem.tot_power)
     rocket.stage2.electronics.powersystem.mass_bat = energy/rocket.stage2.electronics.powersystem.power_density
+    print("Stage 2 total required battery mass: ", rocket.stage2.electronics.powersystem.mass_bat)
     rocket.stage2.electronics.powersystem.volume_bat = energy/rocket.stage2.electronics.powersystem.power_volume
+    print("Stage 2 total required battery volume: ", rocket.stage2.electronics.powersystem.mass_volume)
+    bat_Ah = ((rocket.stage2.electronics.powersystem.tot_power)/rocket.stage2.electronics.powersystem.avg_voltage)*time
+    rocket.stage2.electronics.powersystem.bat_size = bat_Ah
+    print("Stage 2 total required battery Ah: ", bat_Ah)
 
     #blackbox
     storage = datarate*time*(1+rocket.stage2.electronics.blackbox.margin)
+    print("State 2 total required storage: ",storage)
     rocket.stage2.electronics.blackbox.storage = storage
+
+
+def stage2_payload(rocket: Rocket):
+    datarate = rocket.stage2.payload.datarate
+    #power
+    power_total = rocket.stage2.payload.communicationsystem.power_com + rocket.stage2.payload.power_sensors
+    time = rocket.stage2.payload.time
+
+    energy = power_total*time/3600
+
+    rocket.stage2.payload.powersystem.tot_power = power_total/(1-rocket.stage2.payload.powersystem.dod)
+    print("Stage 2 total required battery power for payload: ", rocket.stage2.payload.powersystem.tot_power)
+    rocket.stage2.payload.powersystem.mass_bat = energy/rocket.stage2.payload.powersystem.power_density
+    print("Stage 2 total required battery mass for payload: ", rocket.stage2.payload.powersystem.mass_bat)
+    rocket.stage2.payload.powersystem.volume_bat = energy/rocket.stage2.payload.powersystem.power_volume
+    print("Stage 2 total required battery volume for payload: ", rocket.stage2.payload.powersystem.mass_volume)
+    bat_Ah = ((rocket.stage2.payload.powersystem.tot_power)/rocket.stage2.payload.powersystem.avg_voltage)*time
+    rocket.stage2.payload.powersystem.bat_size = bat_Ah
+    print("Stage 2 total required battery Ah for the payload: ", bat_Ah)
+
+    #blackbox
+    storage = datarate*time*(1+rocket.stage2.payload.blackbox.margin)
+    print("State 2 total required storage for the payload: ",storage)
+    rocket.stage2.payload.blackbox.storage = storage
+
+
+def do_stuff(rocket: Rocket):
+    """
+    :param rocket: Rocket class
+    :return: None
+    """
+    #Stage 1
+
+    stage1_electronics(rocket)
+    #Stage 2
+
+    #electronics
+    stage2_electronics(rocket)
+
+    #payload
+
+    stage2_payload(rocket)
+
+    
+
+
+
+
 
 
 
