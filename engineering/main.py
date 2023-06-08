@@ -172,6 +172,8 @@ class Runner:
 
 
 if __name__ == "__main__":
+    
     runner = Runner("initial_values", 0)
+    runner.test_sizing()
     runner.populate_simulation()
     runner.run()
