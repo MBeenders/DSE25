@@ -73,7 +73,6 @@ def drag(velocity: np.ndarray, height: float) -> np.ndarray:
     R_s = 0.5 # Surface roughness in micrometres
     R_crit = 500000 # Critical reynolds number where transition occurs.
     x = R_crit * 0.000015 / velocity # Position of transition
-    S_w = 0 # Total wetted surface area of body and fins
     C_fr = 0.032 * (R_s/x)**0.2 # Derived by Barrowman for fully turbulent flow, assuming a smooth surface.
 
     # Taking into account compressibility and geometry effects
@@ -99,19 +98,7 @@ def drag(velocity: np.ndarray, height: float) -> np.ndarray:
         else:
             C_fr_c = C_fr_c
 
-    # The body wetted area is corrected for its cylindrical geometry, and the fins for their finite thickness.
-    D_u = 0.15  # Upper stage diameter [m]
-    D_l = 0.2  # Lower stage diameter [m]
-    f_B = 15  # Fineness ratio of the rocket ===== MAKE VARIABLE FORM
-    S_w_b = 4000  # Wet surface area of body [m^2] ===== MAKE VARIABLE FORM
-    S_w_fin = 20  # Wet surface area of body [m^2] ===== MAKE VARIABLE FORM
-    t_fin = 0.005  # Thickness of fins [m] ===== MAKE VARIABLE FORM
-    mac_fin = 0.5  # Mean aerodynamic chord length of fins [m] ===== MAKE VARIABLE FORM
-    C_D_fr = C_fr_c * (((1+(1/(2*f_B)))*S_w_b) + ((1+(2*t_fin/mac_fin))*S_w_fin))/(S_ref)
-    D_fr = C_D_fr * (0.5 * S_w * density(height) * velocity ** 2)  # Total frictional drag force of vehicle [N]
-
     # BODY PRESSURE DRAG (apply for both stages)
-    phi = 22 * np.pi/180  # Nose cone joint angle [rad] ===== MAKE VARIABLE FORM
     f_B = 15 # Fineness ratio of the rocket ===== MAKE VARIABLE FORM
     S_w_b = 4000 # Wet surface area of body [m^2] ===== MAKE VARIABLE FORM
     S_w_fin = 20 # Wet surface area of body [m^2] ===== MAKE VARIABLE FORM
@@ -138,7 +125,7 @@ def drag(velocity: np.ndarray, height: float) -> np.ndarray:
     b = 0.3 # ===== I HAVE NO IDEA WHAT THIS EMPIRICAL CONSTANT IS!!!
     C_D_nc_s = C_nc_0 * (4**b) ** (np.log(f_N + 1)/np.log(4)) # Includes supersonic factor
     C_D_nc = C_D_nc_s + C_D_nc # Includes compressibility correction for sub and supersonic speeds
-    S_nc = np.pi * D_u # Surface area of nose cone [m^2] ===== NO IDEA HOW TO FIND IT!!!
+    S_nc = np.pi * D_u * r # Surface area of nose cone [m^2]
     D_nc = C_D_nc * q * S_nc # Nose cone pressure drag [N]
 
     # SHOULDER PRESSURE DRAG (separation stage)
