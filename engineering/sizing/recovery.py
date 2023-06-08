@@ -150,6 +150,8 @@ def run(rocket):
     rocket.stage1.recovery.cost = rocket.stage1.recovery.main_parachute.cost + Coldgas(rocket)[2]
     rocket.stage2.recovery.cost = rocket.stage2.recovery.drogue.cost + rocket.stage2.recovery.main_parachute.cost + Coldgas(rocket)[3]
 
+    return rocket
+
 
 if __name__ == "__main__":
     pass
