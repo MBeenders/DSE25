@@ -112,6 +112,27 @@ def Lines(rocket: Rocket):
 
     return m_lines, cost_lines
 
+def Coldgas(rocket: Rocket):
+    """
+    :param rocket: Rocket class
+    :return: None
+    """
+    m_gas = rocket.stage1.recovery.m_gas # Assume same mass for both stages
+    gas_cost = rocket.stage1.recovery.gas_cost
+    n_gas1 = rocket.stage1.recovery.n_gas
+    n_gas2 = rocket.stage2.recovery.n_gas
+
+    # Total Mass and Cost of cold gas systems
+    m_total1 = m_gas * n_gas1
+    m_total2 = m_gas * n_gas2
+
+    m_total = m_total1 + m_total2
+
+    gas_total_cost = gas_cost * (n_gas1 + n_gas2)
+
+    return m_total, gas_total_cost
+
+
 
 def run(rocket: Rocket) -> Rocket:
     """
@@ -119,10 +140,10 @@ def run(rocket: Rocket) -> Rocket:
     :return: Updated Rocket class
     """
 
-    Parachutes(rocket)
-    Lines(rocket)
+    m_total_recovery = Parachutes(rocket)[0] + Lines(rocket)[0] + Coldgas(rocket)[0]
+    cost_total_recovery = Parachutes(rocket)[1] + Lines(rocket)[1] + Coldgas(rocket)[1]
 
-    return rocket
+    return rocket, m_total_recovery, cost_total_recovery
 
 
 if __name__ == "__main__":
