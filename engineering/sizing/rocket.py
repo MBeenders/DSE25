@@ -51,9 +51,36 @@ class Engine(Subsystem):
         """
         Subsystem.__init__(self, name)  # General parameters
 
-        self.isp: float = 0
+        # General
+        self.isp: float | None = None
+        self.impulse: float | None = None
+        self.burn_time: float | None = None
+        self.thrust: float | None = None
+
+        # Chamber
+        self.chamber_pressure: float | None = None
+        self.chamber_gamma: float | None = None
+        self.chamber_temperature: float | None = None
+        self.cc: float | None = None
+        self.c_star: float | None = None
+        self.area_exit: float | None = None
+
+        # Propellant
+        self.propellant_density: float | None = None
+        self.molecular_weight: float | None = None
+
+        # Motor Material
+        self.yield_strength: float | None = None
+        self.safety_factor: float | None = None
+        self.liner_thickness: float | None = None
+
+        # Chemicals
         self.oxidizer: dict = {}
         self.fuel: dict = {}
+
+        # Launch Tower
+        self.launch_tower_length: float | None = None
+        self.launch_exit_velocity: float | None = None
 
         # Sim stuff
         self.thrust_curve: np.array = np.zeros(10000, dtype=float)  # Engine thrust curve over time
