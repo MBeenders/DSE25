@@ -23,3 +23,9 @@ Stage,Subsystem,Variable,Value,Unit
 2,recovery,line_density,0.004976,kg/m
 1,recovery,line_cost,1.1264,kg/m
 2,recovery,line_cost,1.1264,kg/m
+1,recovery,m_gas,0.5,kg
+2,recovery,m_gas,0.5,kg
+1,recovery,gas_cost,530,euros
+2,recovery,gas_cost,530,euros
+1,recovery,n_gas,1,-
+2,recovery,n_gas,2,-

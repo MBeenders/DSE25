@@ -93,7 +93,10 @@ class Recovery(Subsystem):
         self.material_density: float = 0 # [kg/m^2]
         self.material_cost: float = 0 # [euros/m^2]
         self.line_density: float = 0 # [kg/m]
-        self.line_cost: float = 0 # [euros/m
+        self.line_cost: float = 0 # [euros/m]
+        self.m_gas: float = 0 # [kg]
+        self.gas_cost: float = 0 # [euros]
+        self.n_gas: float = 0 # [-]
 
     class Drogue(Subsystem):
         def __init__(self, name: str):
