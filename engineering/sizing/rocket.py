@@ -145,24 +145,26 @@ class Electronics(Subsystem):  # should be 3 objects one for the 1st stage elect
     class Power(Subsystem):
         def __init__(self, name: str):
             Subsystem.__init__(self, f"{name} Power")
-            self.avg_voltage: float
+            self.avg_voltage: float 
             self.dod: float
-            self.power_density: float
-            self.power_volume: float
+            self.power_density: float = 140 #Wh/kg
+            self.power_volume: float = 250000 #Wh/m^3
             self.margin: float
 
             # Final outputs
             self.tot_power: float
             self.mass_bat: float
             self.volume_bat: float
+            self.bat_size: float
 
+    
     class Communication(Subsystem):
         def __init__(self, name: str):
             Subsystem.__init__(self, f"{name} Communication")
             self.frequency: float
             self.power_com: float
             self.gain_tx: float
-            self.diameter_antenna_gs: float
+            self.diameter_antenna_gs: float 
             self.antenna_snr: float
             self.antenna_efficiency_gs: float
             self.margin: float
@@ -190,16 +192,31 @@ class Payload(Subsystem):
         self.time: int
         self.power_sensors: float
 
+
     class Power(Subsystem):
         def __init__(self, name: str):
             Subsystem.__init__(self, f"{name} Power")
             self.avg_voltage: float
             self.dod: float
-            self.mass_bat: float
-            self.tot_power: float
-            self.power_density: float
-            self.power_volume: float
+            self.power_density: float = 140 #Wh/kg
+            self.power_volume: float = 250000 #Wh/m^3
             self.margin: float
+
+            #final outputs
+            self.tot_power: float
+            self.mass_bat: float
+            self.volume_bat: float
+            self.bat_size: float
+
+    class Blackbox(Subsystem):
+        def __init__(self, name: str):
+            Subsystem.__init__(self, f"{name} Blackbox")
+            
+            self.margin: float
+            self.storage: float
+
+
+    
 
 
 class Rocket:

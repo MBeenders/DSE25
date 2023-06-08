@@ -1,0 +1,198 @@
+LCH-EE-01	The Flight Termination System shall be able to be activated from the ground.	Enable activation of the Flight Termination System from the ground.	Analysis and Testing	STK-LS-01
+LCH-EE-02	All Electro-explosive devices shall not fire when exposed to 1A/1W or below for 5 minutes.	Prevent accidental firing of Electro-explosive devices under specified conditions.	Testing	STK-LS-01
+LCH-EE-03	The system shall be designed with a mechanical or electromechanical SAFE/ARM device which shall adequately contain the output of the system or its initiator when in the SAFE position.	Incorporate a SAFE/ARM device to contain the output of the system or its initiator in the SAFE position.	Inspection	STK-LS-01
+LCH-EE-04	All electrical wiring and the power source of Electro-explosive devices shall be electrically and physically independent from all other circuits.	Ensure isolation of Electro-explosive devices from other circuits to prevent unintended interactions.	Inspection	STK-LS-01
+LCH-EE-05	The system initiator of the Electro-explosive device shall be isolated by switches in both the power and return legs.	Provide isolation for the system initiator of Electro-explosive devices to prevent inadvertent activation.	Inspection	STK-LS-01
+LCH-EE-06	All circuit wiring of the Electro-explosive device shall be twisted and have shielding.	Ensure proper wiring and shielding of Electro-explosive devices.	Inspection	STK-LS-01
+LCH-EE-07	The shielding shall provide a minimum of 20 dB safety margin below the minimum rated function current of the system initiator (max NO-FIRE current for EEDs).	Ensure sufficient safety margin for shielding against system initiator currents.	Testing	STK-LS-01
+LCH-EE-08	Shielding shall provide a minimum of 85% optical coverage.	Ensure effective optical coverage for shielding.	Inspection	STK-LS-01
+LCH-EE-09	Shielding shall be continuous and terminated to the shell of connectors and/or components.	Ensure proper termination of shielding for connectors and components.	Inspection	STK-LS-01
+LCH-EE-10	The shield shall be electrically joined to the shell of the connector/component around the full 360 degrees of the shield.	Provide complete electrical connection between the shield and the connector/component shell.	Testing	STK-LS-01
+LCH-EE-11	The shield shall only be grounded in one end of the wiring.	Ground the shield at a single end of the wiring.	Inspection	STK-LS-01
+LCH-EE-12	The shell of connectors/components shall provide attenuation at least equal to that of the shield.	Ensure proper attenuation provided by the shell of connectors/components.	Testing	STK-LS-01
+LCH-EE-13	The electrical circuit to which the system EED is connected shall be isolated from vehicle ground by no less than 10 kiloohms.	Provide isolation of the electrical circuit from vehicle ground.	Testing	STK-LS-01
+LCH-EE-14	All firing circuits shall contain a minimum of two independent safety devices.	Incorporate redundant safety devices in firing circuits.	Inspection	STK-LS-01
+LCH-EE-15	The system EED shall be provided with an electrical short till its programmed actuation.	Ensure the system EED remains shorted until its programmed actuation.	Testing	STK-LS-01
+LCH-EE-16	Any electrical relay or switch, which is electrically adjacent to the system initiator either in the power or return leg of the electrical circuit, shall not have voltage applied to the switching coil, or the enable/disable circuit for solid-state relays/switches, until the programmed initiation event.	Prevent voltage application to adjacent relays/switches until the programmed initiation event.	Demonstration	STK-LS-01
+LCH-GN-03	The vehicle shall be able to be interfaced with the Esrange ground equipment.	To ensure less production of launch equipment, the available Esrange equipment should be used.	Demonstration	STK-LS-02
+LCH-GN-04	A simulation tool shall be able to determine the vehicle trajectory ahead of launch.	To ensure that the vehicle will not leave the safety zone, simulations shall be performed to predict the landing site and debris dispersal zones.	Analysis and Demonstration	STK-LS-02
+LCH-GN-05	The flight termination system shall be able to be activated from the ground.	To ensure that there will not be a range safety violation, a manual actuation method for the FTS needs to exist.	Demonstration	STK-LS-01
+LCH-GN-06	 The vehicle shall be able to be transported by a vehicle of TBD size. 	 Ensures that the vehicle can be transported with an established vehicle, decreasing the transport logistics complexity.	 Inspection 	STK-LS-02
+LCH-GN-07	The vehicle shall be able to reach the PMC within 7 hours of it being sighted.	The minimum lingering time of a polar mesospheric cloud is 7 hours.	Demonstration	STK-MR-06
+LCH-GN-08	The vehicle shall be able to be left in an unarmed, but otherwise prepared for flight, condition for a period of at least 5 days.	To ensure that the rocket will be ready for the appearance of a PMC, the rocket will be set up as soon as possible so minimum work needs to be done before launch. This means that the rocket needs to be in an assembled state for a max of 5 days.	Demonstration	STK-MR-06
+LCH-GS-01	All Ground System equipment shall be designed in such a way that the system can be remotely switched ON/OFF from outside the Danger Area.	Enable remote switching ON/OFF of Ground System equipment from a safe location.	Testing	STK-LS-01
+LCH-GS-02	Ground system equipment shall be switched OFF prior to system arming operations.	Ensure the ground system equipment is switched OFF before system arming.	Inspection	STK-LS-01
+LCH-GS-03	At least two independent tracking systems shall provide real-time positional/Instantaneous impact point (IIP) data during launch.	Use multiple independent tracking systems to provide real-time positional/IIP data.	Inspection	STK-LS-01
+LCH-GS-04	The tracking systems shall be designed in such a way that no single-order vehicle failure mode or ground system failure mode could cause the loss of both systems.	Prevent loss of both tracking systems due to single-order vehicle or ground system failure.	Inspection	STK-LS-01
+LCH-GS-05	 The vehicle shall be capable of communicating with the Esrange ground system. 	 Necessary for tracking the state of the vehicle and being able to terminate its flight in case of emergency.	 Demonstration 	STK-LS-02
+LCH-SF-01	Bi-propellant systems that incorporate both a fuel and an oxidizer shall be designed such that a malfunction of either the oxidizer or the fuel subsystems cannot result in mixing.	Prevent mixing due to malfunction of fuel or oxidizer subsystems in bi-propellant systems.	Inspection	STK-LS-01
+LCH-SF-02	Monopropellant systems that feature a fuel and a catalytic bed shall incorporate at least two independent inhibits in the flow path.	Incorporate at least two independent inhibits in the flow path of monopropellant systems with a fuel and catalytic bed.	Inspection	STK-LS-01
+LCH-SF-03	The vehicle shall carry a flight termination system.	Include a flight termination system in the vehicle.	Inspection	STK-LS-01
+LCH-SF-04	Materials selected for use in hazardous chemical systems shall be compatible with the hazardous chemical used.	Ensure compatibility of materials used in hazardous chemical systems with the specific hazardous chemical.	Analysis and Testing	STK-LS-01
+LCH-SM-01	Probability of casualty (Pc) for individuals shall be below 1e-6.	Ensure probability of casualty for individuals is below a specified threshold.	Analysis	STK-LS-01
+LCH-SM-02	The Casualty Expectation (CE) shall be below 30e-6.	Ensure the Casualty Expectation is below a specified threshold.	Analysis	STK-LS-01
+LCH-SM-03	The probability of hitting an aircraft (Pi) shall be below 0.1e-6 for each impact area.	Ensure probability of hitting an aircraft is below a specified threshold for each impact area.	Analysis	STK-LS-01
+LCH-SM-04	The probability of spent stages, experiment bodies, or other vehicle debris impacting on protected property areas shall be below 1e-3.	Ensure probability of debris impacting protected property areas is below a specified threshold.	Analysis	STK-LS-01
+LCH-SM-05	The one σ Gaussian impact dispersion shall be less than 20 km.	Limit the one σ Gaussian impact dispersion to less than a specified distance.	Analysis	STK-LS-01
+LCH-SM-06	At least one tracking or other data source shall be utilized to determine impacts (either during the mission or through post-mission analysis) of vehicle components.	Utilize tracking or other data sources to determine impacts of vehicle components.	Inspection	STK-LS-01
+SYS-AV-01 	 The avionics shall be able to detect launch. 	 Important to determine required actions for the flight computer. 	 Analysis and Testing  	STK-MR-07
+SYS-AV-02 	 The avionics shall be able to detect apogee. 	 Important to determine required actions for the flight computer. 	 Analysis and Testing  	STK-MR-07
+SYS-AV-03 	 The avionics shall be able to detect touchdown. 	 Important to determine required actions for the flight computer. 	 Analysis and Testing  	STK-MR-07
+SYS-AV-04 	 The avionics shall be able to detect separation. 	 Important to determine required actions for the flight computer. 	 Analysis and Testing  	STK-MR-07
+SYS-AV-05 	 The avionics shall be able to detect payload deployment. 	 Important to determine required actions for the flight computer. 	 Analysis and Testing  	STK-MR-07
+SYS-AV-06 	 The avionics shall have thermal protection against overheating. 	 In the mesosphere, electronics cannot be air-cooled. Need to ensure proper cooling even in near vacuum or by isolating the electronics. 	 Demonstration and Testing  	STK-MR-01
+SYS-AV-08 	 All avionics boards shall be capable of communicating with the ground stations. 	 To be able to monitor the rocket. 	 Demonstration and Testing  	LCH-SM-02
+SYS-AV-09 	 The avionics shall be able to store data on a black box. 	 To ensure recovery of the data. 	 Inspection  	STK-MR-07
+SYS-AV-10 	 The avionics shall be able to monitor the 1st stage motor status. 	 To ensure triggering of FTS in the worst-case scenario. 	 Analysis and Testing  	LCH-SF-03
+SYS-AV-11 	 The 1st stage avionics shall be able to monitor 1st stage chamber pressure. 	 To ensure triggering of FTS in the worst-case scenario. 	 Analysis and Testing  	LCH-SF-03
+SYS-AV-12 	 The 1st stage avionics shall be able to monitor 1st stage engine temperature. 	 To ensure triggering of FTS in the worst-case scenario. 	 Analysis and Testing  	LCH-SF-03
+SYS-AV-13 	 The avionics shall be able to monitor the 2nd stage motor status. 	 To ensure triggering of FTS in the worst-case scenario. 	 Analysis and Testing  	LCH-SF-03
+SYS-AV-14 	 The 2nd stage avionics shall be able to monitor 2nd stage chamber pressure. 	 To ensure triggering of FTS in the worst-case scenario. 	 Analysis and Testing  	LCH-SF-03
+SYS-AV-15 	 The 2nd stage avionics shall be able to monitor 2nd stage engine temperature. 	 To ensure triggering of FTS in the worst-case scenario. 	 Analysis and Testing  	LCH-SF-03
+SYS-AV-16 	 Each stage of the rocket shall contain an independent avionics board. 	 To ensure both stages can deploy their parachute. 	 Inspection  	STK-RE-02
+SYS-AV-17 	 Each stage shall contain 2 identical independent avionics boards for redundancy. 	 Redundancy to prevent failure. 	 Inspection  	STK-RE-02
+SYS-AV-18 	 The avionics shall have redundant black boxes. 	 Redundancy to prevent failure. 	 Inspection  	STK-RE-02
+SYS-AV-19 	 All avionics sensors shall be redundant. 	 Redundancy to prevent failure. 	 Inspection  	STK-RE-02
+SYS-AV-20 	 The avionics shall be able to operate in a range of at least 90-315 K. 	 Expected temperature range of the environment. 	 Testing  	STK-MR-01
+SYS-AV-21 	 The avionics shall be capable of working in an environment of up to 90\% humidity. 	 Expected humidity range of the environment in a worst-case scenario. 	 Testing  	STK-MR-01
+SYS-AV-24 	 The stage 1 avionics shall be able to communicate with the ground stations. 	 Required for data collection and tracking. 	 Inspection  	LCH-SM-02
+SYS-AV-25 	 The stage 1 avionics shall be able to determine current position. 	 Required for tracking and recovery. 	 Analysis and Testing  	STK-RE-02
+SYS-AV-26 	 The stage 2 avionics shall be able to communicate with the ground stations. 	 Required for data collection and tracking. 	 Inspection  	LCH-SM-02
+SYS-AV-27 	 The stage 2 avionics shall be able to determine current position. 	 Required for tracking and recovery. 	 Analysis and Testing  	STK-RE-02
+SYS-AV-28 	 The avionics shall have at least one camera to monitor the stage separation. 	 Ensure proper deployment of the 2nd stage and allow for easier determination of cause in case of failure. 	 Inspection  	STK-MR-07
+SYS-AV-29 	 The avionics shall have at least one camera to monitor payload deployment. 	 Ensure proper deployment of the payload deployment and allow for easier determination of cause in case of failure. 	 Inspection  	STK-MR-07
+SYS-AV-30 	 The avionics shall have at least one camera in the 1st stage to monitor recovery deployment. 	 Ensure proper deployment of the 1st stage recovery and allow for easier determination of cause in case of failure. 	 Inspection  	STK-MR-07
+SYS-AV-31 	 The avionics shall have at least one camera in the 2nd stage to monitor recovery deployment. 	 Ensure proper deployment of the 2nd stage recovery and allow for easier determination of cause in case of failure. 	 Inspection  	STK-MR-07
+SYS-AV-32 	 The first stage engine bay pressure sensor shall have a precision of at least 2 bar. 	 Minimum precision required for detecting engine failure. 	 Testing  	SYS-AV-11 
+SYS-AV-33 	 The first stage engine bay temperature sensor(s) shall have a precision of at least 3 K. 	 Minimum precision required for detecting engine failure. 	 Testing  	SYS-AV-12 
+SYS-AV-34 	 The second stage engine bay pressure sensor shall have a precision of at least 2 bar. 	 Minimum precision required for detecting engine failure. 	 Testing  	SYS-AV-14 
+SYS-AV-35 	 The second stage engine bay temperature sensor(s) shall have a precision of 3 K. 	 Minimum precision required for detecting engine failure. 	 Testing  	SYS-AV-15 
+SYS-AV-36 	 The positioning system shall have a precision of $\pm$20m. 	 Minimum precision required for recovering the rocket. 	 Testing  	STK-RE-02
+SYS-AV-37 	 The avionics black box shall be capable of storing at least TBD Gbytes. 	 To store all the data. 	 Inspection  	STK-MR-03
+SYS-AV-38 	 The avionics shall be able to emit a tone of at least TBD dB after touchdown. 	 To be heard from at least 10 meters away for easier recovery. 	 Testing  	STK-RE-02
+SYS-AV-39 	 The signal-to-noise ratio (G/T) shall be a minimum of 12 dB/K. 	 Minimum G/T required by the Esrange satellites to pick up the signal. 	 Inspection  	STK-LS-02
+SYS-AV-40 	 The telemetry shall adhere to IRIG standards. 	 Standard used by Esrange for downlink and FTS. 	 Inspection  	STK-LS-02
+SYS-AV-41 	 The telemetry system shall use a frequency between 2300--2400 MHz. 	 Frequency recommended by Esrange for standardization. 	 Inspection  	STK-LS-02
+SYS-AV-42	The telemetry system shall have a range of at least 120 km	In order to communicate with the ground, taking into account approximate flight profile.	Analysis and Testing	STK-MR-01
+SYS-GN-01	The vehicle shall reach a minimum apogee of 90km			STK-MR-01
+SYS-GN-02 	The vehicle shall carry a maximum payload of 40kg			STK-MR-02
+SYS-GN-03 	The vehicle shall have a propulsion system.	In order to reach the cloud, the vehicle shall be able to move itself.	Inspection	SYS-GN-01
+SYS-GN-04 	The vehicle shall have a recovery system.	To reuse the vehicle, a recovery system should be fitted to make sure as much of the vehicle as possible survives.	Inspection	STK-RE-02
+SYS-GN-05	The vehicle shall remain stable through the entire ascent phase of the flight.	In order to make the vehicle recoverable, it needs to be stable throughout the flight.	Inspection and Simulation	STK-RE-02
+SYS-GN-06	The vehicle shall expose the payload to the environment during the measurement phase.	To prevent damage to the instrumentation, the payload will only be exposed to the environment when measurements are needed.	Demonstration	STK-MR-05
+SYS-GN-07	 The tower exit velocity of the vehicle shall be at least 40 m/s. 	 Establishes the stability of the rocket while attached to the launch tower.	 Analysis 	SYS-GN-05
+SYS-GN-08	 The vehicle touchdown velocity shall be no more than 10 m/s. 	 Ensures that the payload and sensitive subsystems within the vehicle reach the ground safely.	 Analysis and Testing 	SYS-GN-04
+SYS-GN-09	The rocket shall not be damaged during flight.	To minimize the parts needed to be replaced, the vehicle should not sustain damage during flight.	Inspection	STK-RE-01
+SYS-GN-10	The rocket shall not be damaged during touchdown.	To minimize the parts needed to be replaced, the vehicle should not sustain damage during touchdown.	Inspection	STK-RE-01
+SYS-GN-11	The rocket shall be locatable once landed.	In order to improve the chance of reusing the vehicle, it needs to be located after flight.	Demonstration	STK-RE-02
+SYS-GN-12	The vehicle shall be able to measure its altitude throughout the entire flight.	Altitude is necessary to determine the correct deployment time of the payload.	Analysis and Testing	STK-MR-03
+SYS-GN-13	The vehicle shall be able to measure its position throughout the entire flight.	The position data will be used to determine whether the payload actually deployed in the cloud and to prove the vehicle did not go out of bounds.	Analysis and Testing	STK-MR-03
+SYS-GN-14	The vehicle shall be able to determine its attitude throughout the entire flight.	The attitude data can be used to determine whether sample capture occurred correctly and whether the vehicle was in the right orientation.	Analysis and Testing	STK-MR-03
+SYS-GN-15	The vehicle shall be able to record the accelerations throughout the entire flight.	The acceleration data can be used to ensure that the instruments did not experience acceleration above their ratings and to confirm the vehicle adhered to the desired flight profile.	Analysis and Testing	STK-MR-03
+SYS-GN-16	The vehicle shall provide measurement calibration data throughout the entire flight.	Certain instruments might need calibration parameters such as the temperature of the rocket body during flight.	Analysis and Testing	STK-MR-03
+SYS-GN-17	The vehicle shall be able to support the mass of the payload.	The structural rigidity of the vehicle should be strong enough to not flex under the weight of the payload.	Analysis and Testing	STK-MR-02
+SYS-GN-18	The vehicle shall not interfere with the functioning of the payload.	The vehicle exhaust and other factors should not influence measurements or cause interference.	Analysis and Testing	STK-MR-03
+SYS-GN-19	The vehicle shall shield the payload from the outside environment when non-operational.	To prevent damage to the instrumentation, the payload will only be exposed to the environment when measurements are needed.	Demonstration	STK-MR-06
+SYS-GN-20	A single vehicle shall be able to be reused at least 10 times.	To promote sustainability, the requirement of 10 reuses is set.	Demonstration	STK-RE-01
+SYS-GN-21	 The vehicle shall withstand longitudinal loads of 25g. 	 Ensures that the vehicle maintains structural integrity during flight. Value taken from OpenRocket simulation.	 Analysis and Demonstration 	STK-RE-02
+SYS-GN-22	The payload shall be mountable to the vehicle.	The vehicle will need a physical interface with the payload to ensure structural rigidity.	Demonstration	STK-MR-02
+SYS-GN-23	The time between the start of design and having a flight-proven vehicle shall be no more than 3 years.	Based on customer request.	Demonstration	STK-MR-08
+SYS-GN-24	 The vehicle shall have a stability margin of at least 2. 	 Ensuring that the rocket is stable during flight.	 Simulation 	SYS-GN-05
+SYS-GN-25	 The vehicle shall withstand lateral loads of 20g. 	 Ensures that the vehicle maintains structural integrity during flight. Value taken from OpenRocket simulation.	 Analysis and Demonstration 	STK-RE-02
+SYS-GN-26	 The maximum dynamic pressure shall be 200 kPa. 	 Ensures that the vehicle will not go through extreme loads, even at high supersonic mach numbers.	 Analysis 	STK-RE-02
+SYS-GN-27	 The vehicle shall self destruct within TBD s after termination signal by means of a Flight Termination System. 	 Ensures that the vehicle is destroyed in case of abnormalities, to keep the system and debris within the safety range.	 Analysis and Testing 	LCH-EE-01
+SYS-GN-28	 The vehicle shall be recyclable in a proportion of 90\% of dry mass. 	 Follows stakeholder requirements and includes the proportion of the dry mass of the vehicle that does not entail consumable materials.	 Inspection 	STK-RE-01
+SYS-GN-29	 The vehicle's outer material shall be able to withstand thermal loads due to a temperature range of TBD. 	 Allows for the vehicle to function properly throughout mission phases, in which the environmental temperatures range from high aerodynamic induced temperatures, to the cold environment of the mesosphere.	 Analysis and Testing 	STK-RE-02
+SYS-GN-30	 The vehicle shall be traceable by radar.	 Necessary for tracking the vehicle during flight.	 Demonstration 	STK-LS-01
+SYS-GN-31	 Second stage engine shutoff shall be achieved at maximum 50km altitude. 	 Necessary to ensure that there are no exhaust products into the mesosphere.	 Analysis 	STK-MR-06
+SYS-PL-01 	 The payload shall be able to operate in a range of 90-315 K. 	 The lower boundary is the temperature of the mesosphere, the upper boundary the temperature of the air at sea level 	 Testing  	STK-MR-01
+SYS-PL-02 	 The electronics shall have thermal protection against overheating. 	 To let the electronics function properly, they should not be overheated. 	 Testing  	STK-MR-01
+SYS-PL-03 	 The electronics shall be capable of working in an environment of up to 95\% humidity. 	 Expected humidity range of the environment in a worst case scenario. 	 Testing  	STK-MR-01
+SYS-PL-04 	 The payload shall be capable of working in an environment of up to 95\% humidity. 	 Expected humidity range of the environment in a worst case scenario. 	 Testing  	STK-MR-01
+SYS-PL-05 	 The payload shall be able to survive a maximum acceleration of 50 g. 	 The sounding rocket will launch with a high acceleration, afterwards the payload should still be able to make measurements. 	 Testing  	STK-MK-01
+SYS-PL-06 	 The payload instruments shall be capable of being mounted onto a baseplate. 	 Needed in order to ensure that the payload can be properly and easily integrated in the vehicle. 	 Inspection  	STK-MK-01
+SYS-PL-07 	 The payload shall have redundant black boxes. 	 Ensures that the data gathered by the payload can be retrieved even in case one of the blackboxes fails. 	 Inspection  	STK-MR-07
+SYS-PL-08 	 The payload black box shall be capable of storing at least TBD Gbytes. 	 Ensures that all the necessary data gathered can be stored properly. 	 Inspection  	STK-MR-03
+SYS-PL-09 	 The payload system shall pass vibrational qualification testing. 	 Necessary to ensure that the payload can withstand more vibrations than the worst case scenario load during launch. 	 Testing  	STK-MK-01
+SYS-PL-10 	 The payload system shall pass pressure qualification testing. 	 Necessary to ensure that the payload can withstand lower pressures than the worst case scenario load during launch. 	 Testing  	STK-MK-01
+SYS-PL-11 	 The payload system shall pass temperature qualification testing. 	 Necessary to ensure that the payload can withstand more extreme temperatures than the worst case scenario load during launch. 	 Testing  	STK-MK-01
+SYS-PL-12 	 The payload system shall be integrable in the vehicle. 	 Ensures that the vehicle can support the payload and its deployment possible, throughout all the mission phases. 	 Inspection  	STK-MK-01
+SYS-PL-13	The vehicle acceleration shall not exceed the maximum allowable accelerations of the instruments.	To complete the mission, the instrumentation cannot be damaged by the accelerations experienced during flight.	Analysis and Demonstration	STK-MK-01
+SYS-PL-14	The experiment data shall be recoverable.	For the experiment to be useful, the data needs to be recovered.	Demonstration	STK-MR-03
+SYS-PL-15	The payload activation altitude shall be adjustable until 90 seconds before launch.	In order for the rocket to deploy at the correct moment, the required altitude needs to be determined with the most recent simulations.	Demonstration	STK-MK-01
+SYS-PL-16	The payload shall measure the water vapor density of the mesosphere.	Water vapor density information data is needed as it is a limiting factor for PMC formation.	Demonstration	STK-MR-05
+SYS-PL-17	The payload shall measure the water vapor density of the mesosphere with a range of at least 0-20 parts per million by volume.	This is the expected range of values for the mesosphere.	Analysis and Testing	SYS-PL-16
+SYS-PL-18	The payload shall measure the water vapor density of the mesosphere with an accuracy of at least 10%.	Current feasible resolution for measurements below 10 ppmv.	Analysis and Testing	SYS-PL-16
+SYS-PL-19	The payload shall measure the temperature of the mesosphere.	Temperature determines whether the clouds can even form. The data is therefore necessary to look at the long-term changes of PMCs.	Demonstration	STK-MR-03
+SYS-PL-20	The payload shall be able to measure the temperature of the mesosphere with a range of at least 90-300 Kelvin.	Expected range of temperature experienced by the rocket.	Analysis and Testing	SYS-PL-19
+SYS-PL-21	The payload shall be able to measure the temperature of the mesosphere with a resolution of dT <= 0.1 Kelvin.	Minimum resolution required to detect a temperature trend.	Analysis and Testing	SYS-PL-19
+SYS-PL-22	The payload shall be able to measure the pressure of the mesosphere.	This gives additional information relating to the water vapor density with humidity and absolute water content.	Demonstration	STK-MR-03
+SYS-PL-23	The payload shall be able to measure the pressure of the mesosphere with a range of at least 0.1-100 millibar.	Expected range of pressure measured in the mesosphere.	Analysis and Testing	SYS-PL-22
+SYS-PL-24	The payload shall be able to measure the pressure of the mesosphere with an accuracy of at least 5%.	Minimum resolution for the data to be useful.	Analysis and Testing	SYS-PL-22
+SYS-PL-25	The payload shall be able to capture a sample of a polar mesospheric cloud.	To create a library of samples that can be analyzed in the future.	Demonstration	STK-MR-06
+SYS-PL-26	The payload shall be able to sustain the transportation loads.	To complete the mission, the instrumentation cannot be damaged by the loads experienced during transportation.	Analysis and Testing	STK-MR-02
+SYS-PL-27	The payload shall be able to sustain the flight loads.	To complete the mission, the instrumentation cannot be damaged by the loads experienced during flight.	Analysis and Testing	STK-MR-02
+SYS-PL-28	The payload shall be able to sustain the launch loads.	Derived from SCI-PLD-6.	Analysis and Testing	SYS-PL-27
+SYS-PL-29	The payload shall be able to sustain the vibration loads during the launch.	Derived from SCI-PLD-6.1.	Analysis and Testing	SYS-PL-28
+SYS-PL-30	The payload shall be able to sustain the inertial loads during the launch.	Derived from SCI-PLD-6.1.	Analysis and Testing	SYS-PL-28
+SYS-PL-31	The payload shall be able to sustain the coast loads.	Derived from SCI-PLD-6.	Analysis and Testing	SYS-PL-27
+SYS-PL-32	The payload shall be able to sustain the vibration loads during coast.	Derived from SCI-PLD-6.2.	Analysis and Testing	SYS-PL-31
+SYS-PL-33	The payload shall be able to sustain the gyroscopic loads during coast.	Derived from SCI-PLD-6.2.	Analysis and Testing	SYS-PL-31
+SYS-PL-34	The payload shall be able to sustain the recovery loads.	Derived from SCI-PLD-6.	Analysis and Testing	SYS-PL-27
+SYS-PL-35	The payload shall be able to sustain the shock caused by the deployment of the decelerator.	Derived from SCI-PLD-6.3.	Analysis and Testing	SYS-PL-34
+SYS-PL-36	The payload shall be able to sustain the shock caused by impact with the ground.	Derived from SCI-PLD-6.3.	Analysis and Testing	SYS-PL-34
+SYS-PR-01 	 The propellants used shall not contain any fossil fuel derivatives. 	 Related to the stakeholder requirement, ensures that the propellant trade-off is sustainable. 	 Inspection  	STK-PR-01
+SYS-PR-02 	 The 2nd stage ignition system shall have at least 2 safety mechanisms. 	 Ensures a safe handling process during rocket integration and launch procedures. 	 Inspection  	STK-LS-01
+SYS-PR-03 	 The 1st stage ignition system shall have at least 2 safety mechanisms. 	 Ensures a safe handling process during rocket integration and launch procedures. 	 Inspection  	STK-LS-01
+SYS-PR-04 	 The 2nd stage ignition should have at least 2 indications of the triggering of the pyro. 	 Ensures a safe handling process during rocket integration and launch procedures. 	 Inspection  	STK-LS-01
+SYS-PR-05 	 The 1st stage ignition should have at least 2 indications of the triggering of the pyro. 	 Ensures a safe handling process during rocket integration and launch procedures. 	 Inspection  	STK-LS-01
+SYS-PR-06 	 The first stage solid motor shall have a failure mode of nozzle shear-out. 	 Ensures that in case of engine failure, the payload does not get damaged. 	 Analysis and Testing  	STK-LS-01
+SYS-PR-07 	 The second stage solid motor shall have a failure mode of nozzle shear-out. 	 Ensures that in case of engine failure, the payload does not get damaged. 	 Analysis and Demonstration  	STK-LS-01
+SYS-PR-08 	 The first stage solid motor shall pass two qualification hot fire tests. 	 Requirement derived from Esrange qualification requirements. 	 Testing and Inspection  	STK-LS-02
+SYS-PR-09 	 The second stage solid motor shall pass two qualification hot fire tests. 	 Requirement derived from Esrange qualification requirements. 	 Demonstration and Inspection  	STK-LS-02
+SYS-PR-10 	 The first stage combustion chamber shall pass qualification hydrostatic testing. 	 Necessary in order to ensure that the combustion chamber can withstand hotfiring conditions. The testing pressure depends on the vehicle. 	 Testing and Inspection  	STK-LS-01
+SYS-PR-11 	 The second stage combustion chamber shall pass qualification hydrostatic testing. 	 Necessary in order to ensure that the combustion chamber can withstand hotfiring conditions. The testing pressure depends on the vehicle. 	 Demonstration and Inspection  	STK-LS-01
+SYS-PW-01 	 The power system shall power the vehicle for at least TBD minutes without external charging. 	 Necessary to account for possible time delays and nominal pre-launch procedures. 	 Inspection  	LCH-GN-08
+SYS-PW-02 	 The telemetry transmission power shall not be higher than 10W. 	 Defined based on Esrange power recommendations. 	 Inspection  	STK-LS-02
+SYS-PW-03 	 The payload and avionics shall have separate power systems. 	 Ensures that the power system is redundant and that not all electronics on board the vehicle are affected. 	 Inspection  	SYS-AV-17
+SYS-PW-04 	 The payload shall have redundant power systems. 	 Ensures that the payload is powered in case of a power system malfunction. 	 Inspection  	SYS-AV-17 
+SYS-PW-05 	 The avionics shall have redundant power systems. 	 Ensures that the avionics are powered in case of a power system malfunction. 	 Inspection  	SYS-AV-17 
+SYS-PW-06 	 The power systems shall be able to be externally charged from the tower. 	 Ensures that the vehicle can be powered after full integration, maximizing the amount of power on board the vehicle at the moment of launch. 	 Inspection  	LCH-GN-08
+SYS-RC-01 	 The recovery system of the first stage shall have a reliability of 97.5\%. 	 The system should have a total recovery rate of 95\%, with two stages this means 97.5\% for both. 	 Demonstration  	STK-RE-02
+SYS-RC-02 	 The recovery deployment system of the first stage shall have a reliability of 97.9\%. 	 With an inflation reliability rate of 0.996 for space parachutes \cite{Mears1993ReportIndividuals}, the deployment will need 97.9\% to achieve 97.5\% total. 	 Demonstration  	STK-RE-02
+SYS-RC-03 	 The recovery system of the second stage shall have a reliability of 97.5\%. 	 The system should have a total recovery rate of 95\%, with two stages this means 97.5\% for both. 	 Demonstration  	STK-RE-02
+SYS-RC-04 	 The recovery deployment system of the second stage shall have a reliability of 97.9\%. 	 With an inflation reliability rate of 0.996 for space parachutes \cite{Mears1993ReportIndividuals}, the deployment will need 97.9\% to achieve 97.5\% total. 	 Demonstration  	STK-RE-02
+SYS-RC-05 	 The first stage main parachute shall withstand the flight loads. 	 The flight loads depend on dynamic pressure, vehicle dimensions and mass, and deployment altitude. Quantification is difficult at the moment. 	 Analysis and Testing  	SYS-GN-04
+SYS-RC-06 	 The first stage drogue parachute shall withstand the flight loads. 	 The flight loads depend on dynamic pressure, vehicle dimensions and mass, and deployment altitude. Quantification is difficult at the moment. 	 Analysis and Testing  	SYS-GN-04
+SYS-RC-07 	 The first stage main parachute shall withstand shock loads. 	 The shock loads can be quantified once the payload shock requirements are defined. The reaction also depends on the type of parachute used. 	 Analysis and Testing  	SYS-GN-04
+SYS-RC-08 	 The first stage drogue parachute shall withstand shock loads. 	 The shock loads can be quantified once the payload shock requirements are defined. The reaction also depends on the type of parachute used. 	 Analysis and Testing  	SYS-GN-04
+SYS-RC-09 	 The first stage main parachute shall maintain stability. 	 Parachute stability can be quantified using angles of oscillation, dependent on the type of parachute, deployment altitude, and speed. 	 Analysis and Testing  	SYS-GN-04
+SYS-RC-10 	 The first stage drogue parachute shall maintain stability. 	 Parachute stability can be quantified using angles of oscillation, dependent on the type of parachute, deployment altitude, and speed. 	 Analysis and Testing  	SYS-GN-04
+SYS-RC-11 	 The first stage main parachute shall be orange. 	 To ensure clear visibility, orange is the best color. 	 Inspection  	SYS-GN-04
+SYS-RC-12 	 The first stage drogue parachute shall be orange. 	 To ensure clear visibility, orange is the best color. 	 Inspection  	SYS-GN-04
+SYS-RC-13 	 The second stage main parachute shall withstand the flight loads. 	 The flight loads depend on dynamic pressure, vehicle dimensions and mass, and deployment altitude. Quantification is difficult at the moment. 	 Analysis and Demonstration  	SYS-GN-04
+SYS-RC-14 	 The second stage drogue parachute shall withstand the flight loads. 	 The flight loads depend on dynamic pressure, vehicle dimensions and mass, and deployment altitude. Quantification is difficult at the moment. 	 Analysis and Demonstration  	SYS-GN-04
+SYS-RC-15 	 The second stage main parachute shall withstand shock loads. 	 The shock loads can be quantified once the payload shock requirements are defined. The reaction also depends on the type of parachute used. 	 Analysis and Demonstration  	SYS-GN-04
+SYS-RC-16 	 The second stage drogue parachute shall withstand shock loads. 	 The shock loads can be quantified once the payload shock requirements are defined. The reaction also depends on the type of parachute used. 	 Analysis and Demonstration  	SYS-GN-04
+SYS-RC-17 	 The second stage main parachute shall maintain stability. 	 Parachute stability can be quantified using angles of oscillation, dependent on the type of parachute, deployment altitude, and speed. 	 Analysis and Demonstration  	SYS-GN-04
+SYS-RC-18 	 The second stage drogue parachute shall maintain stability. 	 Parachute stability can be quantified using angles of oscillation, dependent on the type of parachute, deployment altitude, and speed. 	 Analysis and Demonstration  	SYS-GN-04
+SYS-RC-19 	 The second stage main parachute shall be orange. 	 To ensure clear visibility, orange is the best color. 	 Inspection  	SYS-GN-04
+SYS-RC-20 	 The second stage drogue parachute shall be orange. 	 To ensure clear visibility, orange is the best color. 	 Inspection  	SYS-GN-04
+SYS-RC-21 	 The deployment actuation system shall have a reaction timing of less than 0.5s. 	 TBD 	 Demonstration  	SYS-GN-04
+
+STK-MR-01	The sounding rocket shall have a minimum apogee of 90 km. 
+STK-MR-02	The rocket shall have a maximum total payload of 40 kg
+STK-MR-03	The scientific instruments shall be capable of making in-situ measurements of the physical properties of the PMCs. 
+STK-MR-05	The scientific instruments shall be capable of making in-situ measurements of the chemical properties of the PMCs
+STK-MR-06	The payload shall be able to collect an atmospheric sample from inside the Polar Mesospheric Cloud.
+STK-MR-07	The vehicle shall gather engine and flight performance data
+STK-MR-08	The first operational flight shall take place in 2026
+STK-LS-01	The rocket shall meet the safety requirements of the launch site
+STK-LS-02	The rocket shall be capable of being launched at the Esrange Space Center.
+STK-PR-01	The rocket propulsion system shall not use propellants that are derived from fossil fuels.
+STK-PR-02	The rocket propellants shall not be toxic to the environment. 
+STK-PR-03	The rocket exhaust products shall abide by the WHO Global Air Quality Guidelines.
+STK-RE-01	The rocket shall have less than 9% of its parts by dry mass replaced per mission, averaged over 10 missions.
+STK-RE-02	No more than 1 vehicle shall be lost, on average, over a span of 20 missions. 
+STK-MK-01	The payload section shall be able to accommodate a payload of 6U
+STK-FI-01	The total mission development cost shall be no more than 35 million euros
