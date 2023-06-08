@@ -74,6 +74,8 @@ class Simulator:
             self.stages["Total"].fuel_mass = rocket.stage1.engine.fuel_mass
             self.stages["Total"].mmoi = rocket.stage1.engine.mmoi
 
+            print(self.stages["Total"].thrust_curve)
+
             # Separation
             # Stage 1
             self.stages["Stage1"] = FlightData(10000)

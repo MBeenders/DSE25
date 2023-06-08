@@ -6,8 +6,8 @@ from numba import float64
 # ENGINE SIZING FUNCTIONS
 
 
-# computing the initial acceleration dictated by the launch tower lenght and exit velocity [m/s^2]
-def initial_acc(length, velocity):
+# computing the initial acceleration dictated by the launch tower length and exit velocity [m/s^2]
+def initial_acceleration(length, velocity):
     launch_tower_acceleration = velocity ** 2 / (2 * length)
     return launch_tower_acceleration
 
@@ -121,23 +121,42 @@ def burn_area(regression_rate, mass_flow, rho):
     return prop_burn_area
 
 
+# Mauro's iteration domain
+def create_engines(rocket):
+    def create_stage1_engine():
+        initial_acceleration(rocket.stage1.launch_tower_length,
+                             rocket.stage1.launch_exit_velocity)
+
+    def create_stage2_engine():
+        pass
+
+    create_stage1_engine()
+
+
 def stage2_iteration(rocket):
     dt: float  = rocket.simulator.dt
-    burn_time: float = rocket.stage2.engine.burn_rate
+    burn_time: float = rocket.stage2.engine.burn_time
 
     def create_thrust_curve() -> np.array:
         thrust: np.array = rocket.stage2.engine.thrust
-        return thrust * np.ones(int(burn_time * (1/dt)), dtype=float64)
+        return thrust * np.ones(int(burn_time * (1/dt)), dtype=float)
 
     def create_fuel_mass_curve() -> np.array:
         fuel_mass: np.array = rocket.stage2.engine.fuel_mass
-        return np.linspace(fuel_mass, 0, int(burn_time * (1/dt)), dtype=float64)
+        return np.linspace(fuel_mass, 0, int(burn_time * (1/dt)), dtype=float)
 
     rocket.stage2.engine.thrust_curve = create_thrust_curve()
     rocket.stage2.engine.fuel_mass = create_fuel_mass_curve()
 
-    rocket.simulator.create_stages()
+    print(rocket.stage2.engine.thrust_curve)
+    rocket.simulator.create_stages(rocket)
     rocket.simulator.run()
+
+
+def optimize_stage2(rocket, max_iterations):
+
+    for i in range(max_iterations):
+        stage2_iteration(rocket)
 
 
 def run(rocket, stage):
@@ -182,37 +201,39 @@ def run(rocket, stage):
     # sizing constants
     Vl = 0.8  # NASA said so; volumetric constant
 
-    tower_acc = initial_acc(h, lt_v)
-    thrust = thrust_force(m_v, tower_acc)
-    mass_propellant = propellant_mass(Isp, I1, g)
-    m_dot = mass_flow(Isp, g, thrust)
-    # engine casing calculations
+    # tower_acc = initial_acc(h, lt_v)
+    # thrust = thrust_force(m_v, tower_acc)
+    # mass_propellant = propellant_mass(Isp, I1, g)
+    # m_dot = mass_flow(Isp, g, thrust)
+    # # engine casing calculations
+    #
+    # # computing the yielding constrained wall thickness, based on the yield strength of alu 6082, and outside stage diameter
+    # yield_strength = 6000000  # look this up for our material
+    # safety_factor = 1.5
+    # pressure_yield = safety_factor * Pc
+    #
+    # liner_thickness = 0.003  # charlie made me do it [m]
+    # wall_thickness = casing_thickness(yield_strength, d1, Pc, liner_thickness)
+    # volume_chamber = chamber_volume(mass_propellant, rho, Vl)
+    # grain_diameter = propellant_outer_diameter(d1, wall_thickness)
+    # length_chamber = chamber_length(volume_chamber, grain_diameter)
+    #
+    # throat_area = nozzle_throat_area(m_dot, c_star, Pc)
+    # area_exit = 4
+    # area_ratio = area_exit / throat_area
+    #
+    # nozzle_length = length_nozzle(area_ratio, throat_area)
+    #
+    # length_motor = total_length(nozzle_length, length_chamber)
+    #
+    # # VALIDATION RELEVANT COMPUTATIONS
+    #
+    # # figuring out the regression rate stuff
+    # # asumptions (estimated based on literature)
+    # a = 1  # coefficient of pressure. chosen from literature
+    # n = 2  # pressure exponent. chosen from literature
 
-    # computing the yielding constrained wall thickness, based on the yield strength of alu 6082, and outside stage diameter
-    yield_strength = 6000000  # look this up for our material
-    safety_factor = 1.5
-    pressure_yield = safety_factor * Pc
-
-    liner_thickness = 0.003  # charlie made me do it [m]
-    wall_thickness = casing_thickness(yield_strength, d1, Pc, liner_thickness)
-    volume_chamber = chamber_volume(mass_propellant, rho, Vl)
-    grain_diameter = propellant_outer_diameter(d1, wall_thickness)
-    length_chamber = chamber_length(volume_chamber, grain_diameter)
-
-    throat_area = nozzle_throat_area(m_dot, c_star, Pc)
-    area_exit = 4
-    area_ratio = area_exit / throat_area
-
-    nozzle_length = length_nozzle(area_ratio, throat_area)
-
-    length_motor = total_length(nozzle_length, length_chamber)
-
-    # VALIDATION RELEVANT COMPUTATIONS
-
-    # figuring out the regression rate stuff
-    # asumptions (estimated based on literature)
-    a = 1  # coefficient of pressure. chosen from literature
-    n = 2  # pressure exponent. chosen from literature
+    optimize_stage2(rocket, 2)
 
     return rocket
 
