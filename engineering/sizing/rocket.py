@@ -198,8 +198,8 @@ class Payload(Subsystem):
             Subsystem.__init__(self, f"{name} Power")
             self.avg_voltage: float
             self.dod: float
-            self.power_density: float
-            self.power_volume: float
+            self.power_density: float = 140 #Wh/kg
+            self.power_volume: float = 250000 #Wh/m^3
             self.margin: float
 
             #final outputs
