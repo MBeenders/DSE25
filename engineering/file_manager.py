@@ -44,8 +44,8 @@ def insert_values(data: pd.DataFrame, rocket: Rocket):
     """
 
     def add_value(current_value, variable, rocket_sub):
-        try:
-            try:
+        try:  # Check if variable exists
+            try:  # Try to convert it to a float, otherwise leave it as a string
                 value = float(current_value)
             except ValueError:
                 value = current_value
@@ -55,7 +55,7 @@ def insert_values(data: pd.DataFrame, rocket: Rocket):
             raise Exception(f"'{current_value}' not found in csv, error: {error}")
 
     def add_line(subsystem, line, rocket_sub):
-        if len(subsystem) > 1:
+        if len(subsystem) > 1:  # Dig deeper into the class system to get to the subclass
             try:
                 rocket_sub = rocket_sub[subsystem[0]]
             except KeyError as error:
@@ -64,11 +64,13 @@ def insert_values(data: pd.DataFrame, rocket: Rocket):
             subsystem.pop(0)
             add_line(subsystem, line, rocket_sub)
 
-        else:
+        else:  # Insert the value under the right variable
             add_value(line["Value"], line["Variable"], rocket_sub[subsystem[0]])
 
     for index, row in data.iterrows():
-        if row["Subsystem"] == "stage":  # If it is a stage value
+        if row["Subsystem"] == "rocket":  # If it is a global rocket value
+            add_value(row["Value"], row["Variable"], rocket)
+        elif row["Subsystem"] == "stage":  # If it is a stage value
             add_value(row["Value"], row["Variable"], rocket[f"stage{int(row['Stage'])}"])
         else:  # If it is a subsystem value
             add_line(row["Subsystem"].split(","), row, rocket[f"stage{int(row['Stage'])}"])
@@ -138,9 +140,4 @@ def export_catia_parameters(file_name: str, rocket: Rocket, variables: dict):
 
 
 if __name__ == "__main__":
-    sim: Simulator = Simulator()
-
-    run_param_file = open(f"{current_file_path}/files/run_parameters.json")
-    run_param: dict = json.load(run_param_file)
-
-    initialize_rocket("initial_values", sim, run_param)
+    pass
