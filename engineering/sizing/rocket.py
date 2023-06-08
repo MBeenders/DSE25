@@ -6,6 +6,7 @@ class Stage:
         self.id: str = "0.0"
         self.name: str = name
         self.mass: float = 0  # [kg]
+        self.dry_mass: float = 0  # [kg]
         self.length: float = 0  # [m]
         self.diameter: float = 0  # [m]
         self.power_in: float = 0  # [W]
@@ -17,8 +18,6 @@ class Stage:
         self.structure: Subsystem | None = None
         self.electronics: Subsystem | None = None
         self.payload: Subsystem | None = None
-
-        self.dry_mass: float = 0 # [kg]
 
     def __setitem__(self, key, item):
         self.__dict__[key] = item
@@ -90,16 +89,16 @@ class Recovery(Subsystem):
         self.drogue = self.Drogue(name)
         self.main_parachute = self.MainParachute(name)
 
-        self.descent_rate: float = 0 # [m/s]
-        self.material_density: float = 0 # [kg/m^2]
-        self.material_cost: float = 0 # [euros/m^2]
-        self.line_density: float = 0 # [kg/m]
-        self.line_cost: float = 0 # [euros/m]
-        self.m_gas: float = 0 # [kg]
-        self.m_total_gas: float = 0 # [kg]
-        self.gas_cost: float = 0 # [euros]
-        self.gas_total_cost: float = 0 # [euros]
-        self.n_gas: float = 0 # [-]
+        self.descent_rate: float = 0  # [m/s]
+        self.material_density: float = 0  # [kg/m^2]
+        self.material_cost: float = 0  # [euros/m^2]
+        self.line_density: float = 0  # [kg/m]
+        self.line_cost: float = 0  # [euros/m]
+        self.m_gas: float = 0  # [kg]
+        self.m_total_gas: float = 0  # [kg]
+        self.gas_cost: float = 0  # [euros]
+        self.gas_total_cost: float = 0  # [euros]
+        self.n_gas: float = 0  # [-]
 
     class Drogue(Subsystem):
         def __init__(self, name: str):

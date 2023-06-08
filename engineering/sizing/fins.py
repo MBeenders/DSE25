@@ -1,6 +1,11 @@
-import numpy as np
-from engineering.sizing.rocket import Rocket
+import sys
+import os
 
+path = os.path.split(sys.argv[0])[0]
+sys.path.append(path)
+
+from sizing.rocket import Rocket
+import numpy as np
 
 def do_stuff(rocket: Rocket):
     """

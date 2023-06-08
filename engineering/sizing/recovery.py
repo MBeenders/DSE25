@@ -1,7 +1,13 @@
-from engineering.sizing.rocket import Rocket
+import sys
+import os
+
+path = os.path.split(sys.argv[0])[0]
+sys.path.append(path)
+
+from sizing.rocket import Rocket
 import numpy as np
 
-#Constant values:
+#  Constant values:
 g = 9.80665
 rho = 1.225
 
@@ -11,15 +17,15 @@ def Parachutes(rocket: Rocket):
     :param rocket: Rocket class
     :return: mass and cost of parachutes
     """
-    dry_mass1 = rocket.stage1.dry_mass
-    dry_mass2 = rocket.stage2.dry_mass
-    V_1 = rocket.stage1.recovery.descent_rate
-    V_2 = rocket.stage2.recovery.descent_rate
-    c_D_main1 = rocket.stage1.recovery.main_parachute.c_D
-    c_D_drogue2 = rocket.stage2.recovery.drogue.c_D
-    c_D_main2 = rocket.stage2.recovery.main_parachute.c_D
-    material_density = rocket.stage1.recovery.material_density #Assume material density is the same for both stages
-    material_cost = rocket.stage1.recovery.material_cost
+    dry_mass1: float = rocket.stage1.dry_mass
+    dry_mass2: float = rocket.stage2.dry_mass
+    V_1: float = rocket.stage1.recovery.descent_rate
+    V_2: float = rocket.stage2.recovery.descent_rate
+    c_D_main1: float = rocket.stage1.recovery.main_parachute.c_D
+    c_D_drogue2: float = rocket.stage2.recovery.drogue.c_D
+    c_D_main2: float = rocket.stage2.recovery.main_parachute.c_D
+    material_density: float = rocket.stage1.recovery.material_density #Assume material density is the same for both stages
+    material_cost: float = rocket.stage1.recovery.material_cost
 
     # AREA & DIAMETER OF PARACHUTES:
 

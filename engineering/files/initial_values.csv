@@ -1,4 +1,6 @@
 Stage,Subsystem,Variable,Value,Unit,
+1,stage,dry_mass,30,kg,
+2,stage,dry_mass,20,kg,
 1,engine,mass,10,kg,
 1,engine,length,1,m,
 1,engine,diameter,0.15,m,

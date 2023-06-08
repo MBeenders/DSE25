@@ -1,4 +1,10 @@
-from engineering.sizing.rocket import Rocket
+import sys
+import os
+
+path = os.path.split(sys.argv[0])[0]
+sys.path.append(path)
+
+from sizing.rocket import Rocket
 import numpy as np
 
 # Constant values:

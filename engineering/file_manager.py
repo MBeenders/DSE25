@@ -4,6 +4,10 @@ import pandas as pd
 import pickle
 import json
 import os
+import sys
+
+
+current_file_path = os.path.split(sys.argv[0])[0]
 
 
 def import_chemical(chemical_name: str) -> dict:
@@ -11,7 +15,7 @@ def import_chemical(chemical_name: str) -> dict:
     :param chemical_name: Name of the chemical
     :return: Dictionary with information about the chemical
     """
-    chemical_file = open(f"files/chemicals/{chemical_name}.json")
+    chemical_file = open(f"{current_file_path}/files/chemicals/{chemical_name}.json")
     return json.load(chemical_file)
 
 
@@ -30,7 +34,7 @@ def import_csv(file_name: str) -> pd.DataFrame:
     :param file_name: Name of csv file, must be in "files" folder
     :return: Pandas dataframe of the file
     """
-    return pd.read_csv(os.path.join("files", f'{file_name}.csv'))
+    return pd.read_csv(f"{current_file_path}/files/{file_name}.csv")
 
 
 def insert_values(data: pd.DataFrame, rocket: Rocket):
@@ -38,6 +42,18 @@ def insert_values(data: pd.DataFrame, rocket: Rocket):
     :param data: Pandas Dataframe file with initialization values
     :param rocket: Rocket class
     """
+
+    def add_value(current_value, subsystem, rocket_sub):
+        try:
+            try:
+                value = float(current_value)
+            except ValueError:
+                value = current_value
+
+            rocket_sub[subsystem][current_value] = value
+        except KeyError as error:
+            raise Exception(f"'{current_value}' not found in csv, error: {error}")
+
     def add_line(subsystem, line, rocket_sub):
         if len(subsystem) > 1:
             try:
@@ -49,13 +65,13 @@ def insert_values(data: pd.DataFrame, rocket: Rocket):
             add_line(subsystem, line, rocket_sub)
 
         else:
-            try:
-                rocket_sub[subsystem[0]][line["Variable"]] = line["Value"]
-            except KeyError as error:
-                raise Exception(f"'{line['Variable']}' not found in csv, error: {error}")
+            add_value(line["Value"], subsystem[0], rocket_sub)
 
     for index, row in data.iterrows():
-        add_line(row["Subsystem"].split(","), row, rocket[f"stage{int(row['Stage'])}"])
+        if row["Subsystem"] == "stage":  # If it is a stage value
+            add_value(row["Value"], f"stage{int(row['Stage'])}", rocket)
+        else:  # If it is a subsystem value
+            add_line(row["Subsystem"].split(","), row, rocket[f"stage{int(row['Stage'])}"])
 
 
 def initialize_rocket(file_name: str, simulator: Simulator, run_parameters: dict) -> Rocket:
@@ -81,7 +97,7 @@ def import_rocket_iteration(file_name: str) -> Rocket:
     :return Rocket class
     Imports a Rocket class from a previous iteration
     """
-    with open(f'files/{file_name}.pickle', 'rb') as file:
+    with open(f"{current_file_path}/files/{file_name}.pickle", 'rb') as file:
         return pickle.load(file)
 
 
@@ -92,7 +108,7 @@ def export_rocket_iteration(file_name: str, rocket: Rocket, run_id: int):
     :param run_id: ID of the current run
     Saves the entire class in the archive as a pickle file.
     """
-    with open(f'files/archive/{file_name}_{run_id}.{rocket.id}.pickle', 'wb') as file:
+    with open(f"{current_file_path}/files/archive/{file_name}_{run_id}.{rocket.id}.pickle", 'wb') as file:
         pickle.dump(rocket, file)
 
 
@@ -117,14 +133,14 @@ def export_catia_parameters(file_name: str, rocket: Rocket, variables: dict):
         get_info(name, value, rocket[name])
 
     data = pd.DataFrame.from_dict(parameters, orient="index").transpose()
-    output_path = f"files/catia/{file_name}.csv"
+    output_path = f"{current_file_path}/files/catia/{file_name}.csv"
     data.to_csv(output_path, mode='a', header=not os.path.exists(output_path), index=False)
 
 
 if __name__ == "__main__":
     sim: Simulator = Simulator()
 
-    run_param_file = open("files/run_parameters.json")
+    run_param_file = open(f"{current_file_path}/files/run_parameters.json")
     run_param: dict = json.load(run_param_file)
 
     initialize_rocket("initial_values", sim, run_param)

@@ -1,19 +1,19 @@
 import copy
 import json
+import os
+import sys
+
 import numpy as np
 
-from sizing.rocket import Rocket
-from sizing.engine import run as run_engine_sizing
-from sizing.recovery import run as run_recovery_sizing
-from sizing.structure import run as run_structure_sizing
-from sizing.electronics import run as run_electronics_sizing
-
-from simulators.simulator import Simulator
+import file_manager as fm
+from simulators.advanced.aerodynamics import drag, isa
 from simulators.simple.dynamics import run as dynamics_run
 from simulators.simple.gravity import gravity
-from simulators.advanced.aerodynamics import drag, isa
-
-import file_manager as fm
+from simulators.simulator import Simulator
+from sizing.engine import run as run_engine_sizing
+from sizing.recovery import run as run_recovery_sizing
+from sizing.rocket import Rocket
+from sizing.structure import run as run_structure_sizing
 
 
 class Runner:
@@ -23,9 +23,10 @@ class Runner:
         :param run_id: ID of the current run
         """
         self.run_id = run_id
+        self.current_file_path = os.path.split(sys.argv[0])[0]
 
         # Import the run parameters
-        self.run_parameters_file = open("files/run_parameters.json")
+        self.run_parameters_file = open(f"{self.current_file_path}/files/run_parameters.json")
         self.run_parameters: dict = json.load(self.run_parameters_file)
         self.selection: list[str] = self.run_parameters["sizing_selection"]
 
@@ -107,9 +108,9 @@ class Runner:
         self.new_rocket.id = serial_num
 
     def test_sizing(self):
-        run_electronics_sizing(copy.deepcopy(self.rocket))
+        # run_electronics_sizing(copy.deepcopy(self.rocket))
         # run_engine_sizing(copy.deepcopy(self.rocket))
-        # run_recovery_sizing(copy.deepcopy(self.rocket))
+        run_recovery_sizing(copy.deepcopy(self.rocket))
         # run_structure_sizing(copy.deepcopy(self.rocket))
 
     def check_compliance(self, show_within_limit=False):
