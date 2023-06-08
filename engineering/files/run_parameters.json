@@ -7,7 +7,7 @@
     "engine2_ignition": {"delay": 2},
     "separation": {"delay": 1}
   },
-  "sizing_selection": ["stage1_engine", "stage2_engine", "stage1_recovery"],
+  "sizing_selection": ["recovery"],
   "engine_chemicals":
   {
     "stage1":

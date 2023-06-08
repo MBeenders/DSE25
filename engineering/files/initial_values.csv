@@ -29,3 +29,6 @@ Stage,Subsystem,Variable,Value,Unit
 2,recovery,gas_cost,530,euros
 1,recovery,n_gas,1,-
 2,recovery,n_gas,2,-
+1,"electronics, communicationsystem",frequency,10,Hz
+1,electronics,datarate,10000,bits/s
+1,"electronics, communicationsystem",margin,1.5,-

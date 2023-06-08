@@ -6,6 +6,7 @@ from sizing.rocket import Rocket
 from sizing.engine import run as run_engine_sizing
 from sizing.recovery import run as run_recovery_sizing
 from sizing.structure import run as run_structure_sizing
+from sizing.electronics import run as run_electronics_sizing
 
 from simulators.simulator import Simulator
 from simulators.simple.dynamics import run as dynamics_run
@@ -39,6 +40,16 @@ class Runner:
         # Import requirements
         self.requirements = fm.import_csv("requirements")
 
+    def run(self):
+        print("Populating Simulation")
+        self.populate_simulation()
+        print("Running Simulation")
+        self.rocket.simulator.run()
+        print("Running Sizing")
+        self.run_sizing()
+        print("Finished! Closing program ...")
+        self.close()
+
     def give_id(self, subsystem):
         serial_num = int(subsystem.id.split(".")[1])
         serial_num += 1
@@ -56,15 +67,34 @@ class Runner:
     def run_sizing(self):
         sized_dict: dict = {"stage1": {}, "stage2": {}}  # Dictionary with all sized classes
         if "stage1_engine" in self.selection:
-            sized_dict["stage1"]["engine"] = run_engine_sizing(copy.deepcopy(self.rocket))["stage1"]["engine"]
+            print("\tSizing Stage 1 Engine")
+            try:
+                sized_dict["stage1"]["engine"] = run_engine_sizing(copy.deepcopy(self.rocket))["stage1"]["engine"]
+            except Exception as error:
+                print(f"\t!! Stage 1 Engine sizing failed with: {error}")
+
         if "stage2_engine" in self.selection:
-            sized_dict["stage2"]["engine"] = run_engine_sizing(copy.deepcopy(self.rocket))["stage2"]["engine"]
-        if "stage1_recovery" in self.selection:
-            sized_dict["stage1"]["recovery"] = run_recovery_sizing(copy.deepcopy(self.rocket))["stage1"]["recovery"]
-        if "stage2_recovery" in self.selection:
-            sized_dict["stage2"]["recovery"] = run_recovery_sizing(copy.deepcopy(self.rocket))["stage2"]["recovery"]
+            print("\tSizing Stage 2 Engine")
+            try:
+                sized_dict["stage2"]["engine"] = run_engine_sizing(copy.deepcopy(self.rocket))["stage2"]["engine"]
+            except Exception as error:
+                print(f"\t!! Stage 2 Engine sizing failed with: {error}")
+
+        if "recovery" in self.selection:
+            print("\tSizing Recovery")
+            try:
+                recovery_sizing = run_recovery_sizing(copy.deepcopy(self.rocket))
+                sized_dict["stage1"]["recovery"] = recovery_sizing["stage1"]["recovery"]
+                sized_dict["stage2"]["recovery"] = recovery_sizing["stage2"]["recovery"]
+            except Exception as error:
+                print(f"\t!! Recovery sizing failed with: {error}")
+
         if "stage1_structure" in self.selection:
-            sized_dict["stage1"]["structure"] = run_structure_sizing(copy.deepcopy(self.rocket))["stage1"]["structure"]
+            print("\tSizing Stage 1 Structure")
+            try:
+                sized_dict["stage1"]["structure"] = run_structure_sizing(copy.deepcopy(self.rocket))["stage1"]["structure"]
+            except Exception as error:
+                print(f"\t!! Stage 1 Structure sizing failed with: {error}")
 
         for stage_name, stage_classes in sized_dict.items():
             for subsystem_name, subsystem_data in stage_classes.items():
@@ -75,6 +105,12 @@ class Runner:
         serial_num = int(self.rocket.id)
         serial_num += 1
         self.new_rocket.id = serial_num
+
+    def test_sizing(self):
+        run_electronics_sizing(copy.deepcopy(self.rocket))
+        # run_engine_sizing(copy.deepcopy(self.rocket))
+        # run_recovery_sizing(copy.deepcopy(self.rocket))
+        # run_structure_sizing(copy.deepcopy(self.rocket))
 
     def check_compliance(self, show_within_limit=False):
         print("Checking compliance with the requirements")
@@ -136,14 +172,5 @@ class Runner:
 
 
 if __name__ == "__main__":
-    profile = {"stages": 2,
-               "launch": {"exact", 0},
-               "engine1_ignition": {"exact", 0},
-               "engine2_ignition": {"delay", 2},
-               "separation": {"delay", 1}
-               }
-
     runner = Runner("initial_values", 0)
-    runner.populate_simulation()
-    runner.rocket.simulator.run()
-    runner.close()
+    runner.test_sizing()

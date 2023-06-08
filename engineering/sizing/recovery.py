@@ -6,7 +6,6 @@ g = 9.80665
 rho = 1.225
 
 
-
 def Parachutes(rocket: Rocket):
     """
     :param rocket: Rocket class
