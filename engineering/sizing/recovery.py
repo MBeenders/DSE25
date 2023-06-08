@@ -1,10 +1,3 @@
-import sys
-import os
-
-path = os.path.split(sys.argv[0])[0]
-sys.path.append(path)
-
-from sizing.rocket import Rocket
 import numpy as np
 
 #  Constant values:
@@ -12,7 +5,7 @@ g = 9.80665
 rho = 1.225
 
 
-def Parachutes(rocket: Rocket):
+def Parachutes(rocket):
     """
     :param rocket: Rocket class
     :return: mass and cost of parachutes
@@ -28,6 +21,7 @@ def Parachutes(rocket: Rocket):
     material_cost: float = rocket.stage1.recovery.material_cost
 
     # AREA & DIAMETER OF PARACHUTES:
+    print(dry_mass1, g, rho, V_1, c_D_main1)
 
     # 1st stage main parachute:
     S_main1 = dry_mass1 * g / (0.5 * rho * V_1 ** 2 * c_D_main1)
@@ -68,7 +62,7 @@ def Parachutes(rocket: Rocket):
 
     return m_main1, m_drogue2, m_main2, cost_main1, cost_drogue2, cost_main2, d_parachutes
 
-def Lines(rocket: Rocket):
+def Lines(rocket):
     """
     :param rocket: Rocket class
     :return: None
@@ -111,7 +105,7 @@ def Lines(rocket: Rocket):
 
     return m_main1, m_drogue2, m_main2, cost_main1, cost_drogue2, cost_main2
 
-def Coldgas(rocket: Rocket):
+def Coldgas(rocket):
     """
     :param rocket: Rocket class
     :return: None
@@ -132,7 +126,7 @@ def Coldgas(rocket: Rocket):
 
 
 
-def run(rocket: Rocket) -> Rocket:
+def run(rocket):
     """
     :param rocket: Original Rocket class
     :return: Updated Rocket class
@@ -155,9 +149,6 @@ def run(rocket: Rocket) -> Rocket:
     rocket.stage1.recovery.cost = rocket.stage1.recovery.main_parachute.cost + Coldgas(rocket)[2]
     rocket.stage2.recovery.cost = rocket.stage2.recovery.drogue.cost + rocket.stage2.recovery.main_parachute.cost + Coldgas(rocket)[3]
 
-    return rocket
-
 
 if __name__ == "__main__":
-    test_rocket = Rocket()
-    run(test_rocket)
+    pass
