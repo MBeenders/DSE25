@@ -1,5 +1,7 @@
-# from engineering.sizing.rocket import Rocket
 import math
+import numpy as np
+from numba import float64
+
 
 # ENGINE SIZING FUNCTIONS
 
@@ -62,14 +64,16 @@ def nozzle_throat_area(mass_flow, c_star, chamber_pressure):
     area_throat = (mass_flow * c_star) / chamber_pressure
     return area_throat
 
+
 def nozzle_exit_area(pressure_chamber, mach, gamma, pressure_ambient, exit_area, throat_area):
     p0 = pressure_chamber
     p = pressure_ambient
     k = gamma
     M = mach
-    M = 2 / (k - 1) * ((p0 / p) ** ((k -1) / k) - 1)
-    exit_area = throat_area / M * math.sqrt(((1 + (k - 1) / 2 * M ** 2) / (1 + (k - 1) / 2)) ** ((k + 1) / (k -1)))
+    M = 2 / (k - 1) * ((p0 / p) ** ((k - 1) / k) - 1)
+    exit_area = throat_area / M * math.sqrt(((1 + (k - 1) / 2 * M ** 2) / (1 + (k - 1) / 2)) ** ((k + 1) / (k - 1)))
     return exit_area
+
 
 # determining the L/Dt
 def length_nozzle(area_ratio, throat_area):
@@ -81,27 +85,27 @@ def length_nozzle(area_ratio, throat_area):
 def total_length(nozzle_length, length_chamber):
     return nozzle_length + length_chamber
 
-#determining the casing mass
+
+# determining the casing mass
 def casing_mass(wall_thickness, stage_diameter, length_chamber, rho_casing):
     chamber_mass = math.pi * (stage_diameter ** 2 - (stage_diameter - 2 * wall_thickness) ** 2) * length_chamber * rho_casing
     return chamber_mass
 
-#determining the nozzle mass, based on nozzle length, an assumed thickness and material properties
+
+# determining the nozzle mass, based on nozzle length, an assumed thickness and material properties
 def nozzle_mass(nozzle_thickness, throat_diameter, exit_diameter, rho_nozzle, length_nozzle):
     R = exit_diameter / 2
     r = throat_diameter / 2
     l = length_nozzle
     t = nozzle_thickness
-    nozzle_mass = rho_nozzle * 1/3 * math.pi * l * (R ** 2 + R * r + r ** 2 - (R - t) ** 2 - (R - t)*(r - t) - (r - t) ** 2)
+    nozzle_mass = rho_nozzle * 1 / 3 * math.pi * l * (R ** 2 + R * r + r ** 2 - (R - t) ** 2 - (R - t) * (r - t) - (r - t) ** 2)
     return nozzle_mass
 
-#determining the total solid motor mass: including chamber, nozzle and extra parts, that are assumed based on simplifications
+
+# determining the total solid motor mass: including chamber, nozzle and extra parts, that are assumed based on simplifications
 def solid_motor_mass(chamber_mass, nozzle_mass, bulkhead_mass):
-    motor_mass = chamber_mass + nozzle_mass + bulkhead_mass 
+    motor_mass = chamber_mass + nozzle_mass + bulkhead_mass
     return motor_mass
-
-
-    
 
 
 # computing the regression rate based on literature chosen constants [mm/s]
@@ -115,6 +119,25 @@ def regression_rate(chamber_pressure, pressure_coefficient, pressure_exponent):
 def burn_area(regression_rate, mass_flow, rho):
     prop_burn_area = mass_flow / (regression_rate * rho)
     return prop_burn_area
+
+
+def stage2_iteration(rocket):
+    dt: float  = rocket.simulator.dt
+    burn_time: float = rocket.stage2.engine.burn_rate
+
+    def create_thrust_curve() -> np.array:
+        thrust: np.array = rocket.stage2.engine.thrust
+        return thrust * np.ones(int(burn_time * (1/dt)), dtype=float64)
+
+    def create_fuel_mass_curve() -> np.array:
+        fuel_mass: np.array = rocket.stage2.engine.fuel_mass
+        return np.linspace(fuel_mass, 0, int(burn_time * (1/dt)), dtype=float64)
+
+    rocket.stage2.engine.thrust_curve = create_thrust_curve()
+    rocket.stage2.engine.fuel_mass = create_fuel_mass_curve()
+
+    rocket.simulator.create_stages()
+    rocket.simulator.run()
 
 
 def run(rocket, stage):
@@ -192,7 +215,6 @@ def run(rocket, stage):
     n = 2  # pressure exponent. chosen from literature
 
     return rocket
-
 
 # if __name__ == "__main__":
 #     test_rocket = Rocket()

@@ -45,6 +45,8 @@ class FlightData:
 
 class Simulator:
     def __init__(self, mission_profile: dict, dynamics_run, gravity, drag, isa):
+        self.dt: float64 = 0.01  # [s]
+
         # Functions
         self.dynamics_run = dynamics_run
         self.gravity = gravity
@@ -58,7 +60,7 @@ class Simulator:
 
     def run(self):
         self.stages["Total"].velocities[0][1] = 10E-5
-        self.dynamics_run(self.stages["Total"], self.gravity, self.drag, self.isa)
+        self.dynamics_run(self.stages["Total"], self.gravity, self.drag, self.isa, dt=self.dt)
         self.trim_lists(self.stages["Total"])
 
     def create_stages(self, rocket):
