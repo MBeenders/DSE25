@@ -1,6 +1,31 @@
-Subsystem,Variable,Value,Unit
-engine_1,mass,10,kg
-engine_1,length,1,m
-engine_1,diameter,0.15,m
-engine_1,isp,1000,s
-"recovery_1, drogue",mass,1,kg
+Stage,Subsystem,Variable,Value,Unit
+1,engine,mass,10,kg
+1,engine,length,1,m
+1,engine,diameter,0.15,m
+1,engine,isp,1000,s
+1,"recovery, drogue",mass,1,kg
+1,recovery,descent_rate,14,m/s
+2,recovery,descent_rate,10,m/s
+2,"recovery, drogue",c_D,0.3,-
+1,"recovery, main_parachute",c_D,0.65,-
+2,"recovery, main_parachute",c_D,0.85,-
+1,recovery,material_density,0.035,kg/m^2
+2,recovery,material_density,0.035,kg/m^2
+1,recovery,material_cost,9.41,euros/m^2
+2,recovery,material_cost,9.41,euros/m^2
+1,"recovery, main_parachute",line_l_d,1.4,-
+2,"recovery, drogue",line_l_d,2,-
+2,"recovery, main_parachute",line_l_d,1.25,-
+1,"recovery, main_parachute",n_line,8,-
+2,"recovery, drogue",n_line,24,-
+2,"recovery, main_parachute",n_line,24,-
+1,recovery,line_density,0.004976,kg/m
+2,recovery,line_density,0.004976,kg/m
+1,recovery,line_cost,1.1264,kg/m
+2,recovery,line_cost,1.1264,kg/m
+1,recovery,m_gas,0.5,kg
+2,recovery,m_gas,0.5,kg
+1,recovery,gas_cost,530,euros
+2,recovery,gas_cost,530,euros
+1,recovery,n_gas,1,-
+2,recovery,n_gas,2,-
