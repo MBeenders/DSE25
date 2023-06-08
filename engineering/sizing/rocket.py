@@ -35,7 +35,7 @@ class Subsystem:
         self.diameter: float = 0  # [m]
         self.power_in: float = 0  # [W]
         self.power_out: float = 0  # [W]
-        self.cost: float = 0 # [euros]
+        self.cost: float = 0  # [euros]
 
     def __setitem__(self, key, item):
         self.__dict__[key] = item
@@ -57,22 +57,41 @@ class Engine(Subsystem):
         self.burn_time: float | None = None
         self.thrust: float | None = None
 
+        # Structure
+        self.bulkhead_mass: float | None = None
+
         # Chamber
         self.chamber_pressure: float | None = None
         self.chamber_gamma: float | None = None
         self.chamber_temperature: float | None = None
+        self.chamber_volume: float | None = None
         self.cc: float | None = None
         self.c_star: float | None = None
         self.area_exit: float | None = None
+        self.volumetric_constant: float | None = None
 
         # Propellant
+        self.propellant_mass: float | None = None
         self.propellant_density: float | None = None
         self.molecular_weight: float | None = None
+        self.grain_diameter: float | None = None
 
-        # Motor Material
+        # Casing
+        self.casing_mass: float | None = None
+        self.casing_thickness: float | None = None
+        self.casing_density: float | None = None
         self.yield_strength: float | None = None
         self.safety_factor: float | None = None
         self.liner_thickness: float | None = None
+
+        # Nozzle
+        self.nozzle_mass: float | None = None
+        self.nozzle_thickness: float | None = None
+        self.nozzle_density: float | None = None
+        self.nozzle_throat_area: float | None = None
+        self.nozzle_exit_area: float | None = None
+        self.nozzle_area_ratio: float | None = None
+        self.nozzle_length: float | None = None
 
         # Chemicals
         self.oxidizer: dict = {}
@@ -84,7 +103,7 @@ class Engine(Subsystem):
 
         # Sim stuff
         self.thrust_curve: np.array = np.zeros(10000, dtype=float)  # Engine thrust curve over time
-        self.fuel_mass: np.array = np.zeros(10000, dtype=float)  # Total engine mass over time
+        self.fuel_mass_curve: np.array = np.zeros(10000, dtype=float)  # Total engine mass over time
         self.mmoi: np.array = np.zeros(10000, dtype=float)  # Mass Moment of Inertia over time
 
         self.mass_flow_rate: np.ndarray = np.ones((2, 1000), dtype=float)  # Mass flow rate profile engine

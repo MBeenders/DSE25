@@ -4,6 +4,7 @@ import os
 import sys
 
 import numpy as np
+import inspect
 
 import file_manager as fm
 from simulators.advanced.aerodynamics import drag, isa
@@ -25,6 +26,7 @@ class Runner:
         :param run_id: ID of the current run
         """
         self.run_id = run_id
+        self.warnings: int = 0
         self.current_file_path = os.path.split(sys.argv[0])[0]
 
         # Import the run parameters
@@ -44,11 +46,9 @@ class Runner:
         self.requirements = fm.import_csv("requirements")
 
     def run(self):
-        print("Populating Simulation")
         self.populate_simulation()
         print("Running Simulation")
         self.rocket.simulator.run()
-        print("Running Sizing")
         self.run_sizing()
         print("Finished! Closing program ...")
         self.close()
@@ -59,6 +59,8 @@ class Runner:
         subsystem.id = f"{self.rocket.id}.{serial_num}"
 
     def populate_simulation(self):
+        print("Populating Simulation (Temp solution!)")
+
         # Temp
         self.rocket.stage1.engine.thrust_curve = 1000 * np.ones(100)
         self.rocket.stage2.engine.thrust_curve = 1000 * np.ones(100)
@@ -68,6 +70,7 @@ class Runner:
         self.rocket.simulator.create_stages(self.rocket)
 
     def run_sizing(self):
+        print("Running Sizing")
         flight_data = self.rocket.simulator.stages  # Flight data from the different stages
         self.rocket.simulator.delete_stages()
 
@@ -118,6 +121,33 @@ class Runner:
         run_engine_sizing(copy.deepcopy(self.rocket), "stage1")
         # run_recovery_sizing(copy.deepcopy(self.rocket))
         # run_structure_sizing(copy.deepcopy(self.rocket))
+
+    def check_rocket_class(self):
+        print("Checking Rocket Class")
+
+        def check_level(obj):
+            attributes = vars(obj)
+            for attribute in attributes:
+                if attribute != "simulator":
+                    try:
+                        attr_type = type(obj.__dict__[attribute])
+                        if attr_type is float or attr_type is int or attr_type is str or attr_type is dict or\
+                                attr_type is list or attr_type is np.array or attr_type is np.ndarray:
+
+                            if obj.__dict__[attribute] is None:
+                                print(f"\tAttribute '{attribute}' not defined! Please define an initial condition")
+                                self.warnings += 1
+                        else:
+                            if obj.__dict__[attribute] is None:
+                                print(f"\tAttribute '{attribute}' not defined! Please define an initial condition")
+                                self.warnings += 1
+                            else:
+                                check_level(obj.__dict__[attribute])
+                    except KeyError:
+                        print(f"\tAttribute '{attribute}' not found in rocket class")
+
+        check_level(self.rocket)
+        print(f"Rocket class checked, with {self.warnings} warnings")
 
     def check_compliance(self, show_within_limit=False):
         print("Checking compliance with the requirements")
@@ -180,6 +210,7 @@ class Runner:
 
 if __name__ == "__main__":
     runner = Runner("initial_values", 0)
+    runner.check_rocket_class()
     runner.test_sizing()
     # runner.populate_simulation()
     # runner.run()
