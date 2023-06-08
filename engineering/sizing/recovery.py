@@ -139,15 +139,15 @@ def run(rocket: Rocket) -> Rocket:
     rocket.stage2.recovery.drogue.cost = Parachutes(rocket)[4] + Lines(rocket)[4]
     rocket.stage2.recovery.main_parachute.cost = Parachutes(rocket)[5] + Lines(rocket)[5]
 
-    rocket.stage1.recovery.mass = rocket.stage1.recovery.main_parachute.mass
-    rocket.stage2.recovery.mass = rocket.stage2.recovery.drogue.mass + rocket.stage2.recovery.main_parachute.mass
-    rocket.stage1.recovery.cost = rocket.stage1.recovery.main_parachute.cost
-    rocket.stage2.recovery.cost = rocket.stage2.recovery.drogue.cost + rocket.stage2.recovery.main_parachute.cost
-
     rocket.stage1.recovery.m_total_gas = Coldgas(rocket)[0]
     rocket.stage2.recovery.m_total_gas = Coldgas(rocket)[1]
     rocket.stage1.recovery.gas_total_cost = Coldgas(rocket)[2]
     rocket.stage2.recovery.gas_total_cost = Coldgas(rocket)[3]
+
+    rocket.stage1.recovery.mass = rocket.stage1.recovery.main_parachute.mass + Coldgas(rocket)[0]
+    rocket.stage2.recovery.mass = rocket.stage2.recovery.drogue.mass + rocket.stage2.recovery.main_parachute.mass + Coldgas(rocket)[1]
+    rocket.stage1.recovery.cost = rocket.stage1.recovery.main_parachute.cost + Coldgas(rocket)[2]
+    rocket.stage2.recovery.cost = rocket.stage2.recovery.drogue.cost + rocket.stage2.recovery.main_parachute.cost + Coldgas(rocket)[3]
 
     return rocket
 
