@@ -36,6 +36,7 @@ class Subsystem:
         self.diameter: float = 0  # [m]
         self.power_in: float = 0  # [W]
         self.power_out: float = 0  # [W]
+        self.cost: float = 0 # [euros]
 
     def __setitem__(self, key, item):
         self.__dict__[key] = item
@@ -95,7 +96,9 @@ class Recovery(Subsystem):
         self.line_density: float = 0 # [kg/m]
         self.line_cost: float = 0 # [euros/m]
         self.m_gas: float = 0 # [kg]
+        self.m_total_gas: float = 0 # [kg]
         self.gas_cost: float = 0 # [euros]
+        self.gas_total_cost: float = 0 # [euros]
         self.n_gas: float = 0 # [-]
 
     class Drogue(Subsystem):

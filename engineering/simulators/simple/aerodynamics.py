@@ -74,31 +74,33 @@ def drag(velocity: np.ndarray, height: float) -> np.ndarray:
     R_crit = 500000 # Critical reynolds number where transition occurs.
     x = R_crit * 0.000015 / velocity # Position of transition
     S_w = 0 # Total wetted surface area of body and fins
-    C_f = 0.032 * (R_s/x)**0.2 # Derived by Barrowman for fully turbulent flow, assuming a smooth surface.
+    C_fr = 0.032 * (R_s/x)**0.2 # Derived by Barrowman for fully turbulent flow, assuming a smooth surface.
 
     # Taking into account compressibility and geometry effects
-    a = np.sqrt(1.4*287*temp(height))
-    M = velocity/a
+    a = np.sqrt(1.4*287*temp(height)) # Speed of sound [m/s]
+    M = velocity/a # Mach number [-]
+    q = 0.5 * density(height) * velocity ** 2 # Dynamic pressure [Pa]
 
     if M < 1:
-        C_f_c = C_f * (1-0.1*M**2)
-        C_f_c_l = C_f * (1+0.18*M**2)**(-1)
+        C_fr_c = C_fr * (1-0.1*M**2)
+        C_fr_c_l = C_fr * (1+0.18*M**2)**(-1)
 
-        if C_f_c_l>C_f_c:
-            C_f_c = C_f_c_l
+        if C_fr_c_l>C_fr_c:
+            C_fr_c = C_fr_c_l
         else:
-            C_f_c = C_f_c
+            C_fr_c = C_fr_c
 
     elif M >= 1:
-        C_f_c = C_f * (1+0.15*M**2)**(-0.58)
-        C_f_c_l = C_f * (1 + 0.18 * M ** 2) ** (-1)
+        C_fr_c = C_fr * (1+0.15*M**2)**(-0.58)
+        C_fr_c_l = C_fr * (1 + 0.18 * M ** 2) ** (-1)
 
-        if C_f_c_l > C_f_c:
-            C_f_c = C_f_c_l
+        if C_fr_c_l > C_fr_c:
+            C_fr_c = C_fr_c_l
         else:
-            C_f_c = C_f_c
+            C_fr_c = C_fr_c
 
     # The body wetted area is corrected for its cylindrical geometry, and the fins for their finite thickness.
+<<<<<<< Updated upstream:engineering/simulators/simple/aerodynamics.py
     f_B = 15  # Fineness ratio of the rocket ===== MAKE VARIABLE FORM
     S_w_b = 4000  # Wet surface area of body [m^2] ===== MAKE VARIABLE FORM
     S_w_fin = 20  # Wet surface area of body [m^2] ===== MAKE VARIABLE FORM
@@ -110,6 +112,49 @@ def drag(velocity: np.ndarray, height: float) -> np.ndarray:
     # BODY PRESSURE DRAG
     phi = 22 * np.pi/180  # Nose cone joint angle [rad] ===== MAKE VARIABLE FORM
     C_D_nc = 0.8 * np.sin(phi)**2  # Approximate nose pressure drag coefficient at M=0
+=======
+    f_B = 15 # Fineness ratio of the rocket ===== MAKE VARIABLE FORM
+    S_w_b = 4000 # Wet surface area of body [m^2] ===== MAKE VARIABLE FORM
+    S_w_fin = 20 # Wet surface area of body [m^2] ===== MAKE VARIABLE FORM
+    t_fin = 0.005 # Thickness of fins [m] ===== MAKE VARIABLE FORM
+    mac_fin = 0.5 # Mean aerodynamic chord length of fins [m] ===== MAKE VARIABLE FORM
+    C_D_fr = C_fr_c * (((1+(1/(2*f_B)))*S_w_b) + ((1+(2*t_fin/mac_fin))*S_w_fin))/(S_ref)
+    D_fr = C_D_fr * S_w * q # Total frictional drag force of vehicle [N]
+
+    # BODY PRESSURE DRAG
+    f_N = 5 # Fineness ratio of nose
+    phi = 22 * np.pi/180 # Nose cone joint angle [rad] ===== MAKE VARIABLE FORM
+    C_D_nc = 0.8 * np.sin(phi)**2 # Approximate nose pressure drag coefficient at M=0, phi<30 [deg]
+    C_D_nc_s = C_nc_0 * (4**b) ** (np.log(f_N + 1)/np.log(4)) # Includes supersonic factor
+    C_D_nc = C_D_nc_s + C_D_nc # Includes compressibility correction for sub and supersonic speeds
+    S_nc = 89
+    D_nc = C_D_nc * q * S_nc
+
+    # FIN PRESSURE DRAG (Assume that flow is perpendicular to the leading edge)
+    if M <= 0.9:
+        C_D_LE = -1 + (1-M**2)**(-0.417)
+    elif 0.9 < M <= 1:
+        C_D_LE = 1 - 1.785 * (M-0.9)
+    elif M > 1:
+        C_D_LE = 1.214 - 0.502/(M**2) + 0.1095/(M**4)
+
+    G_LE = 45 * np.pi/180 # Leading edge angle of slanted fin [rad]
+    C_D_LE = C_D_LE
+    C_D_LE = C_D_LE * np.cos(G_LE)**2
+    S_w_fin = t_fin
+    D_fin = C_D_LE * q * S_fin
+
+    # BASE DRAG
+    if M <= 1:
+        C_D_base = 0.12 + 0.13 * (M**2)
+    if M > 1:
+        C_D_base = 0.25/M
+
+    D_l = 0.2
+    t = 0.003
+    S_base = np.pi * D_l * t # Surface area of base (Diameter of lower stage * thickness * PI)
+    D_base = C_D_base * q * S_base
+>>>>>>> Stashed changes:engineering/simulators/aerodynamics.py
 
     drag_coefficient: float = 0.5  # -
     radius: float = 0.3  # m
