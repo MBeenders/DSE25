@@ -99,18 +99,17 @@ def drag(velocity: np.ndarray, height: float) -> np.ndarray:
             C_f_c = C_f_c
 
     # The body wetted area is corrected for its cylindrical geometry, and the fins for their finite thickness.
-    f_B = 15 # Fineness ratio of the rocket ===== MAKE VARIABLE FORM
-    S_w_b = 4000 # Wet surface area of body [m^2] ===== MAKE VARIABLE FORM
-    S_w_fin = 20 # Wet surface area of body [m^2] ===== MAKE VARIABLE FORM
-    t_fin = 0.005 # Thickness of fins [m] ===== MAKE VARIABLE FORM
-    mac_fin = 0.5 # Mean aerodynamic chord length of fins [m] ===== MAKE VARIABLE FORM
+    f_B = 15  # Fineness ratio of the rocket ===== MAKE VARIABLE FORM
+    S_w_b = 4000  # Wet surface area of body [m^2] ===== MAKE VARIABLE FORM
+    S_w_fin = 20  # Wet surface area of body [m^2] ===== MAKE VARIABLE FORM
+    t_fin = 0.005  # Thickness of fins [m] ===== MAKE VARIABLE FORM
+    mac_fin = 0.5  # Mean aerodynamic chord length of fins [m] ===== MAKE VARIABLE FORM
     C_D_f = C_f_c * (((1+(1/(2*f_B)))*S_w_b) + ((1+(2*t_fin/mac_fin))*S_w_fin))/(S_ref)
     D_f = C_D_f * (0.5 * S_w * density(height) * velocity ** 2)  # Total frictional drag force of vehicle [N]
 
     # BODY PRESSURE DRAG
-    phi = 22 * np.pi/180 # Nose cone joint angle [rad] ===== MAKE VARIABLE FORM
-    C_D_nc = 0.8 * np.sin(phi)**2 # Approximate nose pressure drag coefficient at M=0
-
+    phi = 22 * np.pi/180  # Nose cone joint angle [rad] ===== MAKE VARIABLE FORM
+    C_D_nc = 0.8 * np.sin(phi)**2  # Approximate nose pressure drag coefficient at M=0
 
     drag_coefficient: float = 0.5  # -
     radius: float = 0.3  # m
@@ -122,7 +121,7 @@ def drag(velocity: np.ndarray, height: float) -> np.ndarray:
 
 if __name__ == "__main__":
     # Density vs altitude example
-    hs = np.linspace(0,200000, 100)
+    hs = np.linspace(0, 200000, 100)
     rhos = []
     for h in hs:
         rhos.append(density(h))

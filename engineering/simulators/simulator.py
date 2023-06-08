@@ -9,6 +9,8 @@ rocket_specs = [("max_iterations", int32),
                 ("velocities", float64[:, :]),
                 ("angles", float64[:, :]),
                 ("mass", float64[:]),
+                ("cd", float64),
+                ("diameter", float64),
                 ("thrust_curve", float64[:]),
                 ("fuel_mass", float64[:]),
                 ("mmoi", float64[:]),
@@ -27,6 +29,8 @@ class FlightData:
 
         # General properties
         self.mass: np.array = np.zeros(max_iterations, float64)
+        self.cd: float64 = 0.65
+        self.diameter: float64 = 0.15
 
         # Engine
         self.thrust_curve: np.array = np.zeros(max_iterations, float64)  # Thrust curve
@@ -62,6 +66,8 @@ class Simulator:
             # Total stage
             self.stages["Total"] = FlightData(10000)
             self.stages["Total"].mass[0] = rocket.mass
+            self.stages["Total"].cd = rocket.cd
+            self.stages["Total"].diameter = rocket.diameter
             self.stages["Total"].thrust_curve = rocket.stage1.engine.thrust_curve
             self.stages["Total"].fuel_mass = rocket.stage1.engine.fuel_mass
             self.stages["Total"].mmoi = rocket.stage1.engine.mmoi

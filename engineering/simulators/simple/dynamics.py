@@ -15,7 +15,7 @@ def run(flight, gravity, drag, isa, dt: float = 0.1, start_time: float = 0, end_
 
             # Calculate forces
             force_gravity = gravity(flight.locations[i][1], mass_total)
-            force_drag = drag(flight.velocities[i], flight.density[i])
+            force_drag = drag(flight, flight.velocities[i], flight.density[i])
             force_thrust = flight.thrust_curve[i]
             mass_fuel = flight.fuel_mass[i]
 

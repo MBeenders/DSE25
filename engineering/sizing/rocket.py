@@ -127,14 +127,13 @@ class Structure(Subsystem):
         Subsystem.__init__(self, "Structure")  # General parameters
 
 
-class Electronics(Subsystem): #should be 3 objects one for the 1st stage electronics, one for the 2nd stage electronics, and one for the payload (though payload should not have a separate communication system)
+class Electronics(Subsystem):  # should be 3 objects one for the 1st stage electronics, one for the 2nd stage electronics, and one for the payload (though payload should not have a separate communication system)
     def __init__(self, name: str):
         Subsystem.__init__(self, f"{name}Electronics")
         # General parameters
         self.time: float
         self.power_sensors: float
         self.datarate: int
-
 
         self.powersystem = self.Power(name)
         self.communicationsystem = self.Communication(name)
@@ -149,15 +148,10 @@ class Electronics(Subsystem): #should be 3 objects one for the 1st stage electro
             self.power_volume: float
             self.margin: float
 
-            #final outputs
+            # Final outputs
             self.tot_power: float
             self.mass_bat: float
             self.volume_bat: float
-
-
-
-
-
 
     class Communication(Subsystem):
         def __init__(self, name: str):
@@ -173,13 +167,10 @@ class Electronics(Subsystem): #should be 3 objects one for the 1st stage electro
             self.modulation: str
             self.max_speed: float
 
-            #final outputs
+            # Final outputs
             self.bandwidth: float
             self.SNR: float
             self.capacity: float
-
-
-
 
     class Blackbox(Subsystem):
         def __init__(self, name: str):
@@ -189,14 +180,12 @@ class Electronics(Subsystem): #should be 3 objects one for the 1st stage electro
             self.storage: float
 
 
-
 class Payload(Subsystem):
     def __init__(self, name):
         Subsystem.__init__(self, "Payload")  # General parameters
         self.power_system = self.Power(name)
         self.time: int
         self.power_sensors: float
-
 
     class Power(Subsystem):
         def __init__(self, name: str):
@@ -219,6 +208,8 @@ class Rocket:
         self.diameter: float = 0  # [m]
         self.power_in: float = 0  # [W]
         self.power_out: float = 0  # [W]
+
+        self.cd: float = 0.65
 
         # Simulator
         self.simulator = simulator
@@ -258,10 +249,11 @@ class Rocket:
             self.recovery: Subsystem = Recovery("Second stage Parachutes")
             self.structure: Subsystem = Structure()
             self.electronics: Subsystem = Electronics("Second stage electronics")
-            self.payload: Subsystem = Payload()
+            self.payload: Subsystem = Payload("Scientific Payload")
 
 
 if __name__ == "__main__":
-    test_rocket: Rocket = Rocket()
-    print(test_rocket.stage1.engine.mass)
-    print(test_rocket.stage2.engine.isp)
+    pass
+    # test_rocket: Rocket = Rocket()
+    # print(test_rocket.stage1.engine.mass)
+    # print(test_rocket.stage2.engine.isp)

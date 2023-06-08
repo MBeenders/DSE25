@@ -56,14 +56,17 @@ def isa(height: float) -> tuple:
     return T, p, rho
 
 
+@njit()
 def drag(rocket, velocity: np.ndarray, density: float) -> np.ndarray:
     """
+    :param rocket: Rocket class
     :param velocity: [m/s]
     :param density: [kg/m^3]
     :return: Drag force [N]
     """
+    area = np.pi * (rocket.diameter/2)**2
 
-    return 0  # Force
+    return (0.5 * density * velocity**2) * area * rocket.cd  # Force
 
 
 if __name__ == "__main__":

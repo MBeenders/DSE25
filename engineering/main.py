@@ -10,7 +10,7 @@ from sizing.structure import run as run_structure_sizing
 from simulators.simulator import Simulator
 from simulators.simple.dynamics import run as dynamics_run
 from simulators.simple.gravity import gravity
-from simulators.simple.aerodynamics import drag, isa
+from simulators.advanced.aerodynamics import drag, isa
 
 import file_manager as fm
 
