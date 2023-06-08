@@ -156,10 +156,6 @@ class Electronics(Subsystem):  # should be 3 objects one for the 1st stage elect
             self.mass_bat: float
             self.volume_bat: float
             self.bat_size: float
-            
-
-            
-
 
     
     class Communication(Subsystem):
