@@ -114,8 +114,8 @@ class Runner:
         self.new_rocket.id = serial_num
 
     def test_sizing(self):
-        # run_electronics_sizing(copy.deepcopy(self.rocket))
-        run_engine_sizing(copy.deepcopy(self.rocket), "stage1")
+        run_electronics_sizing(copy.deepcopy(self.rocket))
+        # run_engine_sizing(copy.deepcopy(self.rocket), "stage1")
         # run_recovery_sizing(copy.deepcopy(self.rocket))
         # run_structure_sizing(copy.deepcopy(self.rocket))
 

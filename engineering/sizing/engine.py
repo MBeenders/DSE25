@@ -1,4 +1,4 @@
-from engineering.sizing.rocket import Rocket
+# from engineering.sizing.rocket import Rocket
 import math
 
 # ENGINE SIZING FUNCTIONS
@@ -117,7 +117,7 @@ def burn_area(regression_rate, mass_flow, rho):
     return prop_burn_area
 
 
-def run(rocket: Rocket, stage) -> Rocket:
+def run(rocket, stage) :
     """
     :param rocket: Original Rocket class
     :return: Updated Rocket class
