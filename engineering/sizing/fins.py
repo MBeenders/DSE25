@@ -1,13 +1,6 @@
-import sys
-import os
-
-path = os.path.split(sys.argv[0])[0]
-sys.path.append(path)
-
-from sizing.rocket import Rocket
 import numpy as np
 
-def do_stuff(rocket: Rocket):
+def do_stuff(rocket):
     """
     :param rocket: Rocket class
     :return: None
@@ -87,8 +80,7 @@ def do_stuff(rocket: Rocket):
     rotratelist += [rotrate]
 
 
-
-def run(rocket: Rocket) -> Rocket:
+def run(rocket):
     """
     :param rocket: Original Rocket class
     :return: Updated Rocket class
@@ -100,5 +92,4 @@ def run(rocket: Rocket) -> Rocket:
 
 
 if __name__ == "__main__":
-    test_rocket = Rocket()
-    run(test_rocket)
+    pass
