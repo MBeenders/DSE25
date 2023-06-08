@@ -10,6 +10,7 @@ def Parachutes(rocket):
     :param rocket: Rocket class
     :return: mass and cost of parachutes
     """
+
     dry_mass1: float = rocket.stage1.dry_mass
     dry_mass2: float = rocket.stage2.dry_mass
     V_1: float = rocket.stage1.recovery.descent_rate
@@ -17,7 +18,7 @@ def Parachutes(rocket):
     c_D_main1: float = rocket.stage1.recovery.main_parachute.c_D
     c_D_drogue2: float = rocket.stage2.recovery.drogue.c_D
     c_D_main2: float = rocket.stage2.recovery.main_parachute.c_D
-    material_density: float = rocket.stage1.recovery.material_density #Assume material density is the same for both stages
+    material_density: float = rocket.stage1.recovery.material_density  # Assume material density is the same for both stages
     material_cost: float = rocket.stage1.recovery.material_cost
 
     # AREA & DIAMETER OF PARACHUTES:
