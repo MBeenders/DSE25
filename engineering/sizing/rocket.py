@@ -148,10 +148,11 @@ class Electronics(Subsystem):  # should be 3 objects one for the 1st stage elect
     class Power(Subsystem):
         def __init__(self, name: str):
             Subsystem.__init__(self, f"{name} Power")
+
             self.avg_voltage: float 
             self.dod: float
-            self.power_density: float = 140 #Wh/kg
-            self.power_volume: float = 250000 #Wh/m^3
+            self.power_density: float = 140  # Wh/kg
+            self.power_volume: float = 250000  # Wh/m^3
             self.margin: float
 
             # Final outputs
@@ -159,7 +160,6 @@ class Electronics(Subsystem):  # should be 3 objects one for the 1st stage elect
             self.mass_bat: float
             self.volume_bat: float
             self.bat_size: float
-
     
     class Communication(Subsystem):
         def __init__(self, name: str):
@@ -191,21 +191,24 @@ class Electronics(Subsystem):  # should be 3 objects one for the 1st stage elect
 class Payload(Subsystem):
     def __init__(self, name):
         Subsystem.__init__(self, "Payload")  # General parameters
+
         self.power_system = self.Power(name)
         self.time: int
         self.power_sensors: float
 
+        self.powersystem = self.Power(name)
+        self.blackbox = self.Blackbox(name)
 
     class Power(Subsystem):
         def __init__(self, name: str):
             Subsystem.__init__(self, f"{name} Power")
             self.avg_voltage: float
             self.dod: float
-            self.power_density: float = 140 #Wh/kg
-            self.power_volume: float = 250000 #Wh/m^3
+            self.power_density: float = 140  # Wh/kg
+            self.power_volume: float = 250000  # Wh/m^3
             self.margin: float
 
-            #final outputs
+            # Final outputs
             self.tot_power: float
             self.mass_bat: float
             self.volume_bat: float
@@ -217,9 +220,6 @@ class Payload(Subsystem):
             
             self.margin: float
             self.storage: float
-
-
-    
 
 
 class Rocket:

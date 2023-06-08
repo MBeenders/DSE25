@@ -40,15 +40,22 @@ def insert_values(data: pd.DataFrame, rocket: Rocket):
     """
     def add_line(subsystem, line, rocket_sub):
         if len(subsystem) > 1:
-            rocket_sub = rocket_sub[subsystem[0]]
+            try:
+                rocket_sub = rocket_sub[subsystem[0]]
+            except KeyError as error:
+                raise Exception(f"Subsystem '{subsystem[0]}' not found in Rocket class, error: {error}")
+
             subsystem.pop(0)
             add_line(subsystem, line, rocket_sub)
 
         else:
-            rocket_sub[subsystem[0]][line["Variable"]] = line["Value"]
+            try:
+                rocket_sub[subsystem[0]][line["Variable"]] = line["Value"]
+            except KeyError as error:
+                raise Exception(f"'{line['Variable']}' not found in csv, error: {error}")
 
     for index, row in data.iterrows():
-        add_line(row["Subsystem"].split(", "), row, rocket[f"stage{int(row['Stage'])}"])
+        add_line(row["Subsystem"].split(","), row, rocket[f"stage{int(row['Stage'])}"])
 
 
 def initialize_rocket(file_name: str, simulator: Simulator, run_parameters: dict) -> Rocket:
@@ -62,6 +69,7 @@ def initialize_rocket(file_name: str, simulator: Simulator, run_parameters: dict
     rocket = Rocket(simulator)  # Initialize rocket
 
     insert_values(data, rocket)  # Insert csv values into Rocket class
+
     import_engine_chemicals(run_parameters["engine_chemicals"], rocket)
 
     return rocket
