@@ -71,21 +71,28 @@ class Runner:
         flight_data = self.rocket.simulator.stages  # Flight data from the different stages
         self.rocket.simulator.delete_stages()
 
-        def sizer(subsystem, function):
+        def sizer(subsystem, function, separate=False):
             print(f"\tSizing {subsystem.capitalize()}")
             rocket = copy.deepcopy(self.rocket)
             rocket.simulator.stages = flight_data
 
-            try:
-                sizing = function(rocket)
-                sized_dict["stage1"][subsystem] = sizing["stage1"][subsystem]
-                sized_dict["stage2"][subsystem] = sizing["stage2"][subsystem]
-            except Exception as error:
-                print(f"\t!! {subsystem.capitalize()} sizing failed with: {error}")
+            if separate:
+                try:
+                    sized_dict["stage1"][subsystem] = function(rocket, "stage1")["stage1"][subsystem]
+                    sized_dict["stage2"][subsystem] = function(rocket, "stage2")["stage2"][subsystem]
+                except Exception as error:
+                    print(f"\t!! {subsystem.capitalize()} sizing failed with: {error}")
+            else:
+                try:
+                    sizing = function(rocket)
+                    sized_dict["stage1"][subsystem] = sizing["stage1"][subsystem]
+                    sized_dict["stage2"][subsystem] = sizing["stage2"][subsystem]
+                except Exception as error:
+                    print(f"\t!! {subsystem.capitalize()} sizing failed with: {error}")
 
         sized_dict: dict = {"stage1": {}, "stage2": {}}  # Dictionary with all sized classes
         if "engine" in self.selection:
-            sizer("engine", run_engine_sizing)
+            sizer("engine", run_engine_sizing, separate=True)
 
         if "recovery" in self.selection:
             sizer("recovery", run_recovery_sizing)
@@ -107,8 +114,8 @@ class Runner:
         self.new_rocket.id = serial_num
 
     def test_sizing(self):
-        run_electronics_sizing(copy.deepcopy(self.rocket))
-        # run_engine_sizing(copy.deepcopy(self.rocket))
+        # run_electronics_sizing(copy.deepcopy(self.rocket))
+        run_engine_sizing(copy.deepcopy(self.rocket), "stage1")
         # run_recovery_sizing(copy.deepcopy(self.rocket))
         # run_structure_sizing(copy.deepcopy(self.rocket))
 
@@ -173,5 +180,6 @@ class Runner:
 
 if __name__ == "__main__":
     runner = Runner("initial_values", 0)
-    runner.populate_simulation()
-    runner.run()
+    runner.test_sizing()
+    # runner.populate_simulation()
+    # runner.run()

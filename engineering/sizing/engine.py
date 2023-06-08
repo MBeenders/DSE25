@@ -87,7 +87,7 @@ def burn_area(regression_rate, mass_flow, rho):
     return prop_burn_area
 
 
-def run(rocket: Rocket) -> Rocket:
+def run(rocket: Rocket, stage) -> Rocket:
     """
     :param rocket: Original Rocket class
     :return: Updated Rocket class
@@ -98,8 +98,8 @@ def run(rocket: Rocket) -> Rocket:
     cc = 0.95  # Isp correction factor
     p = 101325  # ambient pressure [Pa]
 
-    m_v = 140  # vehicle mass [kg]
-    Pc = 7 * 10 ** 6  # chamber pressure [Pa]
+    m_v = rocket.mass  # vehicle mass [kg]
+    Pc = rocket[stage].engine.chamber_pressure  # 7 * 10 ** 6 chamber pressure [Pa]
 
     # launch tower properties
     h = 14  # launch tower length [m]
