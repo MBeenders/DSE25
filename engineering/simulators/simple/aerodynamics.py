@@ -98,14 +98,13 @@ def drag(velocity: np.ndarray, height: float) -> np.ndarray:
         else:
             C_fr_c = C_fr_c
 
-    # BODY PRESSURE DRAG (apply for both stages)
     f_B = 15 # Fineness ratio of the rocket ===== MAKE VARIABLE FORM
-    S_w_b = 4000 # Wet surface area of body [m^2] ===== MAKE VARIABLE FORM
-    S_w_fin = 20 # Wet surface area of body [m^2] ===== MAKE VARIABLE FORM
-    t_fin = 0.005 # Thickness of fins [m] ===== MAKE VARIABLE FORM
+    S_w_b = 4000 # Wet surface area of body [m^2] ===== MAKE VARIABLE FORM from centrepressure.py
+    S_w_fin = 20 # Wet surface area of body [m^2] ===== MAKE VARIABLE FORM from centrepressure.py
+    t_fin = 0.005 # Thickness of fins [m] ===== MAKE VARIABLE FORM or set a value
     mac_fin = 0.5 # Mean aerodynamic chord length of fins [m] ===== MAKE VARIABLE FORM
-    C_D_f = C_fr_c * (((1+(1/(2*f_B)))*S_w_b) + ((1+(2*t_fin/mac_fin))*S_w_fin))/(S_ref)
-    D_f = C_D_f * S_w * q # Total frictional drag force of vehicle [N]
+    C_D_fr = C_fr_c * (((1+(1/(2*f_B)))*S_w_b) + ((1+(2*t_fin/mac_fin))*S_w_fin))/(S_ref)
+    D_fr = C_D_fr * S_w * q # Total frictional drag force of vehicle [N]
 
     # NOSE CONE PRESSURE DRAG
     # NOSECONE - 5:1 Haack (optimised for length and diameter, where c = 0; also optimised for wave and skin friction drag)
@@ -165,7 +164,7 @@ def drag(velocity: np.ndarray, height: float) -> np.ndarray:
     D_base = C_D_base * q * S_base # Base drag [N]
 
     # TOTAL DRAG FORCE [N]
-    force_drag = D_base + 4*D_fin + D_sh + D_nc + D_f + D_fr
+    force_drag = D_base + 4*D_fin + D_sh + D_nc + D_fr
 
     return force_drag
 
