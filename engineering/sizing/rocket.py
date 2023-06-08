@@ -55,7 +55,12 @@ class Engine(Subsystem):
         self.oxidizer: dict = {}
         self.fuel: dict = {}
 
-        self.mass_flow_rate: np.ndarray = np.ones((2, 1000), dtype=float) # Mass flow rate profile engine
+        # Sim stuff
+        self.thrust_curve: np.array = np.zeros(10000, dtype=float)  # Engine thrust curve over time
+        self.fuel_mass: np.array = np.zeros(10000, dtype=float)  # Total engine mass over time
+        self.mmoi: np.array = np.zeros(10000, dtype=float)  # Mass Moment of Inertia over time
+
+        self.mass_flow_rate: np.ndarray = np.ones((2, 1000), dtype=float)  # Mass flow rate profile engine
         self.mass_fuel_start: float = 100 # Fuel mass at start of burn [kg]
         self.rho_fuel: float = 1800 # Density of the fuel [kg/m^3]
         self.height_fuel: float = 0.5 # Length of the fuel grain (all stacked) [m]
@@ -88,7 +93,10 @@ class Recovery(Subsystem):
         self.material_density: float = 0 # [kg/m^2]
         self.material_cost: float = 0 # [euros/m^2]
         self.line_density: float = 0 # [kg/m]
-        self.line_cost: float = 0 # [euros/m
+        self.line_cost: float = 0 # [euros/m]
+        self.m_gas: float = 0 # [kg]
+        self.gas_cost: float = 0 # [euros]
+        self.n_gas: float = 0 # [-]
 
     class Drogue(Subsystem):
         def __init__(self, name: str):
@@ -122,7 +130,7 @@ class Structure(Subsystem):
         Subsystem.__init__(self, "Structure")  # General parameters
 
 
-class Electronics(Subsystem): #should be 3 objects one for the 1st stage electronics, one for the 2nd stage electronics, and one for the payload (though payload should not have a separate communication system)
+class Electronics(Subsystem):  # should be 3 objects one for the 1st stage electronics, one for the 2nd stage electronics, and one for the payload (though payload should not have a separate communication system)
     def __init__(self, name: str):
         Subsystem.__init__(self, f"{name}Electronics")
         # General parameters
@@ -130,11 +138,10 @@ class Electronics(Subsystem): #should be 3 objects one for the 1st stage electro
         self.power_sensors: float
         self.datarate: int
 
-
         self.powersystem = self.Power(name)
         self.communicationsystem = self.Communication(name)
         self.blackbox = self.Blackbox(name)
-    
+
     class Power(Subsystem):
         def __init__(self, name: str):
             Subsystem.__init__(self, f"{name} Power")
@@ -144,7 +151,7 @@ class Electronics(Subsystem): #should be 3 objects one for the 1st stage electro
             self.power_volume: float = 250000 #Wh/m^3
             self.margin: float
 
-            #final outputs
+            # Final outputs
             self.tot_power: float
             self.mass_bat: float
             self.volume_bat: float
@@ -169,21 +176,17 @@ class Electronics(Subsystem): #should be 3 objects one for the 1st stage electro
             self.modulation: str
             self.max_speed: float
 
-            #final outputs
+            # Final outputs
             self.bandwidth: float
             self.SNR: float
             self.capacity: float
-            
 
-
-    
     class Blackbox(Subsystem):
         def __init__(self, name: str):
             Subsystem.__init__(self, f"{name} Blackbox")
-            
+
             self.margin: float
             self.storage: float
-
 
 
 class Payload(Subsystem):
@@ -192,7 +195,6 @@ class Payload(Subsystem):
         self.power_system = self.Power(name)
         self.time: int
         self.power_sensors: float
-        self.datarate: float
 
 
     class Power(Subsystem):
@@ -230,6 +232,8 @@ class Rocket:
         self.diameter: float = 0  # [m]
         self.power_in: float = 0  # [W]
         self.power_out: float = 0  # [W]
+
+        self.cd: float = 0.65
 
         # Simulator
         self.simulator = simulator
@@ -269,10 +273,11 @@ class Rocket:
             self.recovery: Subsystem = Recovery("Second stage Parachutes")
             self.structure: Subsystem = Structure()
             self.electronics: Subsystem = Electronics("Second stage electronics")
-            self.payload: Subsystem = Payload()
+            self.payload: Subsystem = Payload("Scientific Payload")
 
 
 if __name__ == "__main__":
-    test_rocket: Rocket = Rocket()
-    print(test_rocket.stage1.engine.mass)
-    print(test_rocket.stage2.engine.isp)
+    pass
+    # test_rocket: Rocket = Rocket()
+    # print(test_rocket.stage1.engine.mass)
+    # print(test_rocket.stage2.engine.isp)

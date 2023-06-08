@@ -16,6 +16,8 @@ def run(rocket: Rocket) -> Rocket:
     """
 
     do_stuff(rocket)
+    engine = rocket.stage1.engine
+    engine.mass
 
     return rocket
 

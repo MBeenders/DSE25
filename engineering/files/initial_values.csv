@@ -14,8 +14,8 @@ Stage,Subsystem,Variable,Value,Unit
 1,recovery,material_cost,9.41,euros/m^2
 2,recovery,material_cost,9.41,euros/m^2
 1,"recovery, main_parachute",line_l_d,1.4,-
-2,"recovery, drogue",line_l_d,2.0,-
-2,"recovery, main",line_l_d,1.25,-
+2,"recovery, drogue",line_l_d,2,-
+2,"recovery, main_parachute",line_l_d,1.25,-
 1,"recovery, main_parachute",n_line,8,-
 2,"recovery, drogue",n_line,24,-
 2,"recovery, main_parachute",n_line,24,-
@@ -23,6 +23,12 @@ Stage,Subsystem,Variable,Value,Unit
 2,recovery,line_density,0.004976,kg/m
 1,recovery,line_cost,1.1264,kg/m
 2,recovery,line_cost,1.1264,kg/m
+1,recovery,m_gas,0.5,kg
+2,recovery,m_gas,0.5,kg
+1,recovery,gas_cost,530,euros
+2,recovery,gas_cost,530,euros
+1,recovery,n_gas,1,-
+2,recovery,n_gas,2,-
 
 1,electronics,time,7200,s
 2,electronics,time,7200,s

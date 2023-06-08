@@ -1,4 +1,12 @@
 {
+  "mission_profile":
+  {
+    "stages": 2,
+    "launch": {"exact": 0},
+    "engine1_ignition": {"exact": 0},
+    "engine2_ignition": {"delay": 2},
+    "separation": {"delay": 1}
+  },
   "sizing_selection": ["stage1_engine", "stage2_engine", "stage1_recovery"],
   "engine_chemicals":
   {
@@ -29,9 +37,7 @@
         {
           "area": "[m^2]"
         }
-      },
-      "mass": "[kg]"
-    },
-    "mass": "[kg]"
+      }
+    }
   }
 }

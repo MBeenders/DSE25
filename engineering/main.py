@@ -1,11 +1,17 @@
 import copy
 import json
+import numpy as np
 
-from simulators.simulator import Simulator
 from sizing.rocket import Rocket
 from sizing.engine import run as run_engine_sizing
 from sizing.recovery import run as run_recovery_sizing
 from sizing.structure import run as run_structure_sizing
+
+from simulators.simulator import Simulator
+from simulators.simple.dynamics import run as dynamics_run
+from simulators.simple.gravity import gravity
+from simulators.advanced.aerodynamics import drag, isa
+
 import file_manager as fm
 
 
@@ -22,7 +28,7 @@ class Runner:
         self.run_parameters: dict = json.load(self.run_parameters_file)
         self.selection: list[str] = self.run_parameters["sizing_selection"]
 
-        simulator: Simulator = Simulator()
+        simulator: Simulator = Simulator(self.run_parameters["mission_profile"], dynamics_run, gravity, drag, isa)
         if file_name[:7] == "archive":  # If name starts with archive, import the class from the archive
             self.rocket: Rocket = fm.import_rocket_iteration(file_name)
         else:  # If not, then just create a new class from the initialization file
@@ -37,6 +43,15 @@ class Runner:
         serial_num = int(subsystem.id.split(".")[1])
         serial_num += 1
         subsystem.id = f"{self.rocket.id}.{serial_num}"
+
+    def populate_simulation(self):
+        # Temp
+        self.rocket.stage1.engine.thrust_curve = 1000 * np.ones(100)
+        self.rocket.stage2.engine.thrust_curve = 1000 * np.ones(100)
+        self.rocket.stage1.engine.fuel_mass = np.linspace(10, 0, 100)
+        self.rocket.stage2.engine.fuel_mass = np.linspace(10, 0, 100)
+        # print(self.rocket.stage1.engine.thrust_curve)
+        self.rocket.simulator.create_stages(self.rocket)
 
     def run_sizing(self):
         sized_dict: dict = {"stage1": {}, "stage2": {}}  # Dictionary with all sized classes
@@ -62,13 +77,15 @@ class Runner:
         self.new_rocket.id = serial_num
 
     def check_compliance(self, show_within_limit=False):
+        print("Checking compliance with the requirements")
+
         def check_value(required_value, rocket_value, comparison_type, variable):
             def correct(difference, name):
                 if show_within_limit:
-                    print(f"{name} within limit; difference {difference}")
+                    print(f"\t{name} within limit; difference {difference}")
 
             def incorrect(difference, name):
-                print(f"{name} out of limit! Difference {difference}")
+                print(f"\t{name} out of limit! Difference {difference}")
 
             if str(comparison_type) == ">":
                 if rocket_value > required_value:  # Correct
@@ -119,8 +136,14 @@ class Runner:
 
 
 if __name__ == "__main__":
+    profile = {"stages": 2,
+               "launch": {"exact", 0},
+               "engine1_ignition": {"exact", 0},
+               "engine2_ignition": {"delay", 2},
+               "separation": {"delay", 1}
+               }
+
     runner = Runner("initial_values", 0)
-    runner.rocket.stage1.engine.calculate_moi(20)
-    # runner.run_sizing()
-    # runner.check_compliance()
-    # runner.close()
+    runner.populate_simulation()
+    runner.rocket.simulator.run()
+    runner.close()
