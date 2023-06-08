@@ -62,6 +62,14 @@ def nozzle_throat_area(mass_flow, c_star, chamber_pressure):
     area_throat = (mass_flow * c_star) / chamber_pressure
     return area_throat
 
+def nozzle_exit_area(pressure_chamber, mach, gamma, pressure_ambient, exit_area, throat_area):
+    p0 = pressure_chamber
+    p = pressure_ambient
+    k = gamma
+    M = mach
+    M = 2 / (k - 1) * ((p0 / p) ** ((k -1) / k) - 1)
+    exit_area = throat_area / M * math.sqrt(((1 + (k - 1) / 2 * M ** 2) / (1 + (k - 1) / 2)) ** ((k + 1) / (k -1)))
+    return exit_area
 
 # determining the L/Dt
 def length_nozzle(area_ratio, throat_area):
@@ -72,6 +80,28 @@ def length_nozzle(area_ratio, throat_area):
 # determining the overall length of the motor
 def total_length(nozzle_length, length_chamber):
     return nozzle_length + length_chamber
+
+#determining the casing mass
+def casing_mass(wall_thickness, stage_diameter, length_chamber, rho_casing):
+    chamber_mass = math.pi * (stage_diameter ** 2 - (stage_diameter - 2 * wall_thickness) ** 2) * length_chamber * rho_casing
+    return chamber_mass
+
+#determining the nozzle mass, based on nozzle length, an assumed thickness and material properties
+def nozzle_mass(nozzle_thickness, throat_diameter, exit_diameter, rho_nozzle, length_nozzle):
+    R = exit_diameter / 2
+    r = throat_diameter / 2
+    l = length_nozzle
+    t = nozzle_thickness
+    nozzle_mass = rho_nozzle * 1/3 * math.pi * l * (R ** 2 + R * r + r ** 2 - (R - t) ** 2 - (R - t)*(r - t) - (r - t) ** 2)
+    return nozzle_mass
+
+#determining the total solid motor mass: including chamber, nozzle and extra parts, that are assumed based on simplifications
+def solid_motor_mass(chamber_mass, nozzle_mass, bulkhead_mass):
+    motor_mass = chamber_mass + nozzle_mass + bulkhead_mass 
+    return motor_mass
+
+
+    
 
 
 # computing the regression rate based on literature chosen constants [mm/s]
@@ -110,14 +140,12 @@ def run(rocket: Rocket, stage) -> Rocket:
     t1 = 2  # duration [s]
     I1 = 120000  # impulse [N*s]
     d1 = 0.25  # diameter first stage [m]
-    wall_thickness1 = 0.2  # casing thickness booster [m]
 
     # ballistic performance inputs sustainer
     F2 = 1000  # thrust [N]
     t2 = 2  # duration [s]
     I2 = 40000  # impulse [N*s]
     d2 = 0.15  # diameter second stage [m]
-    wall_thickness2 = 0.2  # casing thickness sustainer [m]
 
     # ProPep inputs
     Isp = 220  # specific impulse [s]
