@@ -78,6 +78,10 @@ class Engine(Subsystem):
         self.oxidizer: dict = {}
         self.fuel: dict = {}
 
+        # Launch Tower
+        self.launch_tower_length: float | None = None
+        self.launch_exit_velocity: float | None = None
+
         # Sim stuff
         self.thrust_curve: np.array = np.zeros(10000, dtype=float)  # Engine thrust curve over time
         self.fuel_mass: np.array = np.zeros(10000, dtype=float)  # Total engine mass over time

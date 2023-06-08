@@ -117,29 +117,30 @@ def burn_area(regression_rate, mass_flow, rho):
     return prop_burn_area
 
 
-def run(rocket, stage) :
+def run(rocket, stage):
     """
     :param rocket: Original Rocket class
+    :param stage:  The stage of the engine
     :return: Updated Rocket class
     """
 
     # universal constants
     g = 9.80665  # [m/s^2]
-    cc = 0.95  # Isp correction factor
+    cc = rocket[stage].engine.chamber_pressure  # Isp correction factor
     p = 101325  # ambient pressure [Pa]
 
     m_v = rocket.mass  # vehicle mass [kg]
     Pc = rocket[stage].engine.chamber_pressure  # 7 * 10 ** 6 chamber pressure [Pa]
 
     # launch tower properties
-    h = 14  # launch tower length [m]
-    lt_v = 40  # required launch tower exit velocity [m/s]
+    h = rocket[stage].engine.launch_tower_length  # launch tower length [m]
+    lt_v = rocket[stage].engine.launch_exit_velocity  # required launch tower exit velocity [m/s]
 
     # ballistic performance inputs booster
-    F1 = 1000  # thrust [N]
-    t1 = 2  # duration [s]
-    I1 = 120000  # impulse [N*s]
-    d1 = 0.25  # diameter first stage [m]
+    F1 = rocket[stage].engine.thrust  # thrust [N]
+    t1 = rocket[stage].engine.burn_time  # duration [s]
+    I1 = rocket[stage].engine.impulse  # impulse [N*s]
+    d1 = rocket[stage].engine.diameter  # diameter first stage [m]
 
     # ballistic performance inputs sustainer
     F2 = 1000  # thrust [N]
