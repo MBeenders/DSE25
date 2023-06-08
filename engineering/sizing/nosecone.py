@@ -19,7 +19,8 @@ C_D_w = 0.071 # Wave drag coefficient for 3:1 Haack ========================= NE
 
 # Stagnation temperature from diatomic isentropic flow
 M = 5.02 # Maximum mach number [-]
-T = 219.15 # Atmospheric temperature at altitude maximum mach number [K]
-T_nc = T*((1-0.2*(M**2))**-1) # Stagnation temperature [K] ================== IMPOSSIBLE VALUE!!!
+h_mach = 20000 # Altitude at maximum Mach number [m]
+T = 288.15 - 0.0065 * h_mach # Atmospheric temperature at maximum Mach number [K]
+T_nc = T * (1 + (28/24)*(-1+M**2)) * (2+0.4*M**2) / (2.4*M**2) # Stagnation temperature at nose tip [K] ================== IMPOSSIBLE VALUE!!!
 
 print(T_nc)
