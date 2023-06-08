@@ -99,11 +99,12 @@ def drag(velocity: np.ndarray, height: float) -> np.ndarray:
             C_fr_c = C_fr_c
 
     f_B = 15 # Fineness ratio of the rocket ===== MAKE VARIABLE FORM
+    S_ref = 4500 # Wet surface area of entire rocket [m^2] ===== take from OpenRocket
     S_w_b = 4000 # Wet surface area of body [m^2] ===== MAKE VARIABLE FORM from centrepressure.py
     S_w_fin = 20 # Wet surface area of body [m^2] ===== MAKE VARIABLE FORM from centrepressure.py
     t_fin = 0.005 # Thickness of fins [m] ===== MAKE VARIABLE FORM or set a value
     mac_fin = 0.5 # Mean aerodynamic chord length of fins [m] ===== MAKE VARIABLE FORM
-    C_D_fr = C_fr_c * (((1+(1/(2*f_B)))*S_w_b) + ((1+(2*t_fin/mac_fin))*S_w_fin))/(S_ref)
+    C_D_fr = C_fr_c * (((1+(1/(2*f_B)))*S_w_b) + ((1+(2*t_fin/mac_fin))*S_w_fin))/S_ref
     D_fr = C_D_fr * S_w * q # Total frictional drag force of vehicle [N]
 
     # NOSE CONE PRESSURE DRAG
