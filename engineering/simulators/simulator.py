@@ -29,8 +29,8 @@ class FlightData:
 
         # General properties
         self.mass: np.array = np.zeros(max_iterations, float64)
-        self.cd: float64 = 0.65
-        self.diameter: float64 = 0.15
+        self.cd: float64 = 0
+        self.diameter: float64 = 0
 
         # Engine
         self.thrust_curve: np.array = np.zeros(max_iterations, float64)  # Thrust curve
@@ -53,7 +53,7 @@ class Simulator:
 
         # Values
         self.apogee: float = 0
-        self.stages: dict = {}
+        self.stages: dict = {}  # Flight data of the different stages
         self.mission_profile: dict = mission_profile
 
     def run(self):
@@ -94,6 +94,9 @@ class Simulator:
     def insert_engine(self, engine):
         pass
 
+    def delete_stages(self):
+        self.stages: dict = {}
+
     def __setitem__(self, key, item):
         self.__dict__[key] = item
 
@@ -102,11 +105,4 @@ class Simulator:
 
 
 if __name__ == "__main__":
-    profile = {"stages": 2,
-               "launch": {"exact", 0},
-               "engine1_ignition": {"exact", 0},
-               "engine2_ignition": {"delay", 2},
-               "separation": {"delay", 1}
-               }
-
-    sim = Simulator(profile)
+    pass

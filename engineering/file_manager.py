@@ -110,6 +110,7 @@ def export_rocket_iteration(file_name: str, rocket: Rocket, run_id: int):
     :param run_id: ID of the current run
     Saves the entire class in the archive as a pickle file.
     """
+    rocket.simulator.delete_stages()
     with open(f"{current_file_path}/files/archive/{file_name}_{run_id}.{rocket.id}.pickle", 'wb') as file:
         pickle.dump(rocket, file)
 

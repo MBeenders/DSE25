@@ -68,36 +68,33 @@ class Runner:
         self.rocket.simulator.create_stages(self.rocket)
 
     def run_sizing(self):
-        sized_dict: dict = {"stage1": {}, "stage2": {}}  # Dictionary with all sized classes
-        if "stage1_engine" in self.selection:
-            print("\tSizing Stage 1 Engine")
-            try:
-                sized_dict["stage1"]["engine"] = run_engine_sizing(copy.deepcopy(self.rocket))["stage1"]["engine"]
-            except Exception as error:
-                print(f"\t!! Stage 1 Engine sizing failed with: {error}")
+        flight_data = self.rocket.simulator.stages  # Flight data from the different stages
+        self.rocket.simulator.delete_stages()
 
-        if "stage2_engine" in self.selection:
-            print("\tSizing Stage 2 Engine")
+        def sizer(subsystem, function):
+            print(f"\tSizing {subsystem.capitalize()}")
+            rocket = copy.deepcopy(self.rocket)
+            rocket.simulator.stages = flight_data
+
             try:
-                sized_dict["stage2"]["engine"] = run_engine_sizing(copy.deepcopy(self.rocket))["stage2"]["engine"]
+                sizing = function(rocket)
+                sized_dict["stage1"][subsystem] = sizing["stage1"][subsystem]
+                sized_dict["stage2"][subsystem] = sizing["stage2"][subsystem]
             except Exception as error:
-                print(f"\t!! Stage 2 Engine sizing failed with: {error}")
+                print(f"\t!! {subsystem.capitalize()} sizing failed with: {error}")
+
+        sized_dict: dict = {"stage1": {}, "stage2": {}}  # Dictionary with all sized classes
+        if "engine" in self.selection:
+            sizer("engine", run_engine_sizing)
 
         if "recovery" in self.selection:
-            print("\tSizing Recovery")
-            try:
-                recovery_sizing = run_recovery_sizing(copy.deepcopy(self.rocket))
-                sized_dict["stage1"]["recovery"] = recovery_sizing["stage1"]["recovery"]
-                sized_dict["stage2"]["recovery"] = recovery_sizing["stage2"]["recovery"]
-            except Exception as error:
-                print(f"\t!! Recovery sizing failed with: {error}")
+            sizer("recovery", run_recovery_sizing)
 
-        if "stage1_structure" in self.selection:
-            print("\tSizing Stage 1 Structure")
-            try:
-                sized_dict["stage1"]["structure"] = run_structure_sizing(copy.deepcopy(self.rocket))["stage1"]["structure"]
-            except Exception as error:
-                print(f"\t!! Stage 1 Structure sizing failed with: {error}")
+        if "structure" in self.selection:
+            sizer("structure", run_structure_sizing)
+
+        if "electronics" in self.selection:
+            sizer("electronics", run_electronics_sizing)
 
         for stage_name, stage_classes in sized_dict.items():
             for subsystem_name, subsystem_data in stage_classes.items():
@@ -176,4 +173,5 @@ class Runner:
 
 if __name__ == "__main__":
     runner = Runner("initial_values", 0)
-    runner.test_sizing()
+    runner.populate_simulation()
+    runner.run()

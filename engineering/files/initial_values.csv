@@ -1,4 +1,7 @@
 Stage,Subsystem,Variable,Value,Unit,
+0,rocket,mass,130,kg,
+0,rocket,cd,0.65,-,
+0,rocket,diameter,0.15,m,
 1,stage,dry_mass,30,kg,
 2,stage,dry_mass,20,kg,
 1,engine,mass,10,kg,
