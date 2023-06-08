@@ -90,8 +90,10 @@ class Recovery(Subsystem):
         self.main_parachute = self.MainParachute(name)
 
         self.descent_rate: float = 0 # [m/s]
-        self.material_density: float = 0 # [kg/m^3]
+        self.material_density: float = 0 # [kg/m^2]
         self.material_cost: float = 0 # [euros/m^2]
+        self.line_density: float = 0 # [kg/m]
+        self.line_cost: float = 0 # [euros/m
 
     class Drogue(Subsystem):
         def __init__(self, name: str):
@@ -103,6 +105,8 @@ class Recovery(Subsystem):
             # Specific parameters
             self.area: float = 0  # [m^2]
             self.c_D: float = 0
+            self.line_l_d: float = 0 # [-] Suspension line length over nominal diameter ratio
+            self.n_line: float = 0 # [-] Number of suspension lines
 
     class MainParachute(Subsystem):
         def __init__(self, name: str):
@@ -114,6 +118,8 @@ class Recovery(Subsystem):
             # Specific parameters
             self.area: float = 0  # [m^2]
             self.c_D: float = 0
+            self.line_l_d: float = 0  # [-] Suspension line length over nominal diameter ratio
+            self.n_line: float = 0  # [-] Number of suspension lines
 
 
 class Structure(Subsystem):
@@ -121,14 +127,87 @@ class Structure(Subsystem):
         Subsystem.__init__(self, "Structure")  # General parameters
 
 
-class Electronics(Subsystem):
-    def __init__(self):
-        Subsystem.__init__(self, "Electronics")  # General parameters
+class Electronics(Subsystem): #should be 3 objects one for the 1st stage electronics, one for the 2nd stage electronics, and one for the payload (though payload should not have a separate communication system)
+    def __init__(self, name: str):
+        Subsystem.__init__(self, f"{name}Electronics")
+        # General parameters
+        self.time: float
+        self.power_sensors: float
+        self.datarate: int
+
+
+        self.powersystem = self.Power(name)
+        self.communicationsystem = self.Communication(name)
+        self.blackbox = self.Blackbox(name)
+
+    class Power(Subsystem):
+        def __init__(self, name: str):
+            Subsystem.__init__(self, f"{name} Power")
+            self.avg_voltage: float
+            self.dod: float
+            self.power_density: float
+            self.power_volume: float
+            self.margin: float
+
+            #final outputs
+            self.tot_power: float
+            self.mass_bat: float
+            self.volume_bat: float
+
+
+
+
+
+
+    class Communication(Subsystem):
+        def __init__(self, name: str):
+            Subsystem.__init__(self, f"{name} Communication")
+            self.frequency: float
+            self.power_com: float
+            self.gain_tx: float
+            self.diameter_antenna_gs: float
+            self.antenna_snr: float
+            self.antenna_efficiency_gs: float
+            self.margin: float
+            self.max_range: int
+            self.modulation: str
+            self.max_speed: float
+
+            #final outputs
+            self.bandwidth: float
+            self.SNR: float
+            self.capacity: float
+
+
+
+
+    class Blackbox(Subsystem):
+        def __init__(self, name: str):
+            Subsystem.__init__(self, f"{name} Blackbox")
+
+            self.margin: float
+            self.storage: float
+
 
 
 class Payload(Subsystem):
-    def __init__(self):
+    def __init__(self, name):
         Subsystem.__init__(self, "Payload")  # General parameters
+        self.power_system = self.Power(name)
+        self.time: int
+        self.power_sensors: float
+
+
+    class Power(Subsystem):
+        def __init__(self, name: str):
+            Subsystem.__init__(self, f"{name} Power")
+            self.avg_voltage: float
+            self.dod: float
+            self.mass_bat: float
+            self.tot_power: float
+            self.power_density: float
+            self.power_volume: float
+            self.margin: float
 
 
 class Rocket:
@@ -165,6 +244,7 @@ class Rocket:
             self.engine: Subsystem = Engine("First stage Engine")
             self.recovery: Subsystem = Recovery("First stage parachutes")
             self.structure: Subsystem = Structure()
+            self.electronics: Subsystem = Electronics("First stage electronics")
 
     class Stage2(Stage):
         def __init__(self, name: str):
@@ -177,7 +257,7 @@ class Rocket:
             self.engine: Subsystem = Engine("Second stage Engine")
             self.recovery: Subsystem = Recovery("Second stage Parachutes")
             self.structure: Subsystem = Structure()
-            self.electronics: Subsystem = Electronics()
+            self.electronics: Subsystem = Electronics("Second stage electronics")
             self.payload: Subsystem = Payload()
 
 
