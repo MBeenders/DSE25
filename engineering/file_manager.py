@@ -43,14 +43,14 @@ def insert_values(data: pd.DataFrame, rocket: Rocket):
     :param rocket: Rocket class
     """
 
-    def add_value(current_value, subsystem, rocket_sub):
+    def add_value(current_value, variable, rocket_sub):
         try:
             try:
                 value = float(current_value)
             except ValueError:
                 value = current_value
 
-            rocket_sub[subsystem][current_value] = value
+            rocket_sub[variable] = value
         except KeyError as error:
             raise Exception(f"'{current_value}' not found in csv, error: {error}")
 
@@ -65,11 +65,11 @@ def insert_values(data: pd.DataFrame, rocket: Rocket):
             add_line(subsystem, line, rocket_sub)
 
         else:
-            add_value(line["Value"], subsystem[0], rocket_sub)
+            add_value(line["Value"], line["Variable"], rocket_sub[subsystem[0]])
 
     for index, row in data.iterrows():
         if row["Subsystem"] == "stage":  # If it is a stage value
-            add_value(row["Value"], f"stage{int(row['Stage'])}", rocket)
+            add_value(row["Value"], row["Variable"], rocket[f"stage{int(row['Stage'])}"])
         else:  # If it is a subsystem value
             add_line(row["Subsystem"].split(","), row, rocket[f"stage{int(row['Stage'])}"])
 

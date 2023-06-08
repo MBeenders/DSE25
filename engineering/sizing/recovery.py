@@ -63,6 +63,7 @@ def Parachutes(rocket):
 
     return m_main1, m_drogue2, m_main2, cost_main1, cost_drogue2, cost_main2, d_parachutes
 
+
 def Lines(rocket):
     """
     :param rocket: Rocket class
@@ -106,6 +107,7 @@ def Lines(rocket):
 
     return m_main1, m_drogue2, m_main2, cost_main1, cost_drogue2, cost_main2
 
+
 def Coldgas(rocket):
     """
     :param rocket: Rocket class
@@ -124,7 +126,6 @@ def Coldgas(rocket):
     gas_total_cost2 = gas_cost * n_gas2
 
     return m_total1, m_total2, gas_total_cost1, gas_total_cost2
-
 
 
 def run(rocket):
