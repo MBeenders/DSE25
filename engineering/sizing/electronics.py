@@ -10,7 +10,7 @@ modulation = {
 
 
 def dB_to_W(value_dB):
-    watt = 10 ^ (value_dB / 10)
+    watt = 10 ** (value_dB / 10)
     return watt
 
 
@@ -21,14 +21,14 @@ def W_to_dB(value_w):
 
 def antenna_gain(size, frequency, efficiency):
     wavelength = c / frequency
-    gain = ((np.pi * size) ^ 2) * (efficiency / wavelength)
+    gain = ((np.pi * size) ** 2) * (efficiency / wavelength)
     gain_dB = W_to_dB(gain)
     return gain_dB
 
 
 def power_received(gain_rx, gain_tx, distance, frequency, power_in, other):
     wavelength = c / frequency
-    loss_freespace = ((4 * np.pi * distance) / wavelength) ^ 2
+    loss_freespace = ((4 * np.pi * distance) / wavelength) ** 2
     loss_freespace_dB = W_to_dB(loss_freespace)
 
     power_out = power_in + gain_tx - loss_freespace_dB + gain_rx - other
@@ -38,7 +38,7 @@ def power_received(gain_rx, gain_tx, distance, frequency, power_in, other):
 def minimum_bandwidth_required(datarate, modulation_choice):
     ratio = modulation[modulation_choice]
     if (ratio == 0):
-        return 10 * 10 ^ 6
+        return 10E6
     else:
         return (datarate / ratio)
 
@@ -68,7 +68,7 @@ def stage1_electronics(rocket):
     power_rec = power_received(gain_rx_db, gain_tx_db, rocket.stage1.electronics.communicationsystem.max_range, frequency, power, 0)
     min_bw = minimum_bandwidth_required(datarate, rocket.stage1.electronics.communicationsystem.modulation) * (1 + margin)
 
-    N0 = noise_received(min_bw, rocket.stage1.electronics.communicationsystem.antenna_SNR, gain_rx_db)
+    N0 = noise_received(min_bw, rocket.stage1.electronics.communicationsystem.antenna_snr, gain_rx_db)
 
     SNR = power_rec / N0
 

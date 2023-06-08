@@ -10,10 +10,12 @@ from simulators.advanced.aerodynamics import drag, isa
 from simulators.simple.dynamics import run as dynamics_run
 from simulators.simple.gravity import gravity
 from simulators.simulator import Simulator
+
 from sizing.engine import run as run_engine_sizing
 from sizing.recovery import run as run_recovery_sizing
-from sizing.rocket import Rocket
 from sizing.structure import run as run_structure_sizing
+from sizing.electronics import run as run_electronics_sizing
+from sizing.rocket import Rocket
 
 
 class Runner:
@@ -108,9 +110,9 @@ class Runner:
         self.new_rocket.id = serial_num
 
     def test_sizing(self):
-        # run_electronics_sizing(copy.deepcopy(self.rocket))
+        run_electronics_sizing(copy.deepcopy(self.rocket))
         # run_engine_sizing(copy.deepcopy(self.rocket))
-        run_recovery_sizing(copy.deepcopy(self.rocket))
+        # run_recovery_sizing(copy.deepcopy(self.rocket))
         # run_structure_sizing(copy.deepcopy(self.rocket))
 
     def check_compliance(self, show_within_limit=False):
