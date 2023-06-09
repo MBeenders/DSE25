@@ -218,7 +218,7 @@ def stage2_payload(rocket, text):
         print("Stage 2 total required storage for the payload: ", storage/(8*10**9), "Gbytes")
 
 
-def do_stuff(rocket, print_sizing):
+def do_stuff(rocket, print_sizing=False):
     """
     :param rocket: Rocket class
     :return: None
