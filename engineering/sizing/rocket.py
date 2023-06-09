@@ -329,14 +329,23 @@ class Rocket:
             if key != "id" and key != "name":
                 compare_list.append(key)
 
+        # Start with all Rocket parameters at zero
+        for key in compare_list:
+            self[key] = 0
+
         for stage_key, stage_value in self.__dict__.items():
             if "stage" in stage_key:
+
+                # Start with all Stage parameters at zero
+                for key in compare_list:
+                    self[stage_key][key] = 0
+
                 # Summ all shared Subsystem parameters into Stage parameters
                 for subsystem_key, subsystem_value in self[stage_key].__dict__.items():
                     if isinstance(subsystem_value, Subsystem):
                         for variable_key, variable_value in subsystem_value.__dict__.items():
                             if variable_key in compare_list:
-                                self[stage_key][variable_key] += variable_value
+                                self[stage_key][variable_key] += variable_value  # Add all the Subsystems
 
                 # Sum all shared Stage parameters into Rocket parameters
                 for variable_key, variable_value in self[stage_key].__dict__.items():

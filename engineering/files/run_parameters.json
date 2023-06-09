@@ -7,6 +7,16 @@
     "engine2_ignition": {"delay": 1},
     "separation": {"delay": 1}
   },
+  "plot_selection":
+  {
+    "rocket.mass": "[kg]",
+    "rocket.stage1.mass": "[kg]",
+    "rocket.stage1.engine.mass": "[kg]",
+    "rocket.stage1.recovery.mass": "[kg]",
+    "rocket.stage1.structure.mass": "[kg]",
+    "rocket.stage1.electronics.mass": "[kg]",
+    "rocket.stage2.mass": "[kg]"
+  },
   "sizing_selection": [],
   "engine_chemicals":
   {
