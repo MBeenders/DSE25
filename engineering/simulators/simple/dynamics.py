@@ -36,6 +36,7 @@ def run(flight, gravity, drag, isa, dt: float = 0.1, start_time: float = 0, end_
 
             force_x = - force_drag[0] + force_thrust * np.sin(flight.angles[i][0])
             force_y = - force_drag[1] + force_thrust * np.cos(flight.angles[i][0]) - force_gravity
+            # print(force_drag, force_thrust, force_gravity)
 
             # Iteration
             acceleration = np.array((force_x, force_y), dtype=np.float64) / mass_total

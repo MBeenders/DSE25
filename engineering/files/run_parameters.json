@@ -10,11 +10,9 @@
   "plot_selection":
   {
     "rocket.mass": "[kg]",
-    "rocket.stage1.mass": "[kg]",
     "rocket.stage1.engine.mass": "[kg]",
-    "rocket.stage2.mass": "[kg]",
     "rocket.stage2.engine.mass": "[kg]",
-    "rocket.stage2.engine.propellant_mass": "[kg]",
+    "rocket.stage2.engine.length": "[m]",
     "rocket.stage2.recovery.mass": "[kg]",
     "rocket.stage2.electronics.mass": "[kg]"
   },

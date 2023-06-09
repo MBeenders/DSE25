@@ -198,7 +198,7 @@ def stage2_iteration(rocket, apogee_goal):
     apogee: float = simulator.apogee
 
     difference = apogee_goal - apogee  # Difference in altitude, negative means an overshoot
-    engine.impulse += 2.4 * difference  # Change Impulse to get closer to the target altitude
+    engine.impulse += 0.3 * difference  # Change Impulse to get closer to the target altitude
     engine.thrust = engine.impulse / engine.burn_time
 
     create_stage2_engine(rocket)

@@ -5,6 +5,7 @@ import sys
 import re
 
 import numpy as np
+import matplotlib.pyplot as plt
 import time
 
 import file_manager as fm
@@ -112,7 +113,7 @@ class Runner:
             if print_sub:
                 print("\tRunning Simulation")
             self.rocket.simulator.run()
-            self.rocket.simulator.plot_trajectory()
+            # self.rocket.simulator.plot_trajectory()
             if print_sub:
                 print(f"\t\tInitial apogee: {self.rocket.simulator.apogee} m")
 
@@ -216,6 +217,9 @@ class Runner:
         for variable in self.run_parameters["plot_selection"]:
             data = fm.load_variable(run_number, variable.split('.')[1:])
             print(variable, data)
+            plt.plot(np.arange(0, len(data)), data)
+            plt.title(str(variable))
+            plt.show()
 
     def check_rocket_class(self, new: bool = False):
         print("Checking Rocket Class")
@@ -307,5 +311,6 @@ class Runner:
 
 if __name__ == "__main__":
     runner = Runner("initial_values")
-    runner.run(1, testing=True)
-    # runner.show_plots(1)
+    # runner.test_sizing()
+    runner.run(50, testing=True)
+    runner.show_plots(1)

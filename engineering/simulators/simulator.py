@@ -130,11 +130,17 @@ class Simulator:
         times = np.concatenate((self.stages["Total"].time, self.stages["Stage2"].time), axis=0)
         altitudes = np.concatenate((self.stages["Total"].locations.transpose()[1],
                                     self.stages["Stage2"].locations.transpose()[1]), axis=0)
-        return times, altitudes
+        velocities = np.concatenate((self.stages["Total"].velocities.transpose()[1],
+                                     self.stages["Stage2"].velocities.transpose()[1]), axis=0)
+
+        return times, altitudes, velocities
 
     def plot_trajectory(self):
-        times, altitudes = self.combine_lists()
+        times, altitudes, velocities = self.combine_lists()
         plt.plot(times, altitudes)
+        plt.show()
+
+        plt.plot(times, velocities[:-1])
         plt.show()
 
     def delete_stages(self):
