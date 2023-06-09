@@ -48,14 +48,17 @@ class Runner:
     def run(self):
         print("Running Main Program")
 
-        # Simulation
-        self.populate_simulation()
-        print("Running Simulation")
-        self.rocket.simulator.run()
-        print(f"\tInitial apogee: {self.rocket.simulator.apogee} m")
+        # # Simulation
+        # self.populate_simulation()
+        # print("Running Simulation")
+        # self.rocket.simulator.run()
+        # print(f"\tInitial apogee: {self.rocket.simulator.apogee} m")
+        #
+        # # Sizing
+        # self.run_sizing()
 
-        # Sizing
-        self.run_sizing()
+        # Test
+        self.rocket.update()
 
         # Close
         print("Finished! Closing program ...")
@@ -221,7 +224,4 @@ class Runner:
 
 if __name__ == "__main__":
     runner = Runner("initial_values", 0)
-    runner.check_rocket_class()
-    # runner.test_sizing()
-    # runner.populate_simulation()
     runner.run()

@@ -320,8 +320,8 @@ class Rocket:
             self.payload: Subsystem = Payload("Scientific Payload")
 
     def update(self):
-        for variable in vars(self):
-            print(variable)
+        for variable in getattr():
+            print(type(variable))
 
 
 if __name__ == "__main__":

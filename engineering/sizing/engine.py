@@ -149,7 +149,7 @@ def calculate_engine_specs(engine, ambient_pressure):
     engine.nozzle_mass = nozzle_mass(engine.nozzle_thickness, engine.nozzle_throat_area, engine.nozzle_exit_area, engine.nozzle_density, engine.nozzle_length)
 
     # Summing
-    engine.mass = solid_motor_mass(engine.casing_mass, engine.nozzle_mass, engine.bulkhead_mass)
+    engine.mass = solid_motor_mass(engine.casing_mass, engine.nozzle_mass, engine.bulkhead_mass) + engine.propellant_mass
     engine.length = total_length(engine.nozzle_length, engine.chamber_length)
 
 
