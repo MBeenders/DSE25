@@ -47,35 +47,44 @@ class Runner:
         # Import requirements
         self.requirements = fm.import_csv("requirements")
 
-    def run(self, runs):
+    def run(self, runs, print_iteration=True, print_sub=True):
         print("Running Main Program")
         self.start_time = time.time()
 
         for i in range(runs):
             last_time = time.time()
-            print(f"Iteration {i + 1}/{runs}")
+
+            if print_iteration:
+                print(f"Iteration {i + 1}/{runs}")
 
             # Make sure all Subsystem parameters are summed into the Stages and main Rocket
-            print("\tSumming Rocket Parameters")
+            if print_sub:
+                print("\tSumming Rocket Parameters")
             self.rocket.update()
 
             # Simulation
+            if print_sub:
+                print("\tPopulating Simulation (Temp solution!)")
             self.populate_simulation()
-            print("\tRunning Simulation")
+            if print_sub:
+                print("\tRunning Simulation")
             self.rocket.simulator.run()
-            print(f"\t\tInitial apogee: {self.rocket.simulator.apogee} m")
+            if print_sub:
+                print(f"\t\tInitial apogee: {self.rocket.simulator.apogee} m")
 
             # Sizing
-            self.run_sizing()
+            self.run_sizing(print_sub)
 
             # Sum the Subsystems into the Stages and main Rocket
-            print("\tSumming Rocket Parameters")
+            if print_sub:
+                print("\tSumming Rocket Parameters")
             self.rocket.update()
 
-            print(f"Finished iteration {i + 1}, after {round(time.time() - last_time, 2)} s")
+            if print_iteration:
+                print(f"Finished iteration {i + 1}, after {round(time.time() - last_time, 2)} s")
 
         # Close
-        print("Finished! Closing program ...")
+        print(f"Finished after {round(time.time() - self.start_time, 2)} s\n\tClosing program ...")
         self.close()
 
     def give_id(self, subsystem):
@@ -84,8 +93,6 @@ class Runner:
         subsystem.id = f"{self.rocket.id}.{serial_num}"
 
     def populate_simulation(self):
-        print("\tPopulating Simulation (Temp solution!)")
-
         # Temp
         self.rocket.stage1.engine.thrust_curve = 1000 * np.ones(100)
         self.rocket.stage2.engine.thrust_curve = 1000 * np.ones(100)
@@ -94,13 +101,17 @@ class Runner:
         # print(self.rocket.stage1.engine.thrust_curve)
         self.rocket.simulator.create_stages(self.rocket)
 
-    def run_sizing(self):
-        print("\tRunning Sizing")
+    def run_sizing(self, print_status=True):
+        if print_status:
+            print("\tRunning Sizing")
+
         flight_data = self.rocket.simulator.stages  # Flight data from the different stages
         self.rocket.simulator.delete_stages()
 
         def sizer(subsystem, function, separate=False):
-            print(f"\t\tSizing {subsystem.capitalize()}")
+            if print_status:
+                print(f"\t\tSizing {subsystem.capitalize()}")
+
             rocket = copy.deepcopy(self.rocket)
             rocket.simulator.stages = flight_data
 
@@ -132,7 +143,8 @@ class Runner:
             sizer("electronics", run_electronics_sizing)
 
         if not self.selection:
-            print("\t\tNo sizing options specified in the 'run_parameters.json'")
+            if print_status:
+                print("\t\tNo sizing options specified in the 'run_parameters.json'")
 
         for stage_name, stage_classes in sized_dict.items():
             for subsystem_name, subsystem_data in stage_classes.items():
@@ -238,4 +250,4 @@ class Runner:
 
 if __name__ == "__main__":
     runner = Runner("initial_values", 0)
-    runner.run(2)
+    runner.run(2, print_iteration=False, print_sub=False)
