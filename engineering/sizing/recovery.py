@@ -13,8 +13,9 @@ def parachutes(rocket):
 
     dry_mass1: float = rocket.stage1.dry_mass
     dry_mass2: float = rocket.stage2.dry_mass
-    decent_rate1: float = rocket.stage1.recovery.descent_rate
-    decent_rate2: float = rocket.stage2.recovery.descent_rate
+    descent_rate1: float = rocket.stage1.recovery.main_parachute.descent_rate
+    descent_rate2_drogue: float = rocket.stage2.recovery.drogue.descent_rate
+    descent_rate2_main: float = rocket.stage2.recovery.main_parachute.descent_rate
     c_D_main1: float = rocket.stage1.recovery.main_parachute.c_D
     c_D_drogue2: float = rocket.stage2.recovery.drogue.c_D
     c_D_main2: float = rocket.stage2.recovery.main_parachute.c_D
@@ -24,15 +25,15 @@ def parachutes(rocket):
     # AREA & DIAMETER OF PARACHUTES:
 
     # 1st stage main parachute:
-    area_main1 = dry_mass1 * g / (0.5 * rho * decent_rate1 ** 2 * c_D_main1)
+    area_main1 = dry_mass1 * g / (0.5 * rho * descent_rate1 ** 2 * c_D_main1)
     diameter_main1 = np.sqrt(area_main1 / (np.pi * 0.25))
 
     # 2nd stage drogue parachute:
-    area_drogue2 = dry_mass2 * g / (0.5 * rho * decent_rate2 ** 2 * c_D_drogue2)
+    area_drogue2 = dry_mass2 * g / (0.5 * rho * descent_rate2_drogue ** 2 * c_D_drogue2)
     diameter_drogue2 = np.sqrt(area_drogue2 / (np.pi * 0.25))
 
     # 2nd stage main parachute:
-    area_main2 = dry_mass2 * g / (0.5 * rho * decent_rate2 ** 2 * c_D_main2)
+    area_main2 = dry_mass2 * g / (0.5 * rho * descent_rate2_main ** 2 * c_D_main2)
     diameter_main2 = np.sqrt(area_main2 / (np.pi * 0.25))
 
     d_parachutes = [diameter_main1, diameter_drogue2, diameter_main2]
