@@ -44,6 +44,7 @@ def run(flight, gravity, drag, isa, dt: float = 0.1, start_time: float = 0, end_
             flight.locations[i + 1] = flight.velocities[i] * dt + flight.locations[i]
 
             total_velocity: float = np.linalg.norm(flight.velocities[i])
+            flight.total_velocities[i + 1] = total_velocity
             if total_velocity == 0:
                 flight.angles[i][0] = 0
             else:

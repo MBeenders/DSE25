@@ -82,8 +82,8 @@ def stage1_electronics(rocket, text):
     
     rocket.stage1.electronics.communicationsystem.SNR = SNR
     
-    delta_freq = doppler_shift(rocket.stage1.electronics.communicationsystem.max_speed, frequency)
-    
+    delta_freq = doppler_shift(rocket.simulator.max_velocity, frequency)
+
     assert min_bw > delta_freq, f"bandwidth greater than {delta_freq} expected, got: {min_bw/(10**6)} MHz"
     assert min_bw < (10 * (10**6)), f"bandwidth less than 10 MHz expected, got: {min_bw/(10**6)} MHz"
     rocket.stage1.electronics.communicationsystem.bandwidth = min_bw
@@ -149,7 +149,7 @@ def stage2_electronics(rocket, text):
     rocket.stage2.electronics.communicationsystem.SNR = SNR
     
 
-    delta_freq = doppler_shift(rocket.stage2.electronics.communicationsystem.max_speed, frequency)
+    delta_freq = doppler_shift(rocket.simulator.max_velocity, frequency)
     
     assert min_bw > delta_freq, f"bandwidth greater than {delta_freq} expected, got: {min_bw/(10**6)} MHz"
     assert min_bw < (10 * (10**6)), f"bandwidth less than 10 MHz expected, got: {min_bw/(10**6)} MHz"
@@ -226,15 +226,16 @@ def do_stuff(rocket, print_sizing=False):
     # Stage 1
 
     stage1_electronics(rocket, print_sizing)
+    rocket.stage1.electronics.mass = rocket.stage1.electronics.powersystem.mass_bat
     # Stage 2
 
     # electronics
     stage2_electronics(rocket, print_sizing)
+    rocket.stage2.electronics.mass = rocket.stage2.electronics.powersystem.mass_bat
 
     # payload
-
     stage2_payload(rocket, print_sizing)
-
+    rocket.stage2.payload.mass = rocket.stage2.payload.powersystem.mass_bat
 
 def run(rocket):
     """

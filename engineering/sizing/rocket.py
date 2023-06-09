@@ -240,6 +240,7 @@ class Payload(Subsystem):
         Subsystem.__init__(self, "Payload")  # General parameters
 
         self.power_system = self.Power(name)
+        self.sensor_mass: int | None = None
         self.time: int
         self.power_sensors: float
 

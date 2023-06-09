@@ -87,9 +87,9 @@ class Runner:
             if print_sub:
                 print("\tSaving Starting Point")
             if testing:
-                fm.export_rocket_iteration(f"run_1/0_rocket", self.new_rocket)
+                fm.export_rocket_iteration(f"run_1/0000_rocket", self.new_rocket)
             else:
-                fm.export_rocket_iteration(f"run_{self.run_id}/0_rocket", self.new_rocket)
+                fm.export_rocket_iteration(f"run_{self.run_id}/0000_rocket", self.new_rocket)
 
         # Check Rocket for missing parameters
         self.check_rocket_class()
@@ -130,9 +130,9 @@ class Runner:
                 if print_sub:
                     print("\tSaving Iteration")
                 if testing:
-                    fm.export_rocket_iteration(f"run_1/{self.iteration_id}_rocket", self.new_rocket)
+                    fm.export_rocket_iteration(f"run_1/{str(self.iteration_id).zfill(4)}_rocket", self.new_rocket)
                 else:
-                    fm.export_rocket_iteration(f"run_{self.run_id}/{self.iteration_id}_rocket", self.new_rocket)
+                    fm.export_rocket_iteration(f"run_{self.run_id}/{str(self.iteration_id).zfill(4)}_rocket", self.new_rocket)
 
             # Overwrite old Rocket with New Rocket
             self.rocket = self.new_rocket
@@ -216,7 +216,6 @@ class Runner:
     def show_plots(self, run_number: int):
         for variable in self.run_parameters["plot_selection"]:
             data = fm.load_variable(run_number, variable.split('.')[1:])
-            print(variable, data)
             plt.plot(np.arange(0, len(data)), data)
             plt.title(str(variable))
             plt.show()
@@ -312,5 +311,5 @@ class Runner:
 if __name__ == "__main__":
     runner = Runner("initial_values")
     # runner.test_sizing()
-    runner.run(50, testing=True)
+    runner.run(10, testing=True)
     runner.show_plots(1)

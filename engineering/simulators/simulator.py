@@ -10,6 +10,7 @@ rocket_specs = [("max_iterations", int32),
                 ("locations", float64[:, :]),
                 ("velocities", float64[:, :]),
                 ("angles", float64[:, :]),
+                ("total_velocities", float64[:, :]),
                 ("mass", float64[:]),
                 ("cd", float64),
                 ("diameter", float64),
@@ -30,6 +31,8 @@ class FlightData:
         self.locations: np.array = np.zeros((max_iterations, 2), float64)
         self.velocities: np.array = np.zeros((max_iterations, 2), float64)
         self.angles: np.array = np.zeros((max_iterations, 1), float64)
+
+        self.total_velocities: np.array = np.zeros((max_iterations, 2), float64)
 
         # General properties
         self.mass: np.array = np.zeros(max_iterations, float64)
@@ -60,6 +63,9 @@ class Simulator:
 
         # Values
         self.apogee: float = 0
+        self.max_velocity: float = 0
+
+        # Mission
         self.stages: dict = {}  # Flight data of the different stages
         self.mission_profile: dict = mission_profile
 
@@ -119,6 +125,7 @@ class Simulator:
 
     def update(self):
         self.apogee = self.stages["Stage2"].locations.transpose()[1].max()
+        self.max_velocity = self.stages["Stage2"].velocities.transpose()[1].max()
 
     @staticmethod
     def trim_lists(rocket: FlightData):
