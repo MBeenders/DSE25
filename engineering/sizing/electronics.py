@@ -92,7 +92,7 @@ def stage1_electronics(rocket, text):
     # power
     power_total = rocket.stage1.electronics.communicationsystem.power_com + rocket.stage1.electronics.power_sensors
     time = rocket.stage1.electronics.time
-    rocket.stage1.electronics.powersystem.tot_power = (power_total / (1 - rocket.stage1.electronics.powersystem.dod))*(1+rocket.stage1.electronics.powersystem.margin)
+    rocket.stage1.electronics.powersystem.tot_power = (power_total / (rocket.stage1.electronics.powersystem.dod))*(1+rocket.stage1.electronics.powersystem.margin)
     energy = rocket.stage1.electronics.powersystem.tot_power * time / 3600
 
     
@@ -159,7 +159,7 @@ def stage2_electronics(rocket, text):
     # power
     power_total = rocket.stage2.electronics.communicationsystem.power_com + rocket.stage2.electronics.power_sensors
     time = rocket.stage2.electronics.time
-    rocket.stage2.electronics.powersystem.tot_power = (power_total / (1 - rocket.stage2.electronics.powersystem.dod))*(1+rocket.stage2.electronics.powersystem.margin)
+    rocket.stage2.electronics.powersystem.tot_power = (power_total / (rocket.stage2.electronics.powersystem.dod))*(1+rocket.stage2.electronics.powersystem.margin)
     energy = rocket.stage2.electronics.powersystem.tot_power * time / 3600
 
     
@@ -194,7 +194,7 @@ def stage2_payload(rocket, text):
     power_total = rocket.stage2.payload.power_sensors
     time = rocket.stage2.payload.time
 
-    rocket.stage2.payload.powersystem.tot_power = (power_total / (1 - rocket.stage2.payload.powersystem.dod))*(1+rocket.stage2.payload.powersystem.margin)
+    rocket.stage2.payload.powersystem.tot_power = (power_total / (rocket.stage2.payload.powersystem.dod))*(1+rocket.stage2.payload.powersystem.margin)
     energy = rocket.stage2.payload.powersystem.tot_power * time / 3600
     
     rocket.stage2.payload.powersystem.mass_bat = energy / rocket.stage2.payload.powersystem.power_density
