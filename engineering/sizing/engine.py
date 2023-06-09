@@ -75,7 +75,8 @@ def nozzle_exit_area(pressure_chamber, gamma, pressure_ambient, throat_area):
 
 
 # determining the L/Dt
-def length_nozzle(area_ratio, throat_area):
+def length_nozzle(exit_area, throat_area):
+    area_ratio = exit_area / throat_area
     nozzle_length = (- 0.0034 * area_ratio ** 2 + 0.3619 * area_ratio + 0.6766) * 2 * math.sqrt(throat_area / math.pi)
     return nozzle_length
 
@@ -141,7 +142,7 @@ def calculate_engine_specs(engine, ambient_pressure):
     engine.nozzle_throat_area = nozzle_throat_area(engine.mass_flow, engine.c_star, engine.chamber_pressure)
     engine.nozzle_exit_area = nozzle_exit_area(engine.chamber_pressure, engine.chamber_gamma, ambient_pressure, engine.nozzle_throat_area)
     engine.nozzle_area_ratio = engine.nozzle_exit_area / engine.nozzle_throat_area
-    engine.nozzle_length = length_nozzle(engine.nozzle_area_ratio, engine.nozzle_throat_area)
+    engine.nozzle_length = length_nozzle(engine.nozzle_exit_area, engine.nozzle_throat_area)
 
     # Calculate engine mass
     engine.casing_mass = casing_mass(engine.casing_thickness, engine.diameter, engine.chamber_length, engine.casing_density)
@@ -190,7 +191,6 @@ def stage2_iteration(rocket, apogee_goal):
     difference = apogee_goal - apogee  # Difference in altitude, negative means an overshoot
     engine.impulse += 2 * difference  # Change Impulse to get closer to the target altitude
     engine.thrust = engine.impulse / engine.burn_time
-    print(difference, engine.impulse, engine.length)
 
     # Calculate engine specs with new Thrust
     calculate_engine_specs(engine, 101325)

@@ -319,6 +319,10 @@ class Rocket:
             self.electronics: Subsystem = Electronics("Second stage electronics")
             self.payload: Subsystem = Payload("Scientific Payload")
 
+    def update(self):
+        for variable in vars(self):
+            print(variable)
+
 
 if __name__ == "__main__":
     pass

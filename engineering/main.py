@@ -46,10 +46,18 @@ class Runner:
         self.requirements = fm.import_csv("requirements")
 
     def run(self):
+        print("Running Main Program")
+
+        # Simulation
         self.populate_simulation()
         print("Running Simulation")
         self.rocket.simulator.run()
+        print(f"\tInitial apogee: {self.rocket.simulator.apogee} m")
+
+        # Sizing
         self.run_sizing()
+
+        # Close
         print("Finished! Closing program ...")
         self.close()
 
@@ -106,6 +114,9 @@ class Runner:
         if "electronics" in self.selection:
             sizer("electronics", run_electronics_sizing)
 
+        if not self.selection:
+            print("\tNo sizing option specified in the 'run_parameters.json'")
+
         for stage_name, stage_classes in sized_dict.items():
             for subsystem_name, subsystem_data in stage_classes.items():
                 self.give_id(subsystem_data)
@@ -147,7 +158,7 @@ class Runner:
                         print(f"\tAttribute '{attribute}' not found in rocket class")
 
         check_level(self.rocket)
-        print(f"Rocket class checked, with {self.warnings} warnings")
+        print(f"Rocket class checked; {self.warnings} warnings")
 
     def check_compliance(self, show_within_limit=False):
         print("Checking compliance with the requirements")
@@ -211,6 +222,6 @@ class Runner:
 if __name__ == "__main__":
     runner = Runner("initial_values", 0)
     runner.check_rocket_class()
-    runner.test_sizing()
+    # runner.test_sizing()
     # runner.populate_simulation()
-    # runner.run()
+    runner.run()
