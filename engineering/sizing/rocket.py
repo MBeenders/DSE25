@@ -11,6 +11,7 @@ class Stage:
         self.diameter: float = 0  # [m]
         self.power_in: float = 0  # [W]
         self.power_out: float = 0  # [W]
+        self.cost: float = 0  # [euros]
 
         # Initialize possible components
         self.engine: Subsystem | None = None
@@ -31,6 +32,7 @@ class Subsystem:
         self.id: str = "0.0"
         self.name: str = name
         self.mass: float = 0  # [kg]
+        self.dry_mass: float = 0  # [kg]
         self.length: float = 0  # [m]
         self.diameter: float = 0  # [m]
         self.power_in: float = 0  # [W]
@@ -239,6 +241,7 @@ class Payload(Subsystem):
         Subsystem.__init__(self, "Payload")  # General parameters
 
         self.power_system = self.Power(name)
+        self.sensor_mass: int | None = None
         self.time: int
         self.power_sensors: float
 
@@ -273,11 +276,14 @@ class Rocket:
         # Global parameters
         self.id: str = "0"
         self.mass: float = 0  # [kg]
+        self.dry_mass: float = 0  # [kg]
         self.length: float = 0  # [m]
         self.diameter: float = 0  # [m]
         self.power_in: float = 0  # [W]
         self.power_out: float = 0  # [W]
+        self.cost: float = 0  # [euros]
 
+        # Specific
         self.cd: float = 0.65
 
         # Simulator
@@ -319,6 +325,41 @@ class Rocket:
             self.structure: Subsystem = Structure()
             self.electronics: Subsystem = Electronics("Second stage electronics")
             self.payload: Subsystem = Payload("Scientific Payload")
+
+    def update(self):
+        sample_subsystem: Subsystem = Subsystem("Sample")
+        compare_list: list = []
+        for key, _ in sample_subsystem.__dict__.items():
+            if key != "id" and key != "name":
+                compare_list.append(key)
+
+        # Start with all Rocket parameters at zero
+        for key in compare_list:
+            self[key] = 0
+
+        for stage_key, stage_value in self.__dict__.items():
+            if "stage" in stage_key:
+
+                # Start with all Stage parameters at zero
+                for key in compare_list:
+                    self[stage_key][key] = 0
+
+                # Summ all shared Subsystem parameters into Stage parameters
+                for subsystem_key, subsystem_value in self[stage_key].__dict__.items():
+                    if isinstance(subsystem_value, Subsystem):
+                        for variable_key, variable_value in subsystem_value.__dict__.items():
+                            if variable_key == "dry_mass" and subsystem_key != "engine":
+                                self[stage_key][variable_key] = self[stage_key].mass
+                            if variable_key in compare_list:
+                                if variable_value < 0:
+                                    print(f"\t\tWarning! '{stage_key}.{subsystem_key}.{variable_key}' smaller than zero: {variable_value}")
+                                else:
+                                    self[stage_key][variable_key] += variable_value  # Add all the Subsystems
+
+                # Sum all shared Stage parameters into Rocket parameters
+                for variable_key, variable_value in self[stage_key].__dict__.items():
+                    if variable_key in compare_list:
+                        self[variable_key] += variable_value
 
 
 if __name__ == "__main__":

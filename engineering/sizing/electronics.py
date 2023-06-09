@@ -82,8 +82,8 @@ def stage1_electronics(rocket, text):
     
     rocket.stage1.electronics.communicationsystem.SNR = SNR
     
-    delta_freq = doppler_shift(rocket.stage1.electronics.communicationsystem.max_speed, frequency)
-    
+    delta_freq = doppler_shift(rocket.simulator.max_velocity, frequency)
+
     assert min_bw > delta_freq, f"bandwidth greater than {delta_freq} expected, got: {min_bw/(10**6)} MHz"
     assert min_bw < (10 * (10**6)), f"bandwidth less than 10 MHz expected, got: {min_bw/(10**6)} MHz"
     rocket.stage1.electronics.communicationsystem.bandwidth = min_bw
@@ -92,7 +92,7 @@ def stage1_electronics(rocket, text):
     # power
     power_total = rocket.stage1.electronics.communicationsystem.power_com + rocket.stage1.electronics.power_sensors
     time = rocket.stage1.electronics.time
-    rocket.stage1.electronics.powersystem.tot_power = (power_total / (1 - rocket.stage1.electronics.powersystem.dod))*(1+rocket.stage1.electronics.powersystem.margin)
+    rocket.stage1.electronics.powersystem.tot_power = (power_total / (rocket.stage1.electronics.powersystem.dod))*(1+rocket.stage1.electronics.powersystem.margin)
     energy = rocket.stage1.electronics.powersystem.tot_power * time / 3600
 
     
@@ -149,7 +149,7 @@ def stage2_electronics(rocket, text):
     rocket.stage2.electronics.communicationsystem.SNR = SNR
     
 
-    delta_freq = doppler_shift(rocket.stage2.electronics.communicationsystem.max_speed, frequency)
+    delta_freq = doppler_shift(rocket.simulator.max_velocity, frequency)
     
     assert min_bw > delta_freq, f"bandwidth greater than {delta_freq} expected, got: {min_bw/(10**6)} MHz"
     assert min_bw < (10 * (10**6)), f"bandwidth less than 10 MHz expected, got: {min_bw/(10**6)} MHz"
@@ -159,7 +159,7 @@ def stage2_electronics(rocket, text):
     # power
     power_total = rocket.stage2.electronics.communicationsystem.power_com + rocket.stage2.electronics.power_sensors
     time = rocket.stage2.electronics.time
-    rocket.stage2.electronics.powersystem.tot_power = (power_total / (1 - rocket.stage2.electronics.powersystem.dod))*(1+rocket.stage2.electronics.powersystem.margin)
+    rocket.stage2.electronics.powersystem.tot_power = (power_total / (rocket.stage2.electronics.powersystem.dod))*(1+rocket.stage2.electronics.powersystem.margin)
     energy = rocket.stage2.electronics.powersystem.tot_power * time / 3600
 
     
@@ -194,7 +194,7 @@ def stage2_payload(rocket, text):
     power_total = rocket.stage2.payload.power_sensors
     time = rocket.stage2.payload.time
 
-    rocket.stage2.payload.powersystem.tot_power = (power_total / (1 - rocket.stage2.payload.powersystem.dod))*(1+rocket.stage2.payload.powersystem.margin)
+    rocket.stage2.payload.powersystem.tot_power = (power_total / (rocket.stage2.payload.powersystem.dod))*(1+rocket.stage2.payload.powersystem.margin)
     energy = rocket.stage2.payload.powersystem.tot_power * time / 3600
     
     rocket.stage2.payload.powersystem.mass_bat = energy / rocket.stage2.payload.powersystem.power_density
@@ -218,7 +218,7 @@ def stage2_payload(rocket, text):
         print("Stage 2 total required storage for the payload: ", storage/(8*10**9), "Gbytes")
 
 
-def do_stuff(rocket, print_sizing):
+def do_stuff(rocket, print_sizing=False):
     """
     :param rocket: Rocket class
     :return: None
@@ -226,15 +226,16 @@ def do_stuff(rocket, print_sizing):
     # Stage 1
 
     stage1_electronics(rocket, print_sizing)
+    rocket.stage1.electronics.mass = rocket.stage1.electronics.powersystem.mass_bat
     # Stage 2
 
     # electronics
     stage2_electronics(rocket, print_sizing)
+    rocket.stage2.electronics.mass = rocket.stage2.electronics.powersystem.mass_bat
 
     # payload
-
     stage2_payload(rocket, print_sizing)
-
+    rocket.stage2.payload.mass = rocket.stage2.payload.powersystem.mass_bat
 
 def run(rocket):
     """

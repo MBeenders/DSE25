@@ -8,6 +8,8 @@ def run(flight, gravity, drag, isa, dt: float = 0.1, start_time: float = 0, end_
     mass_fuel: float = flight.fuel_mass_curve[0]
     mass_total: float = mass_rocket + mass_fuel
 
+    delay_i: float = 0
+
     for i, time in enumerate(np.linspace(start_time, end_time, int((end_time-start_time) / dt))):
         if flight.locations[i][1] >= 0:
             # Atmosphere
@@ -21,9 +23,10 @@ def run(flight, gravity, drag, isa, dt: float = 0.1, start_time: float = 0, end_
                 force_thrust: float = 0
                 mass_fuel: float = 0
             else:
-                if delay <= time < (flight.burn_time + start_time + delay):
-                    force_thrust = flight.thrust_curve[i]
-                    mass_fuel = flight.fuel_mass_curve[i]
+                if (start_time + delay) <= time < (flight.burn_time + start_time + delay - dt):
+                    delay_i += 1
+                    force_thrust = flight.thrust_curve[delay_i]
+                    mass_fuel = flight.fuel_mass_curve[delay_i]
                 else:
                     mass_fuel: float = 0
                     force_thrust: float = 0
@@ -33,7 +36,7 @@ def run(flight, gravity, drag, isa, dt: float = 0.1, start_time: float = 0, end_
 
             force_x = - force_drag[0] + force_thrust * np.sin(flight.angles[i][0])
             force_y = - force_drag[1] + force_thrust * np.cos(flight.angles[i][0]) - force_gravity
-            print(force_y, force_thrust)
+            # print(force_drag, force_thrust, force_gravity)
 
             # Iteration
             acceleration = np.array((force_x, force_y), dtype=np.float64) / mass_total
@@ -41,6 +44,7 @@ def run(flight, gravity, drag, isa, dt: float = 0.1, start_time: float = 0, end_
             flight.locations[i + 1] = flight.velocities[i] * dt + flight.locations[i]
 
             total_velocity: float = np.linalg.norm(flight.velocities[i])
+            flight.total_velocities[i + 1] = total_velocity
             if total_velocity == 0:
                 flight.angles[i][0] = 0
             else:
