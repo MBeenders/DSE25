@@ -188,7 +188,9 @@ def stage2_iteration(rocket, apogee_goal):
     apogee: float = simulator.apogee
 
     difference = apogee_goal - apogee  # Difference in altitude, negative means an overshoot
-    engine.thrust += 0.2 * difference  # Change Thrust to get closer to the target altitude
+    engine.impulse += 2 * difference  # Change Impulse to get closer to the target altitude
+    engine.thrust = engine.impulse / engine.burn_time
+    print(difference, engine.impulse, engine.length)
 
     # Calculate engine specs with new Thrust
     calculate_engine_specs(engine, 101325)
@@ -200,15 +202,18 @@ def stage2_iteration(rocket, apogee_goal):
     # Simulate
     simulator.create_stages(rocket)
     simulator.run()
-    simulator.plot_trajectory()
+    # simulator.plot_trajectory()
     simulator.delete_stages()
+    return difference
 
 
-def optimize(rocket, max_iterations, apogee_goal):
+def optimize(rocket, max_iterations, apogee_goal, accuracy):
     create_stage1_engine(rocket)  # stage1 engine sizing
 
     for i in range(max_iterations):
-        stage2_iteration(rocket, apogee_goal)
+        difference = stage2_iteration(rocket, apogee_goal)
+        if difference < accuracy:
+            break
 
 
 def run(rocket, stage):
@@ -285,7 +290,7 @@ def run(rocket, stage):
     # a = 1  # coefficient of pressure. chosen from literature
     # n = 2  # pressure exponent. chosen from literature
 
-    optimize(rocket, 2, apogee_goal=90E3)
+    optimize(rocket, 30, 90E3, 1)
 
     return rocket
 

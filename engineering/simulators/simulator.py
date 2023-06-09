@@ -80,8 +80,10 @@ class Simulator:
             self.stages["Stage2"].velocities[0] = self.stages["Total"].velocities[-1]
             self.stages["Stage2"].angles[0] = self.stages["Total"].angles[-1]
 
-            self.dynamics_run(self.stages["Stage2"], self.gravity, self.drag, self.isa, start_time=start_time, dt=self.dt, coast=True, delay=self.mission_profile["engine2_ignition"]["delay"])
+            self.dynamics_run(self.stages["Stage2"], self.gravity, self.drag, self.isa, start_time=start_time, dt=self.dt, delay=self.mission_profile["engine2_ignition"]["delay"])
             self.trim_lists(self.stages["Stage2"])
+
+            self.update()
 
         else:
             raise ModuleNotFoundError("Only 2-Stage rockets are supported atm")
@@ -106,6 +108,8 @@ class Simulator:
             # Stage 2
             self.stages["Stage2"] = FlightData(int(10E5))
             self.stages["Stage2"].mass[0] = rocket.stage2.mass
+            self.stages["Stage2"].cd = rocket.stage2.cd
+            self.stages["Stage2"].diameter = rocket.stage2.diameter
             self.stages["Stage2"].thrust_curve = rocket.stage2.engine.thrust_curve
             self.stages["Stage2"].fuel_mass_curve = rocket.stage2.engine.fuel_mass_curve
             self.stages["Stage2"].mmoi = rocket.stage2.engine.mmoi
@@ -113,20 +117,24 @@ class Simulator:
         else:
             raise ModuleNotFoundError("Only 2-Stage rockets are supported atm")
 
+    def update(self):
+        self.apogee = self.stages["Stage2"].locations.transpose()[1].max()
+
     @staticmethod
     def trim_lists(rocket: FlightData):
         rocket.time = rocket.time[rocket.time != 0]
         rocket.locations = rocket.locations[~np.all(rocket.locations == 0, axis=1)]
         rocket.velocities = rocket.velocities[~np.all(rocket.velocities == 0, axis=1)]
 
-    def insert_engine(self, engine):
-        pass
+    def combine_lists(self):
+        times = np.concatenate((self.stages["Total"].time, self.stages["Stage2"].time), axis=0)
+        altitudes = np.concatenate((self.stages["Total"].locations.transpose()[1],
+                                    self.stages["Stage2"].locations.transpose()[1]), axis=0)
+        return times, altitudes
 
     def plot_trajectory(self):
-        plt.plot(self.stages["Total"].time, self.stages["Total"].locations.transpose()[1])
-        plt.show()
-
-        plt.plot(self.stages["Stage2"].time, self.stages["Stage2"].locations.transpose()[1])
+        times, altitudes = self.combine_lists()
+        plt.plot(times, altitudes)
         plt.show()
 
     def delete_stages(self):
