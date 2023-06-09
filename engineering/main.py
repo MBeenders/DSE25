@@ -4,7 +4,7 @@ import os
 import sys
 
 import numpy as np
-import inspect
+import time
 
 import file_manager as fm
 from simulators.advanced.aerodynamics import drag, isa
@@ -26,6 +26,8 @@ class Runner:
         :param run_id: ID of the current run
         """
         self.run_id = run_id
+        self.start_time: float = 0
+
         self.warnings: int = 0
         self.current_file_path = os.path.split(sys.argv[0])[0]
 
@@ -45,20 +47,32 @@ class Runner:
         # Import requirements
         self.requirements = fm.import_csv("requirements")
 
-    def run(self):
+    def run(self, runs):
         print("Running Main Program")
+        self.start_time = time.time()
 
-        # # Simulation
-        # self.populate_simulation()
-        # print("Running Simulation")
-        # self.rocket.simulator.run()
-        # print(f"\tInitial apogee: {self.rocket.simulator.apogee} m")
-        #
-        # # Sizing
-        # self.run_sizing()
+        for i in range(runs):
+            last_time = time.time()
+            print(f"Iteration {i + 1}/{runs}")
 
-        # Test
-        self.rocket.update()
+            # Make sure all Subsystem parameters are summed into the Stages and main Rocket
+            print("\tSumming Rocket Parameters")
+            self.rocket.update()
+
+            # Simulation
+            self.populate_simulation()
+            print("\tRunning Simulation")
+            self.rocket.simulator.run()
+            print(f"\t\tInitial apogee: {self.rocket.simulator.apogee} m")
+
+            # Sizing
+            self.run_sizing()
+
+            # Sum the Subsystems into the Stages and main Rocket
+            print("\tSumming Rocket Parameters")
+            self.rocket.update()
+
+            print(f"Finished iteration {i + 1}, after {round(time.time() - last_time, 2)} s")
 
         # Close
         print("Finished! Closing program ...")
@@ -70,7 +84,7 @@ class Runner:
         subsystem.id = f"{self.rocket.id}.{serial_num}"
 
     def populate_simulation(self):
-        print("Populating Simulation (Temp solution!)")
+        print("\tPopulating Simulation (Temp solution!)")
 
         # Temp
         self.rocket.stage1.engine.thrust_curve = 1000 * np.ones(100)
@@ -81,12 +95,12 @@ class Runner:
         self.rocket.simulator.create_stages(self.rocket)
 
     def run_sizing(self):
-        print("Running Sizing")
+        print("\tRunning Sizing")
         flight_data = self.rocket.simulator.stages  # Flight data from the different stages
         self.rocket.simulator.delete_stages()
 
         def sizer(subsystem, function, separate=False):
-            print(f"\tSizing {subsystem.capitalize()}")
+            print(f"\t\tSizing {subsystem.capitalize()}")
             rocket = copy.deepcopy(self.rocket)
             rocket.simulator.stages = flight_data
 
@@ -95,14 +109,14 @@ class Runner:
                     sized_dict["stage1"][subsystem] = function(rocket, "stage1")["stage1"][subsystem]
                     sized_dict["stage2"][subsystem] = function(rocket, "stage2")["stage2"][subsystem]
                 except Exception as error:
-                    print(f"\t!! {subsystem.capitalize()} sizing failed with: {error}")
+                    print(f"\t\t!! {subsystem.capitalize()} sizing failed with: {error}")
             else:
                 try:
                     sizing = function(rocket)
                     sized_dict["stage1"][subsystem] = sizing["stage1"][subsystem]
                     sized_dict["stage2"][subsystem] = sizing["stage2"][subsystem]
                 except Exception as error:
-                    print(f"\t!! {subsystem.capitalize()} sizing failed with: {error}")
+                    print(f"\t\t!! {subsystem.capitalize()} sizing failed with: {error}")
 
         sized_dict: dict = {"stage1": {}, "stage2": {}}  # Dictionary with all sized classes
         if "engine" in self.selection:
@@ -118,7 +132,7 @@ class Runner:
             sizer("electronics", run_electronics_sizing)
 
         if not self.selection:
-            print("\tNo sizing option specified in the 'run_parameters.json'")
+            print("\t\tNo sizing options specified in the 'run_parameters.json'")
 
         for stage_name, stage_classes in sized_dict.items():
             for subsystem_name, subsystem_data in stage_classes.items():
@@ -149,16 +163,16 @@ class Runner:
                                 attr_type is list or attr_type is np.array or attr_type is np.ndarray:
 
                             if obj.__dict__[attribute] is None:
-                                print(f"\tAttribute '{attribute}' not defined! Please define an initial condition")
+                                print(f"\t\tAttribute '{attribute}' not defined! Please define an initial condition")
                                 self.warnings += 1
                         else:
                             if obj.__dict__[attribute] is None:
-                                print(f"\tAttribute '{attribute}' not defined! Please define an initial condition")
+                                print(f"\t\tAttribute '{attribute}' not defined! Please define an initial condition")
                                 self.warnings += 1
                             else:
                                 check_level(obj.__dict__[attribute])
                     except KeyError:
-                        print(f"\tAttribute '{attribute}' not found in rocket class")
+                        print(f"\t\tAttribute '{attribute}' not found in rocket class")
 
         check_level(self.rocket)
         print(f"Rocket class checked; {self.warnings} warnings")
@@ -224,4 +238,4 @@ class Runner:
 
 if __name__ == "__main__":
     runner = Runner("initial_values", 0)
-    runner.run()
+    runner.run(2)

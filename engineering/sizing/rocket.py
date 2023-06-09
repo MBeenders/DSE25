@@ -11,6 +11,7 @@ class Stage:
         self.diameter: float = 0  # [m]
         self.power_in: float = 0  # [W]
         self.power_out: float = 0  # [W]
+        self.cost: float = 0  # [euros]
 
         # Initialize possible components
         self.engine: Subsystem | None = None
@@ -276,7 +277,9 @@ class Rocket:
         self.diameter: float = 0  # [m]
         self.power_in: float = 0  # [W]
         self.power_out: float = 0  # [W]
+        self.cost: float = 0  # [euros]
 
+        # Specific
         self.cd: float = 0.65
 
         # Simulator
@@ -320,8 +323,25 @@ class Rocket:
             self.payload: Subsystem = Payload("Scientific Payload")
 
     def update(self):
-        for variable in getattr():
-            print(type(variable))
+        sample_subsystem: Subsystem = Subsystem("Sample")
+        compare_list: list = []
+        for key, _ in sample_subsystem.__dict__.items():
+            if key != "id" and key != "name":
+                compare_list.append(key)
+
+        for stage_key, stage_value in self.__dict__.items():
+            if "stage" in stage_key:
+                # Summ all shared Subsystem parameters into Stage parameters
+                for subsystem_key, subsystem_value in self[stage_key].__dict__.items():
+                    if isinstance(subsystem_value, Subsystem):
+                        for variable_key, variable_value in subsystem_value.__dict__.items():
+                            if variable_key in compare_list:
+                                self[stage_key][variable_key] += variable_value
+
+                # Sum all shared Stage parameters into Rocket parameters
+                for variable_key, variable_value in self[stage_key].__dict__.items():
+                    if variable_key in compare_list:
+                        self[variable_key] += variable_value
 
 
 if __name__ == "__main__":
