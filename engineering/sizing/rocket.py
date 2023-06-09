@@ -32,6 +32,7 @@ class Subsystem:
         self.id: str = "0.0"
         self.name: str = name
         self.mass: float = 0  # [kg]
+        self.dry_mass: float = 0  # [kg]
         self.length: float = 0  # [m]
         self.diameter: float = 0  # [m]
         self.power_in: float = 0  # [W]
@@ -273,6 +274,7 @@ class Rocket:
         # Global parameters
         self.id: str = "0"
         self.mass: float = 0  # [kg]
+        self.dry_mass: float = 0  # [kg]
         self.length: float = 0  # [m]
         self.diameter: float = 0  # [m]
         self.power_in: float = 0  # [W]
@@ -344,6 +346,8 @@ class Rocket:
                 for subsystem_key, subsystem_value in self[stage_key].__dict__.items():
                     if isinstance(subsystem_value, Subsystem):
                         for variable_key, variable_value in subsystem_value.__dict__.items():
+                            if variable_key == "dry_mass" and subsystem_key != "engine":
+                                self[stage_key][variable_key] = self[stage_key].mass
                             if variable_key in compare_list:
                                 if variable_value < 0:
                                     print(f"\t\tWarning! '{stage_key}.{subsystem_key}.{variable_key}' smaller than zero: {variable_value}")

@@ -12,12 +12,13 @@
     "rocket.mass": "[kg]",
     "rocket.stage1.mass": "[kg]",
     "rocket.stage1.engine.mass": "[kg]",
-    "rocket.stage1.recovery.mass": "[kg]",
-    "rocket.stage1.structure.mass": "[kg]",
-    "rocket.stage1.electronics.mass": "[kg]",
-    "rocket.stage2.mass": "[kg]"
+    "rocket.stage2.mass": "[kg]",
+    "rocket.stage2.engine.mass": "[kg]",
+    "rocket.stage2.engine.propellant_mass": "[kg]",
+    "rocket.stage2.recovery.mass": "[kg]",
+    "rocket.stage2.electronics.mass": "[kg]"
   },
-  "sizing_selection": ["recovery", "electronics"],
+  "sizing_selection": ["recovery", "electronics", "engine"],
   "engine_chemicals":
   {
     "stage1":

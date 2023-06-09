@@ -69,7 +69,7 @@ def nozzle_exit_area(pressure_chamber, gamma, pressure_ambient, throat_area):
     p0 = pressure_chamber
     p = pressure_ambient
     k = gamma
-    M = 2 / (k - 1) * ((p0 / p) ** ((k - 1) / k) - 1)
+    M = np.sqrt(2 / (k - 1) * ((p0 / p) ** ((k - 1) / k) - 1))
     exit_area = throat_area / M * math.sqrt(((1 + (k - 1) / 2 * M ** 2) / (1 + (k - 1) / 2)) ** ((k + 1) / (k - 1)))
     return exit_area
 
@@ -88,7 +88,7 @@ def total_length(nozzle_length, length_chamber):
 
 # determining the casing mass
 def casing_mass(wall_thickness, stage_diameter, length_chamber, rho_casing):
-    chamber_mass = math.pi * (stage_diameter ** 2 - (stage_diameter - 2 * wall_thickness) ** 2) * length_chamber * rho_casing
+    chamber_mass = math.pi * ((stage_diameter/2) ** 2 - ((stage_diameter - 2 * wall_thickness)/2) ** 2) * length_chamber * rho_casing
     return chamber_mass
 
 
@@ -133,7 +133,7 @@ def calculate_engine_specs(engine, ambient_pressure):
     engine.mass_flow = mass_flow(engine.isp, 9.80665, engine.thrust)
 
     # Chamber
-    engine.casing_thickness = casing_thickness(engine.yield_strength, engine.diameter, engine.chamber_pressure, engine.liner_thickness)
+    engine.casing_thickness = casing_thickness(engine.yield_strength, engine.diameter, engine.chamber_pressure * engine.safety_factor, engine.liner_thickness)
     engine.chamber_volume = chamber_volume(engine.propellant_mass, engine.propellant_density, engine.volumetric_constant)
     engine.grain_diameter = propellant_outer_diameter(engine.diameter, engine.casing_thickness)
     engine.chamber_length = chamber_length(engine.chamber_volume, engine.grain_diameter)
@@ -143,14 +143,15 @@ def calculate_engine_specs(engine, ambient_pressure):
     engine.nozzle_exit_area = nozzle_exit_area(engine.chamber_pressure, engine.chamber_gamma, ambient_pressure, engine.nozzle_throat_area)
     engine.nozzle_area_ratio = engine.nozzle_exit_area / engine.nozzle_throat_area
     engine.nozzle_length = length_nozzle(engine.nozzle_exit_area, engine.nozzle_throat_area)
+    # print(engine.yield_strength, engine.diameter, engine.chamber_pressure, engine.liner_thickness, engine.casing_thickness)
 
     # Calculate engine mass
     engine.casing_mass = casing_mass(engine.casing_thickness, engine.diameter, engine.chamber_length, engine.casing_density)
     engine.nozzle_mass = nozzle_mass(engine.nozzle_thickness, engine.nozzle_throat_area, engine.nozzle_exit_area, engine.nozzle_density, engine.nozzle_length)
 
     # Summing
-    engine.mass = solid_motor_mass(engine.casing_mass, engine.nozzle_mass, engine.bulkhead_mass) + engine.propellant_mass
-    print(engine.casing_mass, engine.nozzle_mass, engine.bulkhead_mass, engine.propellant_mass)
+    engine.dry_mass = solid_motor_mass(engine.casing_mass, engine.nozzle_mass, engine.bulkhead_mass)
+    engine.mass = engine.dry_mass + engine.propellant_mass
     engine.length = total_length(engine.nozzle_length, engine.chamber_length)
 
 
@@ -170,10 +171,9 @@ def create_stage1_engine(rocket):
     acceleration = initial_acceleration(rocket.stage1.engine.launch_tower_length,
                                         rocket.stage1.engine.launch_exit_velocity)
     rocket.stage1.engine.thrust = thrust_force(rocket.mass, acceleration)
-    rocket.stage1.engine.impulse = rocket.stage1.engine.thrust * rocket.stage1.engine.burn_time  # Assuming straight Thrust curve
 
     # Calculate stage1 engine specs
-    calculate_engine_specs(rocket.stage1.engine, 101325)
+    calculate_engine_specs(rocket.stage1.engine, 41060)
 
     # Create curves
     rocket.stage1.engine.thrust_curve = create_thrust_curve(rocket.stage1.engine, rocket.simulator.dt)
@@ -182,7 +182,7 @@ def create_stage1_engine(rocket):
 
 def create_stage2_engine(rocket):
     # Calculate engine specs with new Thrust
-    calculate_engine_specs(rocket.stage2.engine, 101325)
+    calculate_engine_specs(rocket.stage2.engine, 41060)
 
     # Create curves
     rocket.stage2.engine.thrust_curve = create_thrust_curve(rocket.stage2.engine, rocket.simulator.dt)
@@ -198,7 +198,7 @@ def stage2_iteration(rocket, apogee_goal):
     apogee: float = simulator.apogee
 
     difference = apogee_goal - apogee  # Difference in altitude, negative means an overshoot
-    engine.impulse += 2 * difference  # Change Impulse to get closer to the target altitude
+    engine.impulse += 2.4 * difference  # Change Impulse to get closer to the target altitude
     engine.thrust = engine.impulse / engine.burn_time
 
     create_stage2_engine(rocket)
