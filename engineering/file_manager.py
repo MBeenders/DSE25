@@ -15,7 +15,7 @@ def import_chemical(chemical_name: str) -> dict:
     :param chemical_name: Name of the chemical
     :return: Dictionary with information about the chemical
     """
-    chemical_file = open(f"{current_file_path}/files/chemicals/{chemical_name}.json")
+    chemical_file = open(os.path.join(current_file_path, f"files/chemicals/{chemical_name}.json"))
     return json.load(chemical_file)
 
 
@@ -34,7 +34,7 @@ def import_csv(file_name: str) -> pd.DataFrame:
     :param file_name: Name of csv file, must be in "files" folder
     :return: Pandas dataframe of the file
     """
-    return pd.read_csv(f"{current_file_path}/files/{file_name}.csv")
+    return pd.read_csv(os.path.join(current_file_path, f"files/{file_name}.csv"))
 
 
 def insert_values(data: pd.DataFrame, rocket: Rocket):
@@ -111,7 +111,7 @@ def export_rocket_iteration(file_name: str, rocket: Rocket):
     """
 
     rocket.simulator.delete_stages()
-    with open(f"{current_file_path}/files/archive/{file_name}.pickle", 'wb') as file:
+    with open(os.path.join(current_file_path, f"files/archive/{file_name}.pickle"), 'wb') as file:
         pickle.dump(rocket, file)
 
 

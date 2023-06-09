@@ -30,6 +30,7 @@ class Runner:
         """
         :param file_name: Name of the rocket initialization file
         """
+        print(sys.argv[0])
         self.current_file_path = os.path.split(sys.argv[0])[0]
         self.run_id: int = 0
         self.iteration_id: int = 0
@@ -38,7 +39,7 @@ class Runner:
         self.warnings: int = 0
 
         # Import the run parameters
-        self.run_parameters_file = open(f"{self.current_file_path}/files/run_parameters.json")
+        self.run_parameters_file = open(os.path.join(self.current_file_path, "files/run_parameters.json"))
         self.run_parameters: dict = json.load(self.run_parameters_file)
         self.selection: list[str] = self.run_parameters["sizing_selection"]
 
@@ -57,7 +58,12 @@ class Runner:
         self.requirements = fm.import_csv("requirements")
 
     def create_run_id(self, testing):
-        save_directory = f"{self.current_file_path}/files/archive"
+        save_directory = os.path.join(self.current_file_path, f"files/archive")
+
+        if not os.path.exists(save_directory):
+            os.makedirs(save_directory)
+
+
         # Make run_id based on last file created
         if os.listdir(save_directory) and not testing:
             self.run_id: int = int(max(os.listdir(f"{self.current_file_path}/files/archive"), key=extract_number).split("_")[1]) + 1
