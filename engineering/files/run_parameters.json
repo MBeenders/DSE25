@@ -17,7 +17,7 @@
     "rocket.stage1.electronics.mass": "[kg]",
     "rocket.stage2.mass": "[kg]"
   },
-  "sizing_selection": [],
+  "sizing_selection": ["recovery", "electronics"],
   "engine_chemicals":
   {
     "stage1":

@@ -13,7 +13,7 @@ from simulators.simple.dynamics import run as dynamics_run
 from simulators.simple.gravity import gravity
 from simulators.simulator import Simulator
 
-from sizing.engine import run as run_engine_sizing
+from sizing.engine import run as run_engine_sizing, initialize_engines
 from sizing.recovery import run as run_recovery_sizing
 from sizing.structure import run as run_structure_sizing
 from sizing.electronics import run as run_electronics_sizing
@@ -48,15 +48,15 @@ class Runner:
         else:  # If not, then just create a new class from the initialization file
             self.rocket: Rocket = fm.initialize_rocket(file_name, simulator, self.run_parameters)
 
+        # Calculate all the Engine specs
+        self.rocket = initialize_engines(self.rocket)
+
         self.new_rocket: Rocket = copy.deepcopy(self.rocket)
 
         # Import requirements
         self.requirements = fm.import_csv("requirements")
 
-    def run(self, runs, save=True, print_iteration=True, print_sub=True, testing=False):
-        print("Running Main Program")
-        self.start_time = time.time()
-
+    def create_run_id(self, testing):
         save_directory = f"{self.current_file_path}/files/archive"
         # Make run_id based on last file created
         if os.listdir(save_directory) and not testing:
@@ -67,6 +67,13 @@ class Runner:
         # Check if file exists
         if not os.path.exists(f"{save_directory}/run_{self.run_id}"):
             os.makedirs(f"{save_directory}/run_{self.run_id}")
+
+    def run(self, runs, save=True, print_iteration=True, print_sub=True, testing=False):
+        print("Running Main Program")
+        self.start_time = time.time()
+
+        # Create an ID number to represent this run
+        self.create_run_id(testing)
 
         # Check Rocket for missing parameters
         self.check_rocket_class()
@@ -90,6 +97,7 @@ class Runner:
             if print_sub:
                 print("\tRunning Simulation")
             self.rocket.simulator.run()
+            self.rocket.simulator.plot_trajectory()
             if print_sub:
                 print(f"\t\tInitial apogee: {self.rocket.simulator.apogee} m")
 
@@ -210,8 +218,7 @@ class Runner:
                     try:
                         attr_type = type(obj.__dict__[attribute])
                         if attr_type is float or attr_type is int or attr_type is str or attr_type is dict or\
-                                attr_type is list or attr_type is np.array or attr_type is np.ndarray:
-
+                                attr_type is list or attr_type is np.array or attr_type is np.ndarray or attr_type is np.float64:
                             if obj.__dict__[attribute] is None:
                                 print(f"\t\tAttribute '{attribute}' not defined! Please define an initial condition")
                                 self.warnings += 1
@@ -292,4 +299,4 @@ class Runner:
 if __name__ == "__main__":
     runner = Runner("initial_values")
     runner.run(5, testing=True)
-    runner.show_plots(1)
+    # runner.show_plots(1)

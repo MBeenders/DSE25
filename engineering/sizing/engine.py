@@ -150,6 +150,7 @@ def calculate_engine_specs(engine, ambient_pressure):
 
     # Summing
     engine.mass = solid_motor_mass(engine.casing_mass, engine.nozzle_mass, engine.bulkhead_mass) + engine.propellant_mass
+    print(engine.casing_mass, engine.nozzle_mass, engine.bulkhead_mass, engine.propellant_mass)
     engine.length = total_length(engine.nozzle_length, engine.chamber_length)
 
 
@@ -179,25 +180,28 @@ def create_stage1_engine(rocket):
     rocket.stage1.engine.fuel_mass_curve = create_fuel_mass_curve(rocket.stage1.engine, rocket.simulator.dt)
 
 
+def create_stage2_engine(rocket):
+    # Calculate engine specs with new Thrust
+    calculate_engine_specs(rocket.stage2.engine, 101325)
+
+    # Create curves
+    rocket.stage2.engine.thrust_curve = create_thrust_curve(rocket.stage2.engine, rocket.simulator.dt)
+    rocket.stage2.engine.fuel_mass_curve = create_fuel_mass_curve(rocket.stage2.engine, rocket.simulator.dt)
+
+
 def stage2_iteration(rocket, apogee_goal):
     # Makes the classes easier to read
     simulator = rocket.simulator
     engine = rocket.stage2.engine
 
     # Main parameters
-    dt: float  = simulator.dt
     apogee: float = simulator.apogee
 
     difference = apogee_goal - apogee  # Difference in altitude, negative means an overshoot
     engine.impulse += 2 * difference  # Change Impulse to get closer to the target altitude
     engine.thrust = engine.impulse / engine.burn_time
 
-    # Calculate engine specs with new Thrust
-    calculate_engine_specs(engine, 101325)
-
-    # Create curves
-    engine.thrust_curve = create_thrust_curve(engine, dt)
-    engine.fuel_mass_curve = create_fuel_mass_curve(engine, dt)
+    create_stage2_engine(rocket)
 
     # Simulate
     simulator.create_stages(rocket)
@@ -214,6 +218,12 @@ def optimize(rocket, max_iterations, apogee_goal, accuracy):
         difference = stage2_iteration(rocket, apogee_goal)
         if difference < accuracy:
             break
+
+
+def initialize_engines(rocket):
+    create_stage1_engine(rocket)
+    create_stage2_engine(rocket)
+    return rocket
 
 
 def run(rocket, stage):

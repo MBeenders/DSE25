@@ -345,7 +345,10 @@ class Rocket:
                     if isinstance(subsystem_value, Subsystem):
                         for variable_key, variable_value in subsystem_value.__dict__.items():
                             if variable_key in compare_list:
-                                self[stage_key][variable_key] += variable_value  # Add all the Subsystems
+                                if variable_value < 0:
+                                    print(f"\t\tWarning! '{stage_key}.{subsystem_key}.{variable_key}' smaller than zero: {variable_value}")
+                                else:
+                                    self[stage_key][variable_key] += variable_value  # Add all the Subsystems
 
                 # Sum all shared Stage parameters into Rocket parameters
                 for variable_key, variable_value in self[stage_key].__dict__.items():
