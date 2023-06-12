@@ -77,9 +77,9 @@ Stage,Subsystem,Variable,Value,Unit,
 1,engine,casing_density,3000,kg/m^3,
 2,engine,casing_density,3000,kg/m^3,
 1,"recovery,drogue",mass,1,kg,
-1,"recovery, main_parachute",descent_rate,14,m/s,
-2,"recovery, drogue",descent_rate,25,m/s,-
-2,"recovery, main_parachute",descent_rate,10,m/s,-
+1,"recovery,main_parachute",descent_rate,14,m/s,
+2,"recovery,drogue",descent_rate,25,m/s,-
+2,"recovery,main_parachute",descent_rate,10,m/s,-
 2,"recovery,drogue",c_D,0.3,-,
 1,"recovery,main_parachute",c_D,0.65,-,
 2,"recovery,main_parachute",c_D,0.85,-,
