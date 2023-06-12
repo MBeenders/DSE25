@@ -3,9 +3,10 @@ import numpy as np
 # Constant values:
 k = 1.38E-23  # boltzman constant
 c = 3.0E8  # m/s
+other = 10
 
 modulation = {
-    "BPSK": 0.5, "OOK": 0.5, "QPSK": 1, "OQPSK": 1, "FSK": 0
+    "BPSK": 1, "OOK": 2, "QPSK": 2, "OQPSK": 2, "FSK": 0
 }
 
 
@@ -27,7 +28,7 @@ def antenna_gain(size, frequency, efficiency):
     return gain_dB
 
 
-def power_received(gain_rx, gain_tx, distance, frequency, power_in, other):
+def power_received(gain_rx, gain_tx, distance, frequency, power_in):
     wavelength = c / frequency
     loss_freespace = ((4 * np.pi * distance) / wavelength) ** 2
     loss_freespace_dB = W_to_dB(loss_freespace)
@@ -66,7 +67,7 @@ def stage1_electronics(rocket, text):
     gain_rx_db = antenna_gain(rocket.stage1.electronics.communicationsystem.diameter_antenna_gs, frequency, rocket.stage1.electronics.communicationsystem.antenna_efficiency_gs)
     power = W_to_dB(rocket.stage1.electronics.communicationsystem.power_com)
     gain_tx_db = W_to_dB(rocket.stage1.electronics.communicationsystem.gain_tx)
-    power_rec = power_received(gain_rx_db, gain_tx_db, rocket.stage1.electronics.communicationsystem.max_range, frequency, power, 0)
+    power_rec = power_received(gain_rx_db, gain_tx_db, rocket.stage1.electronics.communicationsystem.max_range, frequency, power)
     power_rec_W = dB_to_W(power_rec)
     min_bw = minimum_bandwidth_required(datarate, rocket.stage1.electronics.communicationsystem.modulation) * (1 + margin)
 
@@ -131,7 +132,7 @@ def stage2_electronics(rocket, text):
     gain_rx_db = antenna_gain(rocket.stage2.electronics.communicationsystem.diameter_antenna_gs, frequency, rocket.stage2.electronics.communicationsystem.antenna_efficiency_gs)
     power = W_to_dB(rocket.stage2.electronics.communicationsystem.power_com)
     gain_tx_db = W_to_dB(rocket.stage2.electronics.communicationsystem.gain_tx)
-    power_rec = power_received(gain_rx_db, gain_tx_db, rocket.stage2.electronics.communicationsystem.max_range, frequency, power, 0)
+    power_rec = power_received(gain_rx_db, gain_tx_db, rocket.stage2.electronics.communicationsystem.max_range, frequency, power)
     power_rec_W = dB_to_W(power_rec)
     min_bw = minimum_bandwidth_required(datarate, rocket.stage2.electronics.communicationsystem.modulation) * (1 + margin)
 
