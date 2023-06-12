@@ -11,16 +11,36 @@ rocket_specs = [("max_iterations", int32),
                 ("velocities", float64[:, :]),
                 ("angles", float64[:, :]),
                 ("total_velocities", float64[:, :]),
+                ("speed_of_sound", float64[:, :]),
                 ("mass", float64[:]),
                 ("cd", float64),
                 ("diameter", float64),
+                ("diameter1", float64),
+                ("diameter2", float64),
+                ("diameter_lower", float64),
+                ("diameter_upper", float64),
+                ("drag_coefficient_nosecone", float64),
+                ("fineness_ratio", float64),
+                ("wetted_area1", float64),
+                ("wetted_area2", float64),
+                ("wetted_area_body1", float64),
+                ("wetted_area_body2", float64),
+                ("wetted_area_fins1", float64),
+                ("wetted_area_fins2", float64),
+                ("fin_thickness1", float64),
+                ("fin_thickness2", float64),
+                ("fin_mac1", float64),
+                ("fin_mac2", float64),
                 ("thrust_curve", float64[:]),
                 ("fuel_mass_curve", float64[:]),
                 ("mmoi", float64[:]),
                 ("burn_time", float64),
                 ("pressure", float64[:]),
                 ("temperature", float64[:]),
-                ("density", float64[:])]
+                ("density", float64[:]),
+                ("force_drag", float64[:]),
+                ("force_thrust", float64[:]),
+                ("force_gravity", float64[:])]
 
 
 @jitclass(rocket_specs)
@@ -33,11 +53,31 @@ class FlightData:
         self.angles: np.array = np.zeros((max_iterations, 1), float64)
 
         self.total_velocities: np.array = np.zeros((max_iterations, 2), float64)
+        self.speed_of_sound: np.array = np.zeros((max_iterations, 2), float64)
 
         # General properties
         self.mass: np.array = np.zeros(max_iterations, float64)
         self.cd: float64 = 0
         self.diameter: float64 = 0
+
+        # Advanced Area specs
+        self.diameter1: float64 = 0  # Diameter Stage 1
+        self.diameter2: float64 = 0  # Diameter Stage 2
+
+        self.drag_coefficient_nosecone: float64 = 0
+        self.fineness_ratio: float64 = 0
+
+        self.wetted_area1: float64 = 0  # Total wetted area of Stage 1
+        self.wetted_area2: float64 = 0  # Total wetted area of Stage 2
+        self.wetted_area_body1: float64 = 0  # Excludes the Nosecone (Should it?)
+        self.wetted_area_body2: float64 = 0  # Excludes the Nosecone (Should it?)
+        self.wetted_area_fins1: float64 = 0
+        self.wetted_area_fins2: float64 = 0
+
+        self.fin_thickness1: float64 = 0
+        self.fin_thickness2: float64 = 0
+        self.fin_mac1: float64 = 0
+        self.fin_mac2: float64 = 0
 
         # Engine
         self.thrust_curve: np.array = np.zeros(max_iterations, float64)  # Thrust curve
@@ -50,10 +90,16 @@ class FlightData:
         self.temperature: np.array = np.zeros(max_iterations, float64)
         self.density: np.array = np.zeros(max_iterations, float64)
 
+        # Forces
+        self.force_drag: np.array = np.zeros(max_iterations, float64)
+        self.force_thrust: np.array = np.zeros(max_iterations, float64)
+        self.force_gravity: np.array = np.zeros(max_iterations, float64)
+
 
 class Simulator:
-    def __init__(self, mission_profile: dict, dynamics_run, gravity, drag, isa):
-        self.dt: float64 = 0.01  # [s]
+    def __init__(self, mission_profile: dict, simulator_parameters: dict, dynamics_run, gravity, drag, isa):
+        self.dt: float64 = simulator_parameters["dt"]  # [s]
+        self.maximum_iterations = int(simulator_parameters["maximum_iterations"])
 
         # Functions
         self.dynamics_run = dynamics_run
@@ -61,13 +107,31 @@ class Simulator:
         self.drag = drag
         self.isa = isa
 
+        # Curves
+        self.cg_locations: np.array = np.zeros(self.maximum_iterations, dtype=float)  # Measured from the Nose
+
         # Values
         self.apogee: float = 0
-        self.max_velocity: float = 0
+
+        self.max_velocity1: float = 0
+        self.max_velocity2: float = 0
+        self.max_velocity_tot: float = 0
+
+        self.min_speed_of_sound1: float = 0
+        self.min_speed_of_sound2: float = 0
+        self.min_speed_of_sound_tot: float = 0
+
+        self.max_cg_location1: float = 0  # Measured from the Nose
+        self.max_cg_location2: float = 0  # Measured from the Nose
+        self.max_cg_location_tot: float = 0  # Measured from the Nose
+        self.min_cg_location1: float = 0  # Measured from the Nose
+        self.min_cg_location2: float = 0  # Measured from the Nose
+        self.min_cg_location_tot: float = 0  # Measured from the Nose
 
         # Mission
         self.stages: dict = {}  # Flight data of the different stages
         self.mission_profile: dict = mission_profile
+        self.run_parameters: dict = simulator_parameters
 
     def run(self):
         if self.mission_profile["stages"] == 2:
@@ -97,7 +161,7 @@ class Simulator:
     def create_stages(self, rocket):
         if self.mission_profile["stages"] == 2:
             # Total stage
-            self.stages["Total"] = FlightData(int(10E5))
+            self.stages["Total"] = FlightData(int(self.maximum_iterations))
             self.stages["Total"].mass[0] = rocket.mass
             self.stages["Total"].cd = rocket.cd
             self.stages["Total"].diameter = rocket.diameter
@@ -108,11 +172,11 @@ class Simulator:
 
             # Separation
             # Stage 1
-            self.stages["Stage1"] = FlightData(int(10E5))
+            self.stages["Stage1"] = FlightData(int(self.maximum_iterations))
             self.stages["Stage1"].mass[0] = rocket.stage1.mass
 
             # Stage 2
-            self.stages["Stage2"] = FlightData(int(10E5))
+            self.stages["Stage2"] = FlightData(int(self.maximum_iterations))
             self.stages["Stage2"].mass[0] = rocket.stage2.mass
             self.stages["Stage2"].cd = rocket.stage2.cd
             self.stages["Stage2"].diameter = rocket.stage2.diameter
@@ -125,7 +189,10 @@ class Simulator:
 
     def update(self):
         self.apogee = self.stages["Stage2"].locations.transpose()[1].max()
-        self.max_velocity = self.stages["Stage2"].velocities.transpose()[1].max()
+
+        for name, stage in self.stages.items():
+            if name == "Total":
+                self.max_velocity_tot = self.stages["Stage2"].velocities.transpose()[1].max()
 
     @staticmethod
     def trim_lists(rocket: FlightData):

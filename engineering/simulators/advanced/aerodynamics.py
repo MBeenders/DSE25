@@ -15,7 +15,7 @@ layers: np.ndarray = np.array([[0, -0.0065],  # ground
 
 
 @njit()
-def density(height: float) -> float:
+def isa(height: float) -> tuple[float, float, float]:
     g0 = 9.80665  # m/s^2
     R = 287.0  # J/kgK
 
@@ -25,7 +25,7 @@ def density(height: float) -> float:
     p = p0
 
     if height > layers[-1][0]:
-        return 0.0
+        return 0.0, 0.0, 0.0
 
     h = min(height, layers[-1][0])
 
@@ -51,21 +51,25 @@ def density(height: float) -> float:
 
     rho = p / (R * T)
 
-    return rho
+    return T, p, rho
 
 
 @njit()
-def drag(velocity: np.ndarray, height: float) -> np.ndarray:
+def drag(rocket, velocity: float, density: float, temperature: float) -> float:
     """
-    :param velocity:
-    :param height:
+    :param rocket: Rocket Simulator class
+    :param velocity: [m/s]
+    :param density: [kg/m^3]
+    :param temperature: K
+    :param C_nc_0: Drag coefficient of the Nosecone (from literature) [-]
     :return:
-    #Barrowman presents methods for computing the drag of both fully turbulent
+    Barrowman presents methods for computing the drag of both fully turbulent
     boundary layers and partially-laminar layers. Both methods were implemented
     and tested, but the difference in apogee altitude was less than 5%
     in with all tested designs. Therefore, the boundary layer is assumed to be
     fully turbulent in all cases. (OpenRocket technical documentation, p. 43)
     """
+
     # Assume fully turbulent boundary layer
 
     # SKIN FRICTION DRAG (C_f), applies to the wetted area of body and fins.
@@ -75,9 +79,9 @@ def drag(velocity: np.ndarray, height: float) -> np.ndarray:
     C_fr = 0.032 * (R_s / x) ** 0.2  # Derived by Barrowman for fully turbulent flow, assuming a smooth surface.
 
     # Taking into account compressibility and geometry effects
-    a = np.sqrt(1.4 * 287 * temp(height))  # Speed of sound [m/s]
+    a = np.sqrt(1.4 * 287 * temperature)  # Speed of sound [m/s]
     M = velocity / a  # Mach number [-]
-    q = 0.5 * density(height) * velocity ** 2  # Dynamic pressure [Pa]
+    q = 0.5 * density * velocity ** 2  # Dynamic pressure [Pa]
 
     if M < 1:
         C_fr_c = C_fr * (1 - 0.1 * M ** 2)
@@ -88,7 +92,7 @@ def drag(velocity: np.ndarray, height: float) -> np.ndarray:
         else:
             C_fr_c = C_fr_c
 
-    elif M >= 1:
+    else:
         C_fr_c = C_fr * (1 + 0.15 * M ** 2) ** (-0.58)
         C_fr_c_l = C_fr * (1 + 0.18 * M ** 2) ** (-1)
 
@@ -97,14 +101,14 @@ def drag(velocity: np.ndarray, height: float) -> np.ndarray:
         else:
             C_fr_c = C_fr_c
 
-    f_B = 15  # Fineness ratio of the rocket ===== MAKE VARIABLE FORM
-    S_ref = 4500  # Wet surface area of entire rocket [m^2] ===== take from OpenRocket
-    S_w_b = 4000  # Wet surface area of body [m^2] ===== MAKE VARIABLE FORM from centrepressure.py
-    S_w_fin = 20  # Wet surface area of body [m^2] ===== MAKE VARIABLE FORM from centrepressure.py
-    t_fin = 0.005  # Thickness of fins [m] ===== MAKE VARIABLE FORM or set a value
-    mac_fin = 0.5  # Mean aerodynamic chord length of fins [m] ===== MAKE VARIABLE FORM
+    f_B = rocket.fineness_ratio  # Fineness ratio of the rocket ===== MAKE VARIABLE FORM
+    S_ref = rocket.wetted_area  # Wet surface area of entire rocket [m^2] ===== take from OpenRocket
+    S_w_b = rocket.wetted_area_body  # Wet surface area of body [m^2] ===== MAKE VARIABLE FORM from centrepressure.py
+    S_w_fin = rocket.wetted_area_fins  # Wet surface area of fins [m^2] ===== MAKE VARIABLE FORM from centrepressure.py
+    t_fin = rocket.fin_thickness  # Thickness of fins [m] ===== MAKE VARIABLE FORM or set a value
+    mac_fin = rocket.fin_mac  # Mean aerodynamic chord length of fins [m] ===== MAKE VARIABLE FORM
     C_D_fr = C_fr_c * (((1 + (1 / (2 * f_B))) * S_w_b) + ((1 + (2 * t_fin / mac_fin)) * S_w_fin)) / S_ref
-    D_fr = C_D_fr * S_w * q  # Total frictional drag force of vehicle [N]
+    D_fr = C_D_fr * rocket.wetted_area * q  # Total frictional drag force of vehicle [N]
 
     # NOSE CONE PRESSURE DRAG
     # NOSECONE - 5:1 Haack (optimised for length and diameter, where c = 0; also optimised for wave and skin friction drag)
@@ -112,7 +116,7 @@ def drag(velocity: np.ndarray, height: float) -> np.ndarray:
     # 5:1 L-D Haack minimum drag noses
     c = 0  # Optimisation coefficient        [-]
     X = 0.024  # Axial distance from the nose [m]
-    L = 5 * D_u  # Model length                  [m]
+    L = 5 * rocket.diameter_lower  # Model length                  [m]
     R = 0.075  # Model base radius            [m]
 
     phi = np.arccos(1 - 2 * (X / L))  # [rad]
@@ -122,9 +126,9 @@ def drag(velocity: np.ndarray, height: float) -> np.ndarray:
     phi = 22 * np.pi / 180  # Nose cone joint angle [rad] ===== MAKE VARIABLE FORM
     C_D_nc = 0.8 * np.sin(phi) ** 2  # Approximate nose pressure drag coefficient at M=0, phi<30 [deg]
     b = 0.3  # ===== I HAVE NO IDEA WHAT THIS EMPIRICAL CONSTANT IS!!!
-    C_D_nc_s = C_nc_0 * (4 ** b) ** (np.log(f_N + 1) / np.log(4))  # Includes supersonic factor
+    C_D_nc_s = rocket.C_nc_0 * (4 ** b) ** (np.log(f_N + 1) / np.log(4))  # Includes supersonic factor
     C_D_nc = C_D_nc_s + C_D_nc  # Includes compressibility correction for sub and supersonic speeds
-    S_nc = np.pi * D_u * r  # Surface area of nose cone [m^2]
+    S_nc = np.pi * rocket.diameter_lower * r  # Surface area of nose cone [m^2]
     D_nc = C_D_nc * q * S_nc  # Nose cone pressure drag [N]
 
     # SHOULDER PRESSURE DRAG (separation stage)
@@ -134,8 +138,8 @@ def drag(velocity: np.ndarray, height: float) -> np.ndarray:
         C_D_sh = 0
 
     L_t = 0.2  # Separation stage length [m]
-    theta = np.arcsin((D_l - D_u) / (2 * L_t))
-    S_sh = np.pi * D_l * L_t * np.cos(theta)  # Shoulder wet surface area [m^2]
+    theta = np.arcsin((rocket.diameter_upper - rocket.diameter_lower) / (2 * L_t))
+    S_sh = np.pi * rocket.diameter_upper * L_t * np.cos(theta)  # Shoulder wet surface area [m^2]
     D_sh = C_D_sh * q * S_sh  # Shoulder pressure drag [N]
 
     # FIN PRESSURE DRAG (Assume that flow is perpendicular to the leading edge)
@@ -144,7 +148,7 @@ def drag(velocity: np.ndarray, height: float) -> np.ndarray:
         C_D_LE = -1 + (1 - M ** 2) ** (-0.417)
     elif 0.9 < M <= 1:
         C_D_LE = 1 - 1.785 * (M - 0.9)
-    elif M > 1:
+    else:
         C_D_LE = 1.214 - 0.502 / (M ** 2) + 0.1095 / (M ** 4)
 
     G_LE = 45 * np.pi / 180  # Leading edge angle of slanted fin [rad]
@@ -156,11 +160,11 @@ def drag(velocity: np.ndarray, height: float) -> np.ndarray:
     # BASE DRAG
     if M <= 1:
         C_D_base = 0.12 + 0.13 * (M ** 2)
-    if M > 1:
+    else:
         C_D_base = 0.25 / M
 
     t = 0.003  # Skin thickness [m]
-    S_base = np.pi * D_l * t  # Surface area of base (Diameter of lower stage * thickness * PI) [m^2]
+    S_base = np.pi * rocket.diameter_upper * t  # Surface area of base (Diameter of lower stage * thickness * PI) [m^2]
     D_base = C_D_base * q * S_base  # Base drag [N]
 
     # TOTAL DRAG FORCE [N]
@@ -170,13 +174,4 @@ def drag(velocity: np.ndarray, height: float) -> np.ndarray:
 
 
 if __name__ == "__main__":
-    # Density vs altitude example
-    hs = np.linspace(0, 200000, 100)
-    rhos = []
-    for h in hs:
-        rhos.append(density(h))
-
-    import matplotlib.pyplot as plt
-
-    plt.plot(rhos, hs)
-    plt.show()
+    pass

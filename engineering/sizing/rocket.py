@@ -5,20 +5,39 @@ class Stage:
     def __init__(self, name: str):
         self.id: str = "0.0"
         self.name: str = name
-        self.mass: float = 0  # [kg]
-        self.dry_mass: float = 0  # [kg]
-        self.length: float = 0  # [m]
-        self.diameter: float = 0  # [m]
-        self.power_in: float = 0  # [W]
-        self.power_out: float = 0  # [W]
-        self.cost: float = 0  # [euros]
+
+        # Mass
+        self.mass: float | None = None  # [kg]
+        self.dry_mass: float | None = None  # [kg]
+
+        # Dimension
+        self.length: float | None = None  # [m]
+        self.diameter: float | None = None  # [m]
+        self.wetted_area: float | None = None  # [m^2]
+        self.flow_area: float | None = None  # [m^2]
+
+        # Locations (From the Nose)
+        self.max_cg_location: float | None = None  # [m]
+        self.min_cg_location: float | None = None  # [m]
+        self.cp_location: float | None = None  # [m]
+
+        self.stability_margin: float | None = None  # [-]
+
+        # Power
+        self.power_in: float | None = None  # [W]
+        self.power_out: float | None = None  # [W]
+
+        # Cost
+        self.cost: float | None = None  # [euros]
 
         # Initialize possible components
         self.engine: Subsystem | None = None
         self.recovery: Subsystem | None = None
-        self.structure: Subsystem | None = None
         self.electronics: Subsystem | None = None
         self.payload: Subsystem | None = None
+        self.nosecone: Subsystem | None = None
+        self.fins: Subsystem | None = None
+        self.shoulder: Subsystem | None = None
 
     def __setitem__(self, key, item):
         self.__dict__[key] = item
@@ -31,13 +50,28 @@ class Subsystem:
     def __init__(self, name: str):
         self.id: str = "0.0"
         self.name: str = name
-        self.mass: float = 0  # [kg]
-        self.dry_mass: float = 0  # [kg]
-        self.length: float = 0  # [m]
-        self.diameter: float = 0  # [m]
-        self.power_in: float = 0  # [W]
-        self.power_out: float = 0  # [W]
-        self.cost: float = 0  # [euros]
+
+        # Mass
+        self.mass: float | None = None  # [kg]
+        self.dry_mass: float | None = None   # [kg]
+
+        # Dimension
+        self.length: float | None = None   # [m]
+        self.diameter: float | None = None   # [m]
+        self.wetted_area: float | None = None   # [m^2]
+        self.flow_area: float | None = None  # [m^2]
+
+        # Locations (From the Nose)
+        self.max_cg_location: float | None = None   # [m]
+        self.min_cg_location: float | None = None   # [m]
+        self.cp_location: float | None = None   # [m]
+
+        # Power
+        self.power_in: float | None = None   # [W]
+        self.power_out: float | None = None   # [W]
+
+        # Cost
+        self.cost: float | None = None   # [euros]
 
     def __setitem__(self, key, item):
         self.__dict__[key] = item
@@ -176,6 +210,35 @@ class Recovery(Subsystem):
             self.n_line: float = 0  # [-] Number of suspension lines
 
 
+class Nosecone(Subsystem):
+    def __init__(self, name):
+        Subsystem.__init__(self, name)
+
+        self.base_radius: float | None = None
+        self.axial_distance: float | None = None
+
+
+class Fins(Subsystem):
+    def __init__(self, name):
+        Subsystem.__init__(self, name)
+
+        self.amount: float | None = None
+
+        self.chord_root: float | None = None
+        self.chord_tip: float | None = None
+        self.span: float | None = None
+        self.sweep: float | None = None
+        self.thickness: float | None = None
+
+        self.shear_modulus: float | None = None
+        self.flutter_margin: float | None = None
+
+
+class Shoulder(Subsystem):
+    def __init__(self, name):
+        Subsystem.__init__(self, name)  # General parameters
+
+
 class Structure(Subsystem):
     def __init__(self):
         Subsystem.__init__(self, "Structure")  # General parameters
@@ -275,13 +338,30 @@ class Rocket:
     def __init__(self, simulator):
         # Global parameters
         self.id: str = "0"
-        self.mass: float = 0  # [kg]
-        self.dry_mass: float = 0  # [kg]
-        self.length: float = 0  # [m]
-        self.diameter: float = 0  # [m]
-        self.power_in: float = 0  # [W]
-        self.power_out: float = 0  # [W]
-        self.cost: float = 0  # [euros]
+
+        # Mass
+        self.mass: float | None = None  # [kg]
+        self.dry_mass: float | None = None  # [kg]
+
+        # Dimension
+        self.length: float | None = None  # [m]
+        self.diameter: float | None = None  # [m]
+        self.wetted_area: float | None = None  # [m^2]
+        self.flow_area: float | None = None  # [m^2]
+
+        # Locations (From the Nose)
+        self.max_cg_location: float | None = None  # [m]
+        self.min_cg_location: float | None = None  # [m]
+        self.cp_location: float | None = None  # [m]
+
+        self.stability_margin: float | None = None  # [-]
+
+        # Power
+        self.power_in: float | None = None  # [W]
+        self.power_out: float | None = None  # [W]
+
+        # Cost
+        self.cost: float | None = None  # [euros]
 
         # Specific
         self.cd: float = 0.65
@@ -292,6 +372,16 @@ class Rocket:
         # Stage
         self.stage1: Stage = self.Stage1("First Stage")
         self.stage2: Stage = self.Stage2("Second Stage")
+
+        # List of attributes in the Subsystem parent class
+        # Exclude variables that should not be summed
+        self.excluded_variables: list = ["id", "name", "max_cg_location", "min_cg_location", "cp_location"]
+
+        sample_subsystem: Subsystem = Subsystem("Sample")
+        self.compare_list: list = []
+        for key, _ in sample_subsystem.__dict__.items():
+            if key not in self.excluded_variables:
+                self.compare_list.append(key)
 
     def __setitem__(self, key, item):
         self.__dict__[key] = item
@@ -309,8 +399,9 @@ class Rocket:
             # Specific
             self.engine: Subsystem = Engine("First stage Engine")
             self.recovery: Subsystem = Recovery("First stage parachutes")
-            self.structure: Subsystem = Structure()
+            self.fins: Subsystem = Fins("First stage Fins")
             self.electronics: Subsystem = Electronics("First stage electronics")
+            self.shoulder: Subsystem = Shoulder("Shoulder")
 
     class Stage2(Stage):
         def __init__(self, name: str):
@@ -322,26 +413,21 @@ class Rocket:
             # Specific
             self.engine: Subsystem = Engine("Second stage Engine")
             self.recovery: Subsystem = Recovery("Second stage Parachutes")
-            self.structure: Subsystem = Structure()
+            self.fins: Subsystem = Fins("Second stage Fins")
             self.electronics: Subsystem = Electronics("Second stage electronics")
+            self.nosecone: Subsystem = Nosecone("Nosecone")
             self.payload: Subsystem = Payload("Scientific Payload")
 
     def update(self):
-        sample_subsystem: Subsystem = Subsystem("Sample")
-        compare_list: list = []
-        for key, _ in sample_subsystem.__dict__.items():
-            if key != "id" and key != "name":
-                compare_list.append(key)
-
         # Start with all Rocket parameters at zero
-        for key in compare_list:
+        for key in self.compare_list:
             self[key] = 0
 
         for stage_key, stage_value in self.__dict__.items():
             if "stage" in stage_key:
 
                 # Start with all Stage parameters at zero
-                for key in compare_list:
+                for key in self.compare_list:
                     self[stage_key][key] = 0
 
                 # Summ all shared Subsystem parameters into Stage parameters
@@ -350,15 +436,17 @@ class Rocket:
                         for variable_key, variable_value in subsystem_value.__dict__.items():
                             if variable_key == "dry_mass" and subsystem_key != "engine":
                                 self[stage_key][variable_key] = self[stage_key].mass
-                            if variable_key in compare_list:
-                                if variable_value < 0:
+                            if variable_key in self.compare_list:
+                                if variable_value is None:
+                                    pass  # Do not add anything
+                                elif variable_value < 0:
                                     print(f"\t\tWarning! '{stage_key}.{subsystem_key}.{variable_key}' smaller than zero: {variable_value}")
                                 else:
                                     self[stage_key][variable_key] += variable_value  # Add all the Subsystems
 
                 # Sum all shared Stage parameters into Rocket parameters
                 for variable_key, variable_value in self[stage_key].__dict__.items():
-                    if variable_key in compare_list:
+                    if variable_key in self.compare_list:
                         self[variable_key] += variable_value
 
 

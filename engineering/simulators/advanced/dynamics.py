@@ -14,10 +14,13 @@ def run(flight, gravity, drag, isa, dt: float = 0.1, start_time: float = 0, end_
         if flight.locations[i][1] >= 0:
             # Atmosphere
             flight.temperature[i], flight.pressure[i], flight.density[i] = isa(flight.locations[i][1])
+            flight.speed_of_sound[i] = np.sqrt(1.4 * 287 * flight.temperature[i])
 
             # Calculate forces
             force_gravity = gravity(flight.locations[i][1], mass_total)
-            force_drag = drag(flight, flight.velocities[i], flight.density[i])
+            force_drag = drag(flight.total_velocities[i], flight.density[i], flight.temperature[i],
+                              flight.diameter_lower, flight.diameter_upper, flight.wetted_area,
+                              flight.drag_coefficient_nosecone)
 
             if coast:
                 force_thrust: float = 0
@@ -34,9 +37,14 @@ def run(flight, gravity, drag, isa, dt: float = 0.1, start_time: float = 0, end_
             # New mass
             mass_total: float = mass_rocket + mass_fuel
 
-            force_x = - force_drag[0] + force_thrust * np.sin(flight.angles[i][0])
-            force_y = - force_drag[1] + force_thrust * np.cos(flight.angles[i][0]) - force_gravity
+            force_x = (force_thrust - force_drag) * np.sin(flight.angles[i][0])
+            force_y = (force_thrust - force_drag) * np.cos(flight.angles[i][0]) - force_gravity
             # print(force_drag, force_thrust, force_gravity)
+
+            # Append forces to flight
+            flight.force_drag[i] = force_drag
+            flight.force_thrust[i] = force_thrust
+            flight.force_gravity[i] = force_gravity
 
             # Iteration
             acceleration = np.array((force_x, force_y), dtype=np.float64) / mass_total

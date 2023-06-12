@@ -57,7 +57,7 @@ def isa(height: float) -> tuple:
 @njit()
 def drag(rocket, velocity: np.ndarray, density: float) -> np.ndarray:
     """
-    :param rocket: Rocket class
+    :param rocket: Rocket Simulator class
     :param velocity: [m/s]
     :param density: [kg/m^3]
     :return: Drag force [N]
@@ -68,13 +68,4 @@ def drag(rocket, velocity: np.ndarray, density: float) -> np.ndarray:
 
 
 if __name__ == "__main__":
-    # Density vs altitude example
-    hs = np.linspace(0, 200000, 100)
-    rhos = []
-    for h in hs:
-        rhos.append(isa(h)[2])
-
-    import matplotlib.pyplot as plt
-
-    plt.plot(rhos, hs)
-    plt.show()
+    pass
