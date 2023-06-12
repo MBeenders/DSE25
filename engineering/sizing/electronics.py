@@ -6,7 +6,7 @@ c = 3.0E8  # m/s
 other = 10
 
 modulation = {
-    "BPSK": 0.5, "OOK": 0.5, "QPSK": 1, "OQPSK": 1, "FSK": 0
+    "BPSK": 1, "OOK": 2, "QPSK": 2, "OQPSK": 2, "FSK": 0
 }
 
 
