@@ -15,11 +15,11 @@
   "plot_selection":
   {
     "rocket.mass": "[kg]",
+    "rocket.length": "[m]",
     "rocket.stage1.engine.mass": "[kg]",
     "rocket.stage2.engine.mass": "[kg]",
-    "rocket.stage2.engine.length": "[m]",
-    "rocket.stage2.recovery.mass": "[kg]",
-    "rocket.stage2.recovery.cost": "[euros]"
+    "rocket.stage1.fins.mass": "[kg]",
+    "rocket.simulator.max_velocity_tot": "[m/s]"
   },
   "sizing_selection": ["recovery", "electronics", "engine", "stability"],
   "engine_chemicals":

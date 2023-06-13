@@ -17,7 +17,6 @@ from simulators.simulator import Simulator
 
 from sizing.engine import run as run_engine_sizing, initialize_engines
 from sizing.recovery import run as run_recovery_sizing
-from sizing.structure import run as run_structure_sizing
 from sizing.electronics import run as run_electronics_sizing
 from sizing.stability import run as run_stability_sizing
 from sizing.rocket import Rocket
@@ -115,7 +114,7 @@ class Runner:
             if print_sub:
                 print("\tRunning Simulation")
             self.rocket.simulator.run()
-            # self.rocket.simulator.plot_trajectory()
+            self.rocket.simulator.plot_trajectory()
             if print_sub:
                 print(f"\t\tInitial apogee: {round(self.rocket.simulator.apogee, 3)} m")
 
@@ -213,9 +212,6 @@ class Runner:
 
         if "recovery" in self.selection:
             sizer("recovery", run_recovery_sizing)
-
-        if "structure" in self.selection:
-            sizer("structure", run_structure_sizing)
 
         if "electronics" in self.selection:
             sizer("electronics", run_electronics_sizing)

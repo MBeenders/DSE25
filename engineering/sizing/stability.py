@@ -213,7 +213,7 @@ def calculate_fin_span(rocket):
     # Area needed to reach the CP value
     fin_flow_area = (needed_cp * rocket.stage2.flow_area - nosecone - recovery2 - engine2) / rocket.stage2.fins.cp_location
     # Span needed to reach the flow area value
-    rocket.stage2.fins.span = fin_flow_area / (0.5 * (rocket.stage2.fins.chord_root + rocket.stage2.fins.chord_tip))
+    rocket.stage2.fins.span = fin_flow_area / (0.5 * (rocket.stage2.fins.chord_root + rocket.stage2.fins.chord_tip) * rocket.stage2.fins.amount)
 
     # Stage 1
     # Calculate needed CP to maintain set SM
@@ -222,7 +222,7 @@ def calculate_fin_span(rocket):
     # Area needed to reach the CP value
     fin_flow_area = (needed_cp * rocket.flow_area - nosecone - shoulder - recovery1 - recovery2 - engine1 - engine2) / rocket.stage1.fins.cp_location
     # Span needed to reach the flow area value
-    rocket.stage1.fins.span = fin_flow_area / (0.5 * (rocket.stage1.fins.chord_root + rocket.stage1.fins.chord_tip))
+    rocket.stage1.fins.span = fin_flow_area / (0.5 * (rocket.stage1.fins.chord_root + rocket.stage1.fins.chord_tip) * rocket.stage1.fins.amount)
 
 
 def calculate_fin_thickness(rocket):

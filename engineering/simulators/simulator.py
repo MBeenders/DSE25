@@ -199,8 +199,8 @@ class Simulator:
 
         for name, stage in self.stages.items():
             if name == "Total":
-                self.max_velocity_tot = self.velocities[1].max()
-                self.min_speed_of_sound_tot = self.speed_of_sound.max()
+                self.max_velocity_tot = self.stages["Total"].velocities.transpose()[1].max()
+                self.min_speed_of_sound_tot = self.stages["Total"].speed_of_sound.transpose().max()
             elif name == "Stage1":
                 self.max_velocity1 = self.stages["Stage1"].velocities.transpose()[1].max()
                 self.min_speed_of_sound1 = self.stages["Stage1"].speed_of_sound.transpose().max()
