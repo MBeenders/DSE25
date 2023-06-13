@@ -1,4 +1,5 @@
 import numpy as np
+# Deprecated!! Use Stability.py instead!!
 
 
 def do_stuff(rocket):
