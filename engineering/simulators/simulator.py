@@ -17,20 +17,20 @@ rocket_specs = [("max_iterations", int32),
                 ("diameter", float64),
                 ("diameter1", float64),
                 ("diameter2", float64),
-                ("diameter_lower", float64),
-                ("diameter_upper", float64),
+                ("shoulder_length", float64),
                 ("drag_coefficient_nosecone", float64),
                 ("fineness_ratio", float64),
-                ("wetted_area1", float64),
-                ("wetted_area2", float64),
-                ("wetted_area_body1", float64),
-                ("wetted_area_body2", float64),
+                ("joint_angle", float64),
+                ("wetted_area", float64),
+                ("wetted_area_body", float64),
                 ("wetted_area_fins1", float64),
                 ("wetted_area_fins2", float64),
                 ("fin_thickness1", float64),
                 ("fin_thickness2", float64),
                 ("fin_mac1", float64),
                 ("fin_mac2", float64),
+                ("fin_span1", float64),
+                ("fin_span2", float64),
                 ("thrust_curve", float64[:]),
                 ("fuel_mass_curve", float64[:]),
                 ("mmoi", float64[:]),
@@ -64,20 +64,23 @@ class FlightData:
         self.diameter1: float64 = 0  # Diameter Stage 1
         self.diameter2: float64 = 0  # Diameter Stage 2
 
+        self.shoulder_length: float64 = 0
+
         self.drag_coefficient_nosecone: float64 = 0
         self.fineness_ratio: float64 = 0
+        self.joint_angle: float64 = 0
 
-        self.wetted_area1: float64 = 0  # Total wetted area of Stage 1
-        self.wetted_area2: float64 = 0  # Total wetted area of Stage 2
-        self.wetted_area_body1: float64 = 0  # Excludes the Nosecone (Should it?)
-        self.wetted_area_body2: float64 = 0  # Excludes the Nosecone (Should it?)
+        self.wetted_area: float64 = 0  # Total wetted area of Stage 2
+        self.wetted_area_body: float64 = 0  # Excludes the Nosecone (Should it?)
+
         self.wetted_area_fins1: float64 = 0
         self.wetted_area_fins2: float64 = 0
-
         self.fin_thickness1: float64 = 0
         self.fin_thickness2: float64 = 0
         self.fin_mac1: float64 = 0
         self.fin_mac2: float64 = 0
+        self.fin_span1: float64 = 0
+        self.fin_span2: float64 = 0
 
         # Engine
         self.thrust_curve: np.array = np.zeros(max_iterations, float64)  # Thrust curve
@@ -136,7 +139,7 @@ class Simulator:
 
             # Boost Phase
             end_time = self.stages["Total"].burn_time + self.mission_profile["separation"]["delay"]
-            self.dynamics_run(self.stages["Total"], self.gravity, self.drag, self.isa, end_time=end_time, dt=self.dt)
+            self.dynamics_run(self.stages["Total"], 0, self.gravity, self.drag, self.isa, end_time=end_time, dt=self.dt)
             self.trim_lists(self.stages["Total"])
 
             # Separation Phase
@@ -147,7 +150,7 @@ class Simulator:
             self.stages["Stage2"].velocities[0] = self.stages["Total"].velocities[-1]
             self.stages["Stage2"].angles[0] = self.stages["Total"].angles[-1]
 
-            self.dynamics_run(self.stages["Stage2"], self.gravity, self.drag, self.isa, start_time=start_time, dt=self.dt, delay=self.mission_profile["engine2_ignition"]["delay"])
+            self.dynamics_run(self.stages["Stage2"], 2, self.gravity, self.drag, self.isa, start_time=start_time, dt=self.dt, delay=self.mission_profile["engine2_ignition"]["delay"])
             self.trim_lists(self.stages["Stage2"])
 
             self.update()
@@ -162,6 +165,22 @@ class Simulator:
             self.stages["Total"].mass[0] = rocket.mass
             self.stages["Total"].cd = rocket.cd
             self.stages["Total"].diameter = rocket.diameter
+            self.stages["Total"].diameter1 = rocket.stage1.diameter
+            self.stages["Total"].diameter2 = rocket.stage2.diameter
+            self.stages["Total"].shoulder_length = rocket.stage1.shoulder.length
+            self.stages["Total"].drag_coefficient_nosecone = rocket.stage2.nosecone.drag_coefficient
+            self.stages["Total"].fineness_ratio = rocket.fineness_ratio
+            self.stages["Total"].joint_angle = rocket.stage2.nosecone.joint_angle
+            self.stages["Total"].wetted_area = rocket.wetted_area
+            self.stages["Total"].wetted_area_body = rocket.wetted_area - rocket.stage1.fins.wetted_area - rocket.stage2.fins.wetted_area
+            self.stages["Total"].wetted_area_fins1 = rocket.stage1.fins.wetted_area
+            self.stages["Total"].wetted_area_fins2 = rocket.stage2.fins.wetted_area
+            self.stages["Total"].fin_thickness1 = rocket.stage1.fins.thickness
+            self.stages["Total"].fin_thickness2 = rocket.stage2.fins.thickness
+            self.stages["Total"].fin_mac1 = rocket.stage1.fins.mac
+            self.stages["Total"].fin_mac2 = rocket.stage2.fins.mac
+            self.stages["Total"].fin_span1 = rocket.stage1.fins.span
+            self.stages["Total"].fin_span2 = rocket.stage2.fins.span
             self.stages["Total"].thrust_curve = rocket.stage1.engine.thrust_curve
             self.stages["Total"].fuel_mass_curve = rocket.stage1.engine.fuel_mass_curve
             self.stages["Total"].mmoi = rocket.stage1.engine.mmoi
@@ -177,6 +196,16 @@ class Simulator:
             self.stages["Stage2"].mass[0] = rocket.stage2.mass
             self.stages["Stage2"].cd = rocket.stage2.cd
             self.stages["Stage2"].diameter = rocket.stage2.diameter
+            self.stages["Stage2"].diameter2 = rocket.stage2.diameter
+            self.stages["Stage2"].drag_coefficient_nosecone = rocket.stage2.nosecone.drag_coefficient
+            self.stages["Stage2"].fineness_ratio = rocket.fineness_ratio
+            self.stages["Stage2"].joint_angle = rocket.stage2.nosecone.joint_angle
+            self.stages["Stage2"].wetted_area = rocket.stage2.wetted_area
+            self.stages["Stage2"].wetted_area_body = rocket.stage2.wetted_area - rocket.stage2.fins.wetted_area
+            self.stages["Stage2"].wetted_area_fins2 = rocket.stage2.fins.wetted_area
+            self.stages["Stage2"].fin_thickness2 = rocket.stage2.fins.thickness
+            self.stages["Stage2"].fin_mac2 = rocket.stage2.fins.mac
+            self.stages["Stage2"].fin_span2 = rocket.stage2.fins.span
             self.stages["Stage2"].thrust_curve = rocket.stage2.engine.thrust_curve
             self.stages["Stage2"].fuel_mass_curve = rocket.stage2.engine.fuel_mass_curve
             self.stages["Stage2"].mmoi = rocket.stage2.engine.mmoi

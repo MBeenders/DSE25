@@ -69,6 +69,7 @@ Stage,Subsystem,Variable,Value,Unit,Locked
 1,shoulder,diameter,0.2,m,TRUE
 2,nosecone,diameter,0.15,m,TRUE
 2,payload,diameter,0.15,m,TRUE
+0,rocket,fineness_ratio,5,-,TRUE
 0,rocket,cd,0.3,-,TRUE
 1,stage,cd,0.3,-,TRUE
 2,stage,cd,0.3,-,TRUE
@@ -219,6 +220,12 @@ Stage,Subsystem,Variable,Value,Unit,Locked
 2,fins,shear_modulus,2.69E+10,Pa,TRUE
 1,fins,flutter_margin,1.5,-,TRUE
 2,fins,flutter_margin,1.5,-,TRUE
+1,fins,mac,0.1,-,TRUE
+2,fins,mac,0.1,-,TRUE
+1,fins,wetted_area,0.4,m^2,FALSE
+2,fins,wetted_area,0.4,m^2,FALSE
+2,nosecone,drag_coefficient,0.2,-,TRUE
+2,nosecone,joint_angle,22,deg,TRUE
 2,nosecone,base_radius,0.075,m,TRUE
 2,nosecone,axial_distance,0.024,m,TRUE
 2,nosecone,thickness,0.005,m,TRUE

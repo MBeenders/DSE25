@@ -224,6 +224,8 @@ class Nosecone(Subsystem):
         self.axial_distance: float | None = None
         self.thickness: float | None = None
         self.density: float | None = None
+        self.drag_coefficient: float | None = None
+        self.joint_angle: float | None = None
 
 
 class Fins(Subsystem):
@@ -236,6 +238,7 @@ class Fins(Subsystem):
         self.chord_tip: float | None = None
         self.span: float | None = None
         self.sweep: float | None = None
+        self.mac: float | None = None
         self.thickness: float | None = None
         self.density: float | None = None
 
@@ -372,6 +375,7 @@ class Rocket:
         self.cp_location: float | None = None  # [m]
 
         self.stability_margin: float | None = None  # [-]
+        self.fineness_ratio: float | None = None  # [-]
 
         # Cost
         self.cost: float | None = None  # [euros]

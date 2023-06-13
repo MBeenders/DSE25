@@ -10,9 +10,9 @@ from colorama import Fore
 import time
 
 import file_manager as fm
-from simulators.simple.aerodynamics import drag, isa
-from simulators.simple.dynamics import run as dynamics_run
-from simulators.simple.gravity import gravity
+from simulators.advanced.aerodynamics import drag, isa
+from simulators.advanced.dynamics import run as dynamics_run
+from simulators.advanced.gravity import gravity
 from simulators.simulator import Simulator
 
 from sizing.engine import run as run_engine_sizing, initialize_engines

@@ -1,5 +1,5 @@
 import numpy as np
-# Deprecated!! Use Stability.py instead!!
+# Deprecated!! Use Stability.py instead (The rest of the code moved to the simulation)!!
 
 
 def do_stuff(rocket):
