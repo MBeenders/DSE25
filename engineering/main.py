@@ -6,6 +6,7 @@ import re
 
 import numpy as np
 import matplotlib.pyplot as plt
+from colorama import Fore
 import time
 
 import file_manager as fm
@@ -51,7 +52,6 @@ class Runner:
             self.rocket: Rocket = fm.import_rocket_iteration(file_name)
         else:  # If not, then just create a new class from the initialization file
             self.rocket: Rocket = fm.initialize_rocket(file_name, simulator, self.run_parameters)
-
         # Calculate all the Engine specs
         self.rocket = initialize_engines(self.rocket)
 
@@ -66,7 +66,6 @@ class Runner:
         if not os.path.exists(save_directory):
             os.makedirs(save_directory)
 
-
         # Make run_id based on last file created
         if os.listdir(save_directory) and not testing:
             self.run_id: int = int(max(os.listdir(f"{self.current_file_path}/files/archive"), key=extract_number).split("_")[1]) + 1
@@ -77,7 +76,7 @@ class Runner:
         if not os.path.exists(f"{save_directory}/run_{self.run_id}"):
             os.makedirs(f"{save_directory}/run_{self.run_id}")
 
-    def run(self, runs, save=True, print_iteration=True, print_sub=True, testing=False):
+    def run(self, runs, save=True, print_iteration=True, print_sub=True, testing=False, export_catia=False, export_summary=False):
         print("Running Main Program")
         self.start_time = time.time()
 
@@ -98,6 +97,7 @@ class Runner:
 
         for i in range(runs):
             self.iteration_id = i + 1
+            self.rocket.id = f"{self.run_id}.{self.iteration_id}"
             last_time = time.time()
 
             if print_iteration:
@@ -136,6 +136,16 @@ class Runner:
                 else:
                     fm.export_rocket_iteration(f"run_{self.run_id}/{str(self.iteration_id).zfill(4)}_rocket", self.new_rocket)
 
+            if export_catia:
+                if print_sub:
+                    print("\tExporting Catia File")
+                self.export_to_catia()
+
+            if export_summary:
+                if print_sub:
+                    print("\tExporting Summary")
+                self.export_summary()
+
             # Overwrite old Rocket with New Rocket
             self.rocket = self.new_rocket
 
@@ -147,7 +157,7 @@ class Runner:
         self.close()
 
     def give_id(self, subsystem):
-        serial_num = int(subsystem.id.split(".")[1])
+        serial_num = int(subsystem.id.split(".")[-1])
         serial_num += 1
         subsystem.id = f"{self.rocket.id}.{serial_num}"
 
@@ -161,7 +171,9 @@ class Runner:
         flight_data = self.rocket.simulator.stages  # Flight data from the different stages
         self.rocket.simulator.delete_stages()
 
-        def sizer(subsystem: str | list, function, separate=False):
+        changes: dict = {}
+
+        def sizer(subsystem: str | list, function):
             if print_status:
                 if type(subsystem) == list:
                     for system in subsystem:
@@ -172,33 +184,34 @@ class Runner:
             rocket = copy.deepcopy(self.rocket)
             rocket.simulator.stages = flight_data
 
-            if separate:
-                try:
-                    if type(subsystem) == list:
-                        for system in subsystem:
-                            sized_dict["stage1"][system] = function(rocket, "stage1")["stage1"][system]
-                            sized_dict["stage2"][system] = function(rocket, "stage2")["stage2"][system]
-                    else:
-                        sized_dict["stage1"][subsystem] = function(rocket, "stage1")["stage1"][subsystem]
-                        sized_dict["stage2"][subsystem] = function(rocket, "stage2")["stage2"][subsystem]
-                except Exception as error:
-                    print(f"\t\t!! {subsystem} sizing failed with: {error}")
-            else:
-                # try:
-                sizing = function(rocket)
-                if type(subsystem) == list:
-                    for system in subsystem:
-                        sized_dict["stage1"][system] = sizing["stage1"][system]
-                        sized_dict["stage2"][system] = sizing["stage2"][system]
-                else:
-                    sized_dict["stage1"][subsystem] = sizing["stage1"][subsystem]
-                    sized_dict["stage2"][subsystem] = sizing["stage2"][subsystem]
-                # except Exception as error:
-                #     print(f"\t\t!! {subsystem} sizing failed with: {error}")
+            # try:
+            sizing = function(rocket)
 
-        sized_dict: dict = {"stage1": {}, "stage2": {}}  # Dictionary with all sized classes
+            # Get all attributes from the Old and New version of the Rocket class
+            old_rocket = self.rocket.export_all_values()
+            new_rocket = sizing.export_all_values()
+
+            for key, value in new_rocket.items():
+                if not key == "simulator":
+                    if "mass" in key:
+                        print(key, new_rocket[key], old_rocket[key])
+                    if type(value) == list or type(value) == np.array or type(value) == np.ndarray:
+                        if not np.array_equal(new_rocket[key], old_rocket[key]):
+                            if key not in changes:
+                                changes[key] = value
+                            else:
+                                print(f"\t\t\tDuplicate in changes: '{key}'")
+                    else:
+                        if new_rocket[key] != old_rocket[key]:
+                            if key not in changes:
+                                changes[key] = value
+                            else:
+                                print(f"\t\t\tDuplicate in changes: '{key}'")
+            # except Exception as error:
+            #     print(f"\t\t!! {subsystem} sizing failed with: {error}")
+
         if "engine" in self.selection:
-            sizer("engine", run_engine_sizing, separate=True)
+            sizer("engine", run_engine_sizing)
 
         if "recovery" in self.selection:
             sizer("recovery", run_recovery_sizing)
@@ -210,21 +223,26 @@ class Runner:
             sizer("electronics", run_electronics_sizing)
 
         if "stability" in self.selection:
-            sizer(["fins", "nosecone"], run_stability_sizing)
+            sizer("stability", run_stability_sizing)
 
         if not self.selection:
             if print_status:
                 print("\t\tNo sizing options specified in the 'run_parameters.json'")
 
-        for stage_name, stage_classes in sized_dict.items():
-            for subsystem_name, subsystem_data in stage_classes.items():
-                self.give_id(subsystem_data)
-                self.new_rocket[stage_name][subsystem_name] = subsystem_data
+        def add_values(system, key, value):
+            if "." in key:
+                key_list = key.split(".")
+                add_values(system[key_list[0]], '.'.join(key_list[1:]), value)
+            else:
+                system[key] = value
+
+        for change_key, change_value in changes.items():
+            add_values(self.new_rocket, change_key, change_value)
 
         # Increase Rocket ID by 1
-        serial_num = int(self.rocket.id)
+        serial_num = int(self.rocket.id.split('.')[1])
         serial_num += 1
-        self.new_rocket.id = serial_num
+        self.new_rocket.id = f"{self.run_id}.{serial_num}"
 
     def test_sizing(self):
         # run_electronics_sizing(copy.deepcopy(self.rocket))
@@ -247,33 +265,33 @@ class Runner:
             attributes = vars(obj)
             for attribute in attributes:
                 if attribute != "simulator":
-                    if attribute in self.rocket.compare_list or attribute in self.rocket.excluded_variables:
-                        if obj.__dict__[attribute] is None:
-                            obj.__dict__[attribute] = 0
-                            if general_print:
-                                print(f"\t\tAttribute '{attribute}' not defined! Changed it to '0'")
-                    else:
-                        try:
-                            attr_type = type(obj.__dict__[attribute])
-                            if attr_type is float or attr_type is int or attr_type is str or attr_type is dict or\
-                                    attr_type is list or attr_type is np.array or attr_type is np.ndarray or attr_type is np.float64:
-                                if obj.__dict__[attribute] is None:
-                                    print(f"\t\tAttribute '{attribute}' not defined! Please define an initial condition")
-                                    self.warnings += 1
+                    # if attribute in self.rocket.compare_list or attribute in self.rocket.excluded_variables:
+                    #     if obj.__dict__[attribute] is None:
+                    #         obj.__dict__[attribute] = 0
+                    #         if general_print:
+                    #             print(Fore.YELLOW + f"\t\tAttribute '{attribute}' not defined! Changed it to '0'")
+
+                    try:
+                        attr_type = type(obj.__dict__[attribute])
+                        if attr_type is float or attr_type is int or attr_type is str or attr_type is dict or\
+                                attr_type is list or attr_type is np.array or attr_type is np.ndarray or attr_type is np.float64:
+                            if obj.__dict__[attribute] is None:
+                                print(Fore.YELLOW + f"\t\tAttribute '{attribute}' not defined! Please define an initial condition")
+                                self.warnings += 1
+                        else:
+                            if obj.__dict__[attribute] is None:
+                                print(Fore.YELLOW + f"\t\tAttribute '{attribute}' not defined! Please define an initial condition")
+                                self.warnings += 1
                             else:
-                                if obj.__dict__[attribute] is None:
-                                    print(f"\t\tAttribute '{attribute}' not defined! Please define an initial condition")
-                                    self.warnings += 1
-                                else:
-                                    check_level(obj.__dict__[attribute])
-                        except KeyError:
-                            print(f"\t\tAttribute '{attribute}' not found in rocket class")
+                                check_level(obj.__dict__[attribute])
+                    except KeyError:
+                        print(Fore.YELLOW + f"\t\tAttribute '{attribute}' not found in rocket class")
 
         if new:
             check_level(self.new_rocket)
         else:
             check_level(self.rocket)
-        print(f"Rocket class checked; {self.warnings} warnings")
+        print(Fore.RESET + f"Rocket class checked; {self.warnings} warnings")
 
     def check_compliance(self, show_within_limit=False):
         print("Checking compliance with the requirements")
@@ -328,14 +346,17 @@ class Runner:
         fm.export_rocket_iteration("rocket", self.new_rocket)
 
     def export_to_catia(self):
-        fm.export_catia_parameters("catia", self.new_rocket, self.run_parameters["catia_variables"])
+        fm.export_to_csv("catia", f"catia_{self.run_id}", self.new_rocket, self.run_parameters["catia_variables"])
+
+    def export_summary(self):
+        fm.export_to_csv("summaries", f"summary_{self.run_id}", self.new_rocket, {})
 
     def close(self):
         self.run_parameters_file.close()
 
 
 if __name__ == "__main__":
-    runner = Runner("initial_values")
+    runner = Runner("initial_values_2")
     # runner.test_sizing()
-    runner.run(10, testing=True)
+    runner.run(10, testing=True, export_summary=True)
     runner.show_plots(1)

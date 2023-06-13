@@ -27,14 +27,20 @@ def parachutes(rocket):
     # 1st stage main parachute:
     area_main1 = dry_mass1 * g / (0.5 * rho * descent_rate1 ** 2 * c_D_main1)
     diameter_main1 = np.sqrt(area_main1 / (np.pi * 0.25))
+    volume_main_parachute1 = rocket.stage1.recovery.main_parachute.packing_factor * area_main1
+    rocket.stage1.recovery.main_parachute.length = volume_main_parachute1 / (np.pi * (rocket.stage1.recovery.main_parachute.diameter / 2) ** 2)
 
     # 2nd stage drogue parachute:
     area_drogue2 = dry_mass2 * g / (0.5 * rho * descent_rate2_drogue ** 2 * c_D_drogue2)
     diameter_drogue2 = np.sqrt(area_drogue2 / (np.pi * 0.25))
+    volume_drogue2 = rocket.stage2.recovery.drogue.packing_factor * area_drogue2
+    rocket.stage2.recovery.drogue.length = volume_drogue2 / (np.pi * (rocket.stage2.recovery.drogue.diameter / 2) ** 2)
 
     # 2nd stage main parachute:
     area_main2 = dry_mass2 * g / (0.5 * rho * descent_rate2_main ** 2 * c_D_main2)
     diameter_main2 = np.sqrt(area_main2 / (np.pi * 0.25))
+    volume_main_parachute2 = rocket.stage2.recovery.main_parachute.packing_factor * area_main2
+    rocket.stage2.recovery.main_parachute.length = volume_main_parachute2 / (np.pi * (rocket.stage2.recovery.main_parachute.diameter / 2) ** 2)
 
     d_parachutes = [diameter_main1, diameter_drogue2, diameter_main2]
 
@@ -133,11 +139,11 @@ def run(rocket):
     :param rocket: Original Rocket class
     :return: Updated Rocket class
     """
-
     parachute_data = parachutes(rocket)
     line_data = lines(rocket)
     cold_gas_data = cold_gas(rocket)
 
+    # Parachutes
     rocket.stage1.recovery.main_parachute.mass = parachute_data[0] + line_data[0]
     rocket.stage2.recovery.drogue.mass = parachute_data[1] + line_data[1]
     rocket.stage2.recovery.main_parachute.mass = parachute_data[2] + line_data[2]
@@ -145,15 +151,21 @@ def run(rocket):
     rocket.stage2.recovery.drogue.cost = parachute_data[4] + line_data[4]
     rocket.stage2.recovery.main_parachute.cost = parachute_data[5] + line_data[5]
 
-    rocket.stage1.recovery.m_total_gas = cold_gas_data[0]
-    rocket.stage2.recovery.m_total_gas = cold_gas_data[1]
+    # Deployment
+    rocket.stage1.recovery.gas_total_mass = cold_gas_data[0]
+    rocket.stage2.recovery.gas_total_mass = cold_gas_data[1]
     rocket.stage1.recovery.gas_total_cost = cold_gas_data[2]
     rocket.stage2.recovery.gas_total_cost = cold_gas_data[3]
 
+    # Total Mass and Cost
     rocket.stage1.recovery.mass = rocket.stage1.recovery.main_parachute.mass + cold_gas_data[0]
     rocket.stage2.recovery.mass = rocket.stage2.recovery.drogue.mass + rocket.stage2.recovery.main_parachute.mass + cold_gas(rocket)[1]
     rocket.stage1.recovery.cost = rocket.stage1.recovery.main_parachute.cost + cold_gas_data[2]
     rocket.stage2.recovery.cost = rocket.stage2.recovery.drogue.cost + rocket.stage2.recovery.main_parachute.cost + cold_gas(rocket)[3]
+
+    # Total Length
+    rocket.stage1.recovery.length = rocket.stage1.recovery.main_parachute.length
+    rocket.stage2.recovery.length = rocket.stage2.recovery.main_parachute.length + rocket.stage2.recovery.drogue.length
 
     return rocket
 

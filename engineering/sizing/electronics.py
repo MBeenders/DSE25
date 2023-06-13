@@ -83,7 +83,7 @@ def stage1_electronics(rocket, text):
     
     rocket.stage1.electronics.communicationsystem.SNR = SNR
     
-    delta_freq = doppler_shift(rocket.simulator.max_velocity, frequency)
+    delta_freq = doppler_shift(rocket.simulator.max_velocity_tot, frequency)
 
     assert min_bw > delta_freq, f"bandwidth greater than {delta_freq} expected, got: {min_bw/(10**6)} MHz"
     assert min_bw < (10 * (10**6)), f"bandwidth less than 10 MHz expected, got: {min_bw/(10**6)} MHz"
@@ -150,7 +150,7 @@ def stage2_electronics(rocket, text):
     rocket.stage2.electronics.communicationsystem.SNR = SNR
     
 
-    delta_freq = doppler_shift(rocket.simulator.max_velocity, frequency)
+    delta_freq = doppler_shift(rocket.simulator.max_velocity_tot, frequency)
     
     assert min_bw > delta_freq, f"bandwidth greater than {delta_freq} expected, got: {min_bw/(10**6)} MHz"
     assert min_bw < (10 * (10**6)), f"bandwidth less than 10 MHz expected, got: {min_bw/(10**6)} MHz"
@@ -219,32 +219,28 @@ def stage2_payload(rocket, text):
         print("Stage 2 total required storage for the payload: ", storage/(8*10**9), "Gbytes")
 
 
-def do_stuff(rocket, print_sizing=False):
-    """
-    :param rocket: Rocket class
-    :return: None
-    """
-    # Stage 1
-
-    stage1_electronics(rocket, print_sizing)
-    rocket.stage1.electronics.mass = rocket.stage1.electronics.powersystem.mass_bat
-    # Stage 2
-
-    # electronics
-    stage2_electronics(rocket, print_sizing)
-    rocket.stage2.electronics.mass = rocket.stage2.electronics.powersystem.mass_bat
-
-    # payload
-    stage2_payload(rocket, print_sizing)
-    rocket.stage2.payload.mass = rocket.stage2.payload.powersystem.mass_bat
-
-def run(rocket):
+def run(rocket, print_sizing=False):
     """
     :param rocket: Original Rocket class
+    :param print_sizing: Print the sizing process
     :return: Updated Rocket class
     """
 
-    do_stuff(rocket)
+    # Stage 1
+    stage1_electronics(rocket, print_sizing)
+    rocket.stage1.electronics.mass = rocket.stage1.electronics.powersystem.mass_bat
+
+    # Stage 2
+    # Electronics
+    stage2_electronics(rocket, print_sizing)
+    rocket.stage2.electronics.mass = rocket.stage2.electronics.powersystem.mass_bat
+
+    # Payload
+    stage2_payload(rocket, print_sizing)
+    rocket.stage2.payload.mass = rocket.stage2.payload.powersystem.mass_bat
+
+    # Cost
+
 
     return rocket
 

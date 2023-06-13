@@ -115,8 +115,9 @@ def export_rocket_iteration(file_name: str, rocket: Rocket):
         pickle.dump(rocket, file)
 
 
-def export_catia_parameters(file_name: str, rocket: Rocket, variables: dict):
+def export_to_csv(folder_name: str, file_name: str, rocket: Rocket, variables: dict):
     """
+    :param folder_name: Directory name of the file the csv will be saved in
     :param file_name: Name under which the file will be exported
     :param rocket: The filled Rocket class
     :param variables: A list of strings linked to the variables that will be exported to catia
@@ -132,11 +133,14 @@ def export_catia_parameters(file_name: str, rocket: Rocket, variables: dict):
         else:
             parameters[f"{total_name} {item}"] = subsystem
 
-    for name, value in variables.items():
-        get_info(name, value, rocket[name])
+    if variables:
+        for name, value in variables.items():
+            get_info(name, value, rocket[name])
+    else:
+        parameters = rocket.export_all_values()
 
     data = pd.DataFrame.from_dict(parameters, orient="index").transpose()
-    output_path = f"{current_file_path}/files/catia/{file_name}.csv"
+    output_path = f"{current_file_path}/files/{folder_name}/{file_name}.csv"
     data.to_csv(output_path, mode='a', header=not os.path.exists(output_path), index=False)
 
 

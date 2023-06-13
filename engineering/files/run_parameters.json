@@ -21,7 +21,7 @@
     "rocket.stage2.recovery.mass": "[kg]",
     "rocket.stage2.recovery.cost": "[euros]",
     "rocket.stage2.electronics.mass": "[kg]",
-    "rocket.simulator.max_velocity": "[m/s]"
+    "rocket.simulator.max_velocity1": "[m/s]"
   },
   "sizing_selection": ["recovery", "electronics", "engine", "stability"],
   "engine_chemicals":

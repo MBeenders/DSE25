@@ -206,13 +206,14 @@ def stage2_iteration(rocket, apogee_goal):
     # Simulate
     simulator.create_stages(rocket)
     simulator.run()
-    # simulator.plot_trajectory()
     simulator.delete_stages()
     return difference
 
 
 def optimize(rocket, max_iterations, apogee_goal, accuracy):
     create_stage1_engine(rocket)  # stage1 engine sizing
+
+    # ToDo: Thrust is calculate
 
     for i in range(max_iterations):
         difference = stage2_iteration(rocket, apogee_goal)
@@ -226,13 +227,23 @@ def initialize_engines(rocket):
     return rocket
 
 
-def run(rocket, stage):
+def run(rocket):
     """
     :param rocket: Original Rocket class
-    :param stage:  The stage of the engine
     :return: Updated Rocket class
     """
 
+    optimize(rocket, 30, 90E3, 1)
+
+    # Cost
+    rocket.stage1.engine.cost = 0  # Maybe expand?
+    rocket.stage2.engine.cost = 0  # Maybe expand?
+
+    return rocket
+
+# if __name__ == "__main__":
+#     test_rocket = Rocket()
+#     run(test_rocket)
     # # universal constants
     # g = 9.80665  # [m/s^2]
     # cc = rocket[stage].engine.chamber_pressure  # Isp correction factor
@@ -299,11 +310,3 @@ def run(rocket, stage):
     # # asumptions (estimated based on literature)
     # a = 1  # coefficient of pressure. chosen from literature
     # n = 2  # pressure exponent. chosen from literature
-
-    optimize(rocket, 30, 90E3, 1)
-
-    return rocket
-
-# if __name__ == "__main__":
-#     test_rocket = Rocket()
-#     run(test_rocket)

@@ -11,7 +11,7 @@ rocket_specs = [("max_iterations", int32),
                 ("velocities", float64[:, :]),
                 ("angles", float64[:, :]),
                 ("total_velocities", float64[:, :]),
-                ("speed_of_sound", float64[:, :]),
+                ("speed_of_sound", float64[:]),
                 ("mass", float64[:]),
                 ("cd", float64),
                 ("diameter", float64),
@@ -53,7 +53,7 @@ class FlightData:
         self.angles: np.array = np.zeros((max_iterations, 1), float64)
 
         self.total_velocities: np.array = np.zeros((max_iterations, 2), float64)
-        self.speed_of_sound: np.array = np.zeros((max_iterations, 2), float64)
+        self.speed_of_sound: np.array = np.zeros(max_iterations, float64)
 
         # General properties
         self.mass: np.array = np.zeros(max_iterations, float64)
@@ -107,8 +107,12 @@ class Simulator:
         self.drag = drag
         self.isa = isa
 
-        # Curves
-        self.cg_locations: np.array = np.zeros(self.maximum_iterations, dtype=float)  # Measured from the Nose
+        # Curves (Total Stage to 2nd Stage after separation)
+        self.times: np.array = np.zeros(self.maximum_iterations, dtype=float)  # List with all th time stamps
+
+        self.altitudes: np.array = np.zeros(self.maximum_iterations, dtype=float)
+        self.velocities: np.array = np.zeros(self.maximum_iterations, dtype=float)
+        self.speed_of_sound: np.array = np.zeros(self.maximum_iterations, dtype=float)
 
         # Values
         self.apogee: float = 0
@@ -120,13 +124,6 @@ class Simulator:
         self.min_speed_of_sound1: float = 0
         self.min_speed_of_sound2: float = 0
         self.min_speed_of_sound_tot: float = 0
-
-        self.max_cg_location1: float = 0  # Measured from the Nose
-        self.max_cg_location2: float = 0  # Measured from the Nose
-        self.max_cg_location_tot: float = 0  # Measured from the Nose
-        self.min_cg_location1: float = 0  # Measured from the Nose
-        self.min_cg_location2: float = 0  # Measured from the Nose
-        self.min_cg_location_tot: float = 0  # Measured from the Nose
 
         # Mission
         self.stages: dict = {}  # Flight data of the different stages
@@ -158,7 +155,7 @@ class Simulator:
         else:
             raise ModuleNotFoundError("Only 2-Stage rockets are supported atm")
 
-    def create_stages(self, rocket):
+    def create_stages(self, rocket, show_params=True):
         if self.mission_profile["stages"] == 2:
             # Total stage
             self.stages["Total"] = FlightData(int(self.maximum_iterations))
@@ -187,12 +184,31 @@ class Simulator:
         else:
             raise ModuleNotFoundError("Only 2-Stage rockets are supported atm")
 
+    def combine_lists(self):
+        self.times = np.concatenate((self.stages["Total"].time, self.stages["Stage2"].time), axis=0)
+        self.altitudes = np.concatenate((self.stages["Total"].locations.transpose()[1],
+                                         self.stages["Stage2"].locations.transpose()[1]), axis=0)
+        self.velocities = np.concatenate((self.stages["Total"].velocities.transpose()[1],
+                                          self.stages["Stage2"].velocities.transpose()[1]), axis=0)
+        self.speed_of_sound = np.concatenate((self.stages["Total"].speed_of_sound.transpose(),
+                                              self.stages["Stage2"].speed_of_sound.transpose()), axis=0)
+
     def update(self):
+        self.combine_lists()
         self.apogee = self.stages["Stage2"].locations.transpose()[1].max()
 
         for name, stage in self.stages.items():
             if name == "Total":
-                self.max_velocity_tot = self.stages["Stage2"].velocities.transpose()[1].max()
+                self.max_velocity_tot = self.velocities[1].max()
+                self.min_speed_of_sound_tot = self.speed_of_sound.max()
+            elif name == "Stage1":
+                self.max_velocity1 = self.stages["Stage1"].velocities.transpose()[1].max()
+                self.min_speed_of_sound1 = self.stages["Stage1"].speed_of_sound.transpose().max()
+            elif name == "Stage2":
+                self.max_velocity2 = self.stages["Stage2"].velocities.transpose()[1].max()
+                self.min_speed_of_sound2 = self.stages["Stage2"].speed_of_sound.transpose().max()
+            else:
+                print(f"\t\t'{name}' not implemented")
 
     @staticmethod
     def trim_lists(rocket: FlightData):
@@ -200,21 +216,12 @@ class Simulator:
         rocket.locations = rocket.locations[~np.all(rocket.locations == 0, axis=1)]
         rocket.velocities = rocket.velocities[~np.all(rocket.velocities == 0, axis=1)]
 
-    def combine_lists(self):
-        times = np.concatenate((self.stages["Total"].time, self.stages["Stage2"].time), axis=0)
-        altitudes = np.concatenate((self.stages["Total"].locations.transpose()[1],
-                                    self.stages["Stage2"].locations.transpose()[1]), axis=0)
-        velocities = np.concatenate((self.stages["Total"].velocities.transpose()[1],
-                                     self.stages["Stage2"].velocities.transpose()[1]), axis=0)
-
-        return times, altitudes, velocities
-
     def plot_trajectory(self):
-        times, altitudes, velocities = self.combine_lists()
-        plt.plot(times, altitudes)
+        self.combine_lists()
+        plt.plot(self.times, self.altitudes)
         plt.show()
 
-        plt.plot(times, velocities[:-1])
+        plt.plot(self.times, self.velocities[:-1])
         plt.show()
 
     def delete_stages(self):

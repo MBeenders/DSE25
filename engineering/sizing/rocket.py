@@ -23,10 +23,6 @@ class Stage:
 
         self.stability_margin: float | None = None  # [-]
 
-        # Power
-        self.power_in: float | None = None  # [W]
-        self.power_out: float | None = None  # [W]
-
         # Cost
         self.cost: float | None = None  # [euros]
 
@@ -66,10 +62,6 @@ class Subsystem:
         self.min_cg_location: float | None = None   # [m]
         self.cp_location: float | None = None   # [m]
 
-        # Power
-        self.power_in: float | None = None   # [W]
-        self.power_out: float | None = None   # [W]
-
         # Cost
         self.cost: float | None = None   # [euros]
 
@@ -101,6 +93,7 @@ class Engine(Subsystem):
         self.chamber_gamma: float | None = None
         self.chamber_temperature: float | None = None
         self.chamber_volume: float | None = None
+        self.chamber_length: float | None = None
         self.cc: float | None = None
         self.c_star: float | None = None
         self.area_exit: float | None = None
@@ -171,15 +164,15 @@ class Recovery(Subsystem):
         self.drogue = self.Drogue(name)
         self.main_parachute = self.MainParachute(name)
 
-        self.material_density: float = 0  # [kg/m^2]
-        self.material_cost: float = 0  # [euros/m^2]
-        self.line_density: float = 0  # [kg/m]
-        self.line_cost: float = 0  # [euros/m]
-        self.m_gas: float = 0  # [kg]
-        self.m_total_gas: float = 0  # [kg]
-        self.gas_cost: float = 0  # [euros]
-        self.gas_total_cost: float = 0  # [euros]
-        self.n_gas: float = 0  # [-]
+        self.material_density: float | None = None  # [kg/m^2]
+        self.material_cost: float | None = None  # [euros/m^2]
+        self.line_density: float | None = None  # [kg/m]
+        self.line_cost: float | None = None  # [euros/m]
+        self.m_gas: float | None = None  # [kg]
+        self.gas_total_mass: float | None = None  # [kg]
+        self.gas_cost: float | None = None  # [euros]
+        self.gas_total_cost: float | None = None  # [euros]
+        self.n_gas: float | None = None  # [-]
 
     class Drogue(Subsystem):
         def __init__(self, name: str):
@@ -189,11 +182,11 @@ class Recovery(Subsystem):
             Subsystem.__init__(self, f"{name} Drogue")  # General parameters
 
             # Specific parameters
-            self.area: float = 0  # [m^2]
-            self.c_D: float = 0
-            self.descent_rate: float = 0  # [m/s]
-            self.line_l_d: float = 0 # [-] Suspension line length over nominal diameter ratio
-            self.n_line: float = 0 # [-] Number of suspension lines
+            self.area: float | None = None  # [m^2]
+            self.c_D: float | None = None
+            self.descent_rate: float | None = None  # [m/s]
+            self.line_l_d: float | None = None  # [-] Suspension line length over nominal diameter ratio
+            self.n_line: float | None = None  # [-] Number of suspension lines
 
     class MainParachute(Subsystem):
         def __init__(self, name: str):
@@ -203,11 +196,11 @@ class Recovery(Subsystem):
             Subsystem.__init__(self, f"{name} Drogue")  # General parameters
 
             # Specific parameters
-            self.area: float = 0  # [m^2]
-            self.c_D: float = 0
-            self.descent_rate: float = 0  # [m/s]
-            self.line_l_d: float = 0  # [-] Suspension line length over nominal diameter ratio
-            self.n_line: float = 0  # [-] Number of suspension lines
+            self.area: float | None = None  # [m^2]
+            self.c_D: float | None = None
+            self.descent_rate: float | None = None  # [m/s]
+            self.line_l_d: float | None = None  # [-] Suspension line length over nominal diameter ratio
+            self.n_line: float | None = None  # [-] Number of suspension lines
 
 
 class Nosecone(Subsystem):
@@ -216,6 +209,8 @@ class Nosecone(Subsystem):
 
         self.base_radius: float | None = None
         self.axial_distance: float | None = None
+        self.thickness: float | None = None
+        self.density: float | None = None
 
 
 class Fins(Subsystem):
@@ -229,6 +224,7 @@ class Fins(Subsystem):
         self.span: float | None = None
         self.sweep: float | None = None
         self.thickness: float | None = None
+        self.density: float | None = None
 
         self.shear_modulus: float | None = None
         self.flutter_margin: float | None = None
@@ -237,6 +233,9 @@ class Fins(Subsystem):
 class Shoulder(Subsystem):
     def __init__(self, name):
         Subsystem.__init__(self, name)  # General parameters
+
+        self.thickness: float | None = None
+        self.density: float | None = None
 
 
 class Structure(Subsystem):
@@ -248,9 +247,9 @@ class Electronics(Subsystem):  # should be 3 objects one for the 1st stage elect
     def __init__(self, name: str):
         Subsystem.__init__(self, f"{name}Electronics")
         # General parameters
-        self.time: float
-        self.power_sensors: float
-        self.datarate: int
+        self.time: float | None = None
+        self.power_sensors: float | None = None
+        self.datarate: float | None = None
 
         self.powersystem = self.Power(name)
         self.communicationsystem = self.Communication(name)
@@ -260,43 +259,43 @@ class Electronics(Subsystem):  # should be 3 objects one for the 1st stage elect
         def __init__(self, name: str):
             Subsystem.__init__(self, f"{name} Power")
 
-            self.avg_voltage: float 
-            self.dod: float
+            self.avg_voltage: float | None = None
+            self.dod: float | None = None
             self.power_density: float = 140  # Wh/kg
             self.power_volume: float = 250000  # Wh/m^3
-            self.margin: float
+            self.margin: float | None = None
 
             # Final outputs
-            self.tot_power: float
-            self.mass_bat: float
-            self.volume_bat: float
-            self.bat_size: float
+            self.tot_power: float | None = None
+            self.mass_bat: float | None = None
+            self.volume_bat: float | None = None
+            self.bat_size: float | None = None
     
     class Communication(Subsystem):
         def __init__(self, name: str):
             Subsystem.__init__(self, f"{name} Communication")
-            self.frequency: float
-            self.power_com: float
-            self.gain_tx: float
-            self.diameter_antenna_gs: float 
-            self.antenna_snr: float
-            self.antenna_efficiency_gs: float
-            self.margin: float
-            self.max_range: int
-            self.modulation: str
-            self.max_speed: float
+            self.frequency: float | None = None
+            self.power_com: float | None = None
+            self.gain_tx: float | None = None
+            self.diameter_antenna_gs: float | None = None
+            self.antenna_snr: float | None = None
+            self.antenna_efficiency_gs: float | None = None
+            self.margin: float | None = None
+            self.max_range: float | None = None
+            self.modulation: float | None = None
+            self.max_speed: float | None = None
 
             # Final outputs
-            self.bandwidth: float
-            self.SNR: float
-            self.capacity: float
+            self.bandwidth: float | None = None
+            self.SNR: float | None = None
+            self.capacity: float | None = None
 
     class Blackbox(Subsystem):
         def __init__(self, name: str):
             Subsystem.__init__(self, f"{name} Blackbox")
 
-            self.margin: float
-            self.storage: float
+            self.margin: float | None = None
+            self.storage: float | None = None
 
 
 class Payload(Subsystem):
@@ -305,8 +304,8 @@ class Payload(Subsystem):
 
         self.power_system = self.Power(name)
         self.sensor_mass: int | None = None
-        self.time: int
-        self.power_sensors: float
+        self.time: float | None = None
+        self.power_sensors: float | None = None
 
         self.powersystem = self.Power(name)
         self.blackbox = self.Blackbox(name)
@@ -314,24 +313,24 @@ class Payload(Subsystem):
     class Power(Subsystem):
         def __init__(self, name: str):
             Subsystem.__init__(self, f"{name} Power")
-            self.avg_voltage: float
-            self.dod: float
+            self.avg_voltage: float | None = None
+            self.dod: float | None = None
             self.power_density: float = 140  # Wh/kg
             self.power_volume: float = 250000  # Wh/m^3
-            self.margin: float
+            self.margin: float | None = None
 
             # Final outputs
-            self.tot_power: float
-            self.mass_bat: float
-            self.volume_bat: float
-            self.bat_size: float
+            self.tot_power: float | None = None
+            self.mass_bat: float | None = None
+            self.volume_bat: float | None = None
+            self.bat_size: float | None = None
 
     class Blackbox(Subsystem):
         def __init__(self, name: str):
             Subsystem.__init__(self, f"{name} Blackbox")
             
-            self.margin: float
-            self.storage: float
+            self.margin: float | None = None
+            self.storage: float | None = None
 
 
 class Rocket:
@@ -375,7 +374,8 @@ class Rocket:
 
         # List of attributes in the Subsystem parent class
         # Exclude variables that should not be summed
-        self.excluded_variables: list = ["id", "name", "max_cg_location", "min_cg_location", "cp_location"]
+        self.excluded_variables: list = ["id", "name", "max_cg_location", "min_cg_location", "cp_location",
+                                         "length", "diameter", "stability_margin"]
 
         sample_subsystem: Subsystem = Subsystem("Sample")
         self.compare_list: list = []
@@ -431,14 +431,14 @@ class Rocket:
                     self[stage_key][key] = 0
 
                 # Summ all shared Subsystem parameters into Stage parameters
-                for subsystem_key, subsystem_value in self[stage_key].__dict__.items():
+                for subsystem_key, subsystem_value in stage_value.__dict__.items():
                     if isinstance(subsystem_value, Subsystem):
                         for variable_key, variable_value in subsystem_value.__dict__.items():
                             if variable_key == "dry_mass" and subsystem_key != "engine":
                                 self[stage_key][variable_key] = self[stage_key].mass
                             if variable_key in self.compare_list:
                                 if variable_value is None:
-                                    pass  # Do not add anything
+                                    print(f"\t\tWarning! '{stage_key}.{subsystem_key}.{variable_key}' is None")
                                 elif variable_value < 0:
                                     print(f"\t\tWarning! '{stage_key}.{subsystem_key}.{variable_key}' smaller than zero: {variable_value}")
                                 else:
@@ -448,6 +448,25 @@ class Rocket:
                 for variable_key, variable_value in self[stage_key].__dict__.items():
                     if variable_key in self.compare_list:
                         self[variable_key] += variable_value
+
+    def export_all_values(self):
+        parameters: dict = {"iteration": str(self.id)}
+        for stage_key, stage_value in self.__dict__.items():
+            if "stage" in stage_key:
+                for subsystem_key, subsystem_value in stage_value.__dict__.items():
+                    if isinstance(subsystem_value, Subsystem):
+                        for key, value in subsystem_value.__dict__.items():
+                            if isinstance(value, Subsystem):
+                                for sub_key, sub_value in value.__dict__.items():
+                                    parameters[f"{stage_key}.{subsystem_key}.{key}.{sub_key}"] = sub_value
+                            else:
+                                parameters[f"{stage_key}.{subsystem_key}.{key}"] = value
+                    else:
+                        parameters[f"{stage_key}.{subsystem_key}"] = subsystem_value
+            else:
+                parameters[stage_key] = stage_value
+
+        return parameters
 
 
 if __name__ == "__main__":
