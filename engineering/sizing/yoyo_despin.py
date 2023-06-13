@@ -3,6 +3,7 @@ import numpy as np
 # NASA TN D-708
 
 def size_yoyo_mass(rocket, wraps = 2)
+    # assume that targeted rotation rate is 0.
     vehicle_inertia = rocket.stage2.mmoi # not yet implemented
     l = np.pi()*rocket.stage2.diameter
     stringweight = 2 * 980 * l * np.pi() * 1E-3**2 #density of dyneema is 980kg/m^3, multiply this by line volume
