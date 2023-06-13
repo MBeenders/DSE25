@@ -1,4 +1,5 @@
 import numpy as np
+# Deprecated!! Use Stability.py instead!!
 
 # NOSECONE - 5:1 Haack (optimised for length and diameter, where c = 0; also optimised for wave and skin friction drag)
 
