@@ -4,8 +4,9 @@ import numpy as np
 def calculate_cg_locations(rocket):
     def body(length_before, stage):
         # Recovery
-        stage.recovery.min_cg_location = length_before + 0.5 * stage.recovery.length
-        stage.recovery.max_cg_location = length_before + 0.5 * stage.recovery.length
+        recovery_cg = length_before + 0.5 * stage.recovery.length
+        stage.recovery.min_cg_location = recovery_cg
+        stage.recovery.max_cg_location = recovery_cg
         length_before += stage.recovery.length
 
         # Engine
@@ -20,7 +21,9 @@ def calculate_cg_locations(rocket):
 
         # Fins
         # Todo: Check relationship for center of mass of fins
-        stage.fins.cp_location = length_before - 0.5 * stage.fins.chord_root
+        fins_cg = length_before - 0.5 * stage.fins.chord_root
+        stage.fins.min_cg_location = fins_cg
+        stage.fins.max_cg_location = fins_cg
 
         return length_before
 
@@ -72,7 +75,6 @@ def calculate_total_cg(rocket):
 
     # Total
     rocket.min_cg_location = (min_cg1 * mass1 + min_cg2 * mass2) / rocket.mass
-    print(rocket.min_cg_location)
     rocket.max_cg_location = (max_cg1 * mass1 + max_cg2 * mass2) / rocket.mass
 
 

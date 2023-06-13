@@ -1,8 +1,9 @@
 import numpy as np
+from colorama import Fore
 
 
 class Stage:
-    def __init__(self, name: str):
+    def __init__(self, name: str, payload, shoulder, nosecone):
         self.id: str = "0.0"
         self.name: str = name
 
@@ -30,10 +31,14 @@ class Stage:
         self.engine: Subsystem | None = None
         self.recovery: Subsystem | None = None
         self.electronics: Subsystem | None = None
-        self.payload: Subsystem | None = None
-        self.nosecone: Subsystem | None = None
         self.fins: Subsystem | None = None
-        self.shoulder: Subsystem | None = None
+
+        if payload:
+            self.payload: Subsystem | None = None
+        if nosecone:
+            self.nosecone: Subsystem | None = None
+        if shoulder:
+            self.shoulder: Subsystem | None = None
 
     def __setitem__(self, key, item):
         self.__dict__[key] = item
@@ -73,7 +78,7 @@ class Subsystem:
 
 
 class Engine(Subsystem):
-    def __init__(self, name: str):
+    def __init__(self, name: str, tower):
         """
         :param name: Name of the subsystem
         """
@@ -127,8 +132,9 @@ class Engine(Subsystem):
         self.fuel: dict = {}
 
         # Launch Tower
-        self.launch_tower_length: float | None = None
-        self.launch_exit_velocity: float | None = None
+        if tower:
+            self.launch_tower_length: float | None = None
+            self.launch_exit_velocity: float | None = None
 
         # Sim stuff
         self.thrust_curve: np.array = np.zeros(10000, dtype=float)  # Engine thrust curve over time
@@ -154,14 +160,15 @@ class Engine(Subsystem):
 
 
 class Recovery(Subsystem):
-    def __init__(self, name: str):
+    def __init__(self, name: str, drogue):
         """
         :param name: Name of the subsystem
         """
         Subsystem.__init__(self, name)  # General parameters
 
         # Subsystems
-        self.drogue = self.Drogue(name)
+        if drogue:
+            self.drogue = self.Drogue(name)
         self.main_parachute = self.MainParachute(name)
 
         self.material_density: float | None = None  # [kg/m^2]
@@ -169,10 +176,12 @@ class Recovery(Subsystem):
         self.line_density: float | None = None  # [kg/m]
         self.line_cost: float | None = None  # [euros/m]
         self.m_gas: float | None = None  # [kg]
-        self.gas_total_mass: float | None = None  # [kg]
         self.gas_cost: float | None = None  # [euros]
-        self.gas_total_cost: float | None = None  # [euros]
         self.n_gas: float | None = None  # [-]
+
+        # Final outputs
+        self.gas_total_mass: float | None = 0  # [kg]
+        self.gas_total_cost: float | None = 0  # [euros]
 
     class Drogue(Subsystem):
         def __init__(self, name: str):
@@ -182,11 +191,13 @@ class Recovery(Subsystem):
             Subsystem.__init__(self, f"{name} Drogue")  # General parameters
 
             # Specific parameters
-            self.area: float | None = None  # [m^2]
             self.c_D: float | None = None
             self.descent_rate: float | None = None  # [m/s]
             self.line_l_d: float | None = None  # [-] Suspension line length over nominal diameter ratio
             self.n_line: float | None = None  # [-] Number of suspension lines
+
+            # Final output
+            self.area: float | None = 0  # [m^2]
 
     class MainParachute(Subsystem):
         def __init__(self, name: str):
@@ -196,11 +207,13 @@ class Recovery(Subsystem):
             Subsystem.__init__(self, f"{name} Drogue")  # General parameters
 
             # Specific parameters
-            self.area: float | None = None  # [m^2]
             self.c_D: float | None = None
             self.descent_rate: float | None = None  # [m/s]
             self.line_l_d: float | None = None  # [-] Suspension line length over nominal diameter ratio
             self.n_line: float | None = None  # [-] Number of suspension lines
+
+            # Final output
+            self.area: float | None = 0  # [m^2]
 
 
 class Nosecone(Subsystem):
@@ -243,7 +256,8 @@ class Structure(Subsystem):
         Subsystem.__init__(self, "Structure")  # General parameters
 
 
-class Electronics(Subsystem):  # should be 3 objects one for the 1st stage electronics, one for the 2nd stage electronics, and one for the payload (though payload should not have a separate communication system)
+# Should be 3 objects one for the 1st stage electronics, one for the 2nd stage electronics, and one for the payload (though payload should not have a separate communication system)
+class Electronics(Subsystem):
     def __init__(self, name: str):
         Subsystem.__init__(self, f"{name}Electronics")
         # General parameters
@@ -266,10 +280,10 @@ class Electronics(Subsystem):  # should be 3 objects one for the 1st stage elect
             self.margin: float | None = None
 
             # Final outputs
-            self.tot_power: float | None = None
-            self.mass_bat: float | None = None
-            self.volume_bat: float | None = None
-            self.bat_size: float | None = None
+            self.tot_power: float | None = 0
+            self.mass_bat: float | None = 0
+            self.volume_bat: float | None = 0
+            self.bat_size: float | None = 0
     
     class Communication(Subsystem):
         def __init__(self, name: str):
@@ -286,16 +300,18 @@ class Electronics(Subsystem):  # should be 3 objects one for the 1st stage elect
             self.max_speed: float | None = None
 
             # Final outputs
-            self.bandwidth: float | None = None
-            self.SNR: float | None = None
-            self.capacity: float | None = None
+            self.bandwidth: float | None = 0
+            self.SNR: float | None = 0
+            self.capacity: float | None = 0
 
     class Blackbox(Subsystem):
         def __init__(self, name: str):
             Subsystem.__init__(self, f"{name} Blackbox")
 
             self.margin: float | None = None
-            self.storage: float | None = None
+
+            # Final output
+            self.storage: float | None = 0
 
 
 class Payload(Subsystem):
@@ -320,17 +336,19 @@ class Payload(Subsystem):
             self.margin: float | None = None
 
             # Final outputs
-            self.tot_power: float | None = None
-            self.mass_bat: float | None = None
-            self.volume_bat: float | None = None
-            self.bat_size: float | None = None
+            self.tot_power: float | None = 0
+            self.mass_bat: float | None = 0
+            self.volume_bat: float | None = 0
+            self.bat_size: float | None = 0
 
     class Blackbox(Subsystem):
         def __init__(self, name: str):
             Subsystem.__init__(self, f"{name} Blackbox")
             
             self.margin: float | None = None
-            self.storage: float | None = None
+
+            # Final output
+            self.storage: float | None = 0
 
 
 class Rocket:
@@ -354,10 +372,6 @@ class Rocket:
         self.cp_location: float | None = None  # [m]
 
         self.stability_margin: float | None = None  # [-]
-
-        # Power
-        self.power_in: float | None = None  # [W]
-        self.power_out: float | None = None  # [W]
 
         # Cost
         self.cost: float | None = None  # [euros]
@@ -394,11 +408,11 @@ class Rocket:
             """
             :param name: Name of the stage
             """
-            super().__init__(name)  # General parameters
+            super().__init__(name, False, True, False)  # General parameters
 
             # Specific
-            self.engine: Subsystem = Engine("First stage Engine")
-            self.recovery: Subsystem = Recovery("First stage parachutes")
+            self.engine: Subsystem = Engine("First stage Engine", True)
+            self.recovery: Subsystem = Recovery("First stage parachutes", False)
             self.fins: Subsystem = Fins("First stage Fins")
             self.electronics: Subsystem = Electronics("First stage electronics")
             self.shoulder: Subsystem = Shoulder("Shoulder")
@@ -408,17 +422,17 @@ class Rocket:
             """
             :param name: Name of the stage
             """
-            super().__init__(name)  # General parameters
+            super().__init__(name, True, False, True)  # General parameters
 
             # Specific
-            self.engine: Subsystem = Engine("Second stage Engine")
-            self.recovery: Subsystem = Recovery("Second stage Parachutes")
+            self.engine: Subsystem = Engine("Second stage Engine", False)
+            self.recovery: Subsystem = Recovery("Second stage Parachutes", True)
             self.fins: Subsystem = Fins("Second stage Fins")
             self.electronics: Subsystem = Electronics("Second stage electronics")
             self.nosecone: Subsystem = Nosecone("Nosecone")
             self.payload: Subsystem = Payload("Scientific Payload")
 
-    def update(self):
+    def update(self, print_warnings=True):
         # Start with all Rocket parameters at zero
         for key in self.compare_list:
             self[key] = 0
@@ -434,13 +448,15 @@ class Rocket:
                 for subsystem_key, subsystem_value in stage_value.__dict__.items():
                     if isinstance(subsystem_value, Subsystem):
                         for variable_key, variable_value in subsystem_value.__dict__.items():
-                            if variable_key == "dry_mass" and subsystem_key != "engine":
+                            if variable_key == "dry_mass" and subsystem_key != "engine":  # Dry mass is the same as actual mass for everything except the engine
                                 self[stage_key][variable_key] = self[stage_key].mass
                             if variable_key in self.compare_list:
                                 if variable_value is None:
-                                    print(f"\t\tWarning! '{stage_key}.{subsystem_key}.{variable_key}' is None")
+                                    if print_warnings:
+                                        print(Fore.YELLOW + f"\t\tWarning! '{stage_key}.{subsystem_key}.{variable_key}' is None")
                                 elif variable_value < 0:
-                                    print(f"\t\tWarning! '{stage_key}.{subsystem_key}.{variable_key}' smaller than zero: {variable_value}")
+                                    if print_warnings:
+                                        print(Fore.YELLOW + f"\t\tWarning! '{stage_key}.{subsystem_key}.{variable_key}' smaller than zero: {variable_value}")
                                 else:
                                     self[stage_key][variable_key] += variable_value  # Add all the Subsystems
 

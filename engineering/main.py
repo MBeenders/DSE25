@@ -95,6 +95,11 @@ class Runner:
         # Check Rocket for missing parameters
         self.check_rocket_class()
 
+        # Make sure all Subsystem parameters are summed into the Stages and main Rocket
+        if print_sub:
+            print("\tSumming Rocket Parameters")
+        self.rocket.update(print_warnings=False)
+
         for i in range(runs):
             self.iteration_id = i + 1
             self.rocket.id = f"{self.run_id}.{self.iteration_id}"
@@ -102,11 +107,6 @@ class Runner:
 
             if print_iteration:
                 print(f"Iteration {i + 1}/{runs}")
-
-            # Make sure all Subsystem parameters are summed into the Stages and main Rocket
-            if print_sub:
-                print("\tSumming Rocket Parameters")
-            self.rocket.update()
 
             # Simulation
             if print_sub:
@@ -117,7 +117,7 @@ class Runner:
             self.rocket.simulator.run()
             # self.rocket.simulator.plot_trajectory()
             if print_sub:
-                print(f"\t\tInitial apogee: {self.rocket.simulator.apogee} m")
+                print(f"\t\tInitial apogee: {round(self.rocket.simulator.apogee, 3)} m")
 
             # Sizing
             self.run_sizing(print_sub)
@@ -130,7 +130,7 @@ class Runner:
             # Save iteration
             if save:
                 if print_sub:
-                    print("\tSaving Iteration")
+                    print(Fore.RESET + "\tSaving Iteration")
                 if testing:
                     fm.export_rocket_iteration(f"run_1/{str(self.iteration_id).zfill(4)}_rocket", self.new_rocket)
                 else:
@@ -193,8 +193,6 @@ class Runner:
 
             for key, value in new_rocket.items():
                 if not key == "simulator":
-                    if "mass" in key:
-                        print(key, new_rocket[key], old_rocket[key])
                     if type(value) == list or type(value) == np.array or type(value) == np.ndarray:
                         if not np.array_equal(new_rocket[key], old_rocket[key]):
                             if key not in changes:
@@ -261,36 +259,36 @@ class Runner:
     def check_rocket_class(self, new: bool = False, general_print: bool = False):
         print("Checking Rocket Class")
 
-        def check_level(obj):
+        def check_level(obj, name):
             attributes = vars(obj)
-            for attribute in attributes:
-                if attribute != "simulator":
-                    # if attribute in self.rocket.compare_list or attribute in self.rocket.excluded_variables:
-                    #     if obj.__dict__[attribute] is None:
-                    #         obj.__dict__[attribute] = 0
-                    #         if general_print:
-                    #             print(Fore.YELLOW + f"\t\tAttribute '{attribute}' not defined! Changed it to '0'")
+            for key, attribute in attributes.items():
+                if key != "simulator":
+                    if key in self.rocket.compare_list or key in self.rocket.excluded_variables:
+                        if attribute is None:
+                            if general_print:
+                                print(Fore.YELLOW + f"\t\tAttribute '{name}.{key}' not defined!")
 
-                    try:
-                        attr_type = type(obj.__dict__[attribute])
-                        if attr_type is float or attr_type is int or attr_type is str or attr_type is dict or\
-                                attr_type is list or attr_type is np.array or attr_type is np.ndarray or attr_type is np.float64:
-                            if obj.__dict__[attribute] is None:
-                                print(Fore.YELLOW + f"\t\tAttribute '{attribute}' not defined! Please define an initial condition")
-                                self.warnings += 1
-                        else:
-                            if obj.__dict__[attribute] is None:
-                                print(Fore.YELLOW + f"\t\tAttribute '{attribute}' not defined! Please define an initial condition")
-                                self.warnings += 1
+                    else:
+                        try:
+                            attr_type = type(attribute)
+                            if attr_type is float or attr_type is int or attr_type is str or attr_type is dict or\
+                                    attr_type is list or attr_type is np.array or attr_type is np.ndarray or attr_type is np.float64:
+                                if attribute is None:
+                                    print(Fore.YELLOW + f"\t\tAttribute '{name}.{key}' not defined! Please define an initial condition")
+                                    self.warnings += 1
                             else:
-                                check_level(obj.__dict__[attribute])
-                    except KeyError:
-                        print(Fore.YELLOW + f"\t\tAttribute '{attribute}' not found in rocket class")
+                                if attribute is None:
+                                    print(Fore.YELLOW + f"\t\tAttribute '{name}.{key}' not defined! Please define an initial condition")
+                                    self.warnings += 1
+                                else:
+                                    check_level(attribute, f"{name}.{key}")
+                        except KeyError:
+                            print(Fore.YELLOW + f"\t\tAttribute '{name}.{key}' not found in rocket class")
 
         if new:
-            check_level(self.new_rocket)
+            check_level(self.new_rocket, "NewRocket")
         else:
-            check_level(self.rocket)
+            check_level(self.rocket, "OldRocket")
         print(Fore.RESET + f"Rocket class checked; {self.warnings} warnings")
 
     def check_compliance(self, show_within_limit=False):
