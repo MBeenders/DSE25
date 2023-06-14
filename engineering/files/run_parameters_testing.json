@@ -1,0 +1,57 @@
+{
+  "mission_profile":
+  {
+    "stages": 2,
+    "launch": {"exact": 0},
+    "engine1_ignition": {"exact": 0},
+    "engine2_ignition": {"delay": 1},
+    "separation": {"delay": 1}
+  },
+  "simulator_parameters":
+  {
+    "maximum_iterations": 10E5,
+    "dt": 0.01
+  },
+  "plot_selection":
+  {
+    "rocket.mass": "[kg]",
+    "rocket.length": "[m]",
+    "rocket.stage1.engine.mass": "[kg]",
+    "rocket.stage2.engine.mass": "[kg]",
+    "rocket.stage1.fins.mass": "[kg]",
+    "rocket.simulator.max_velocity_tot": "[m/s]"
+  },
+  "sizing_selection": ["recovery", "electronics", "engine", "stability"],
+  "engine_chemicals":
+  {
+    "stage1":
+    {
+      "oxidizer": "example_chemical",
+      "fuel": "example_chemical"
+    },
+    "stage2":
+    {
+      "oxidizer": "example_chemical",
+      "fuel": "example_chemical"
+    }
+  },
+  "export_catia": true,
+  "catia_variables":
+  {
+    "stage1":
+    {
+      "engine":
+      {
+        "length": "[m]",
+        "diameter": "[m]"
+      },
+      "recovery":
+      {
+        "drogue":
+        {
+          "area": "[m^2]"
+        }
+      }
+    }
+  }
+}

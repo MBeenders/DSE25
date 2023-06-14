@@ -176,10 +176,10 @@ def isa(height: float) -> tuple[float, float, float]:
 def skin_friction_drag(rocket, stage1: bool, stage2: bool, velocity: float, dynamic_pressure: float, mach_number: float) -> float:
     surface_roughness: float = 0.5
     critical_reynolds: float = 500E3
-    transition_position: float = (15E-5 * critical_reynolds) / velocity
+    transition_position: float = (1.5E-5 * critical_reynolds) / velocity
 
     # Skin friction coefficient derived by Barrowman for fully turbulent flow, assuming a smooth surface
-    c_friction: float = 0.032 * (surface_roughness / transition_position) ** 2
+    c_friction: float = 0.032 * (surface_roughness / transition_position) ** 0.2
 
     # Check regime
     if mach_number < 1:
@@ -295,36 +295,38 @@ def base_drag(rocket, dynamic_pressure: float, mach_number: float) -> float:
 
 
 def drag(rocket, velocity: float, temperature: float, density: float, stage: int) -> float:
-    # Taking into account compressibility and geometry effects
-    speed_of_sound = np.sqrt(1.4 * 287 * temperature)  # [m/s]
-    mach_number = velocity / speed_of_sound  # [-]
-    dynamic_pressure = 0.5 * density * velocity ** 2  # [Pa]
+    if velocity > 0:
+        # Taking into account compressibility and geometry effects
+        speed_of_sound = np.sqrt(1.4 * 287 * temperature)  # [m/s]
+        mach_number = velocity / speed_of_sound  # [-]
+        dynamic_pressure = 0.5 * density * velocity ** 2  # [Pa]
 
-    # Calculate drag forces
-    drag_nosecone, drag_coefficient_nose = nosecone_pressure_drag(rocket, dynamic_pressure)
-    drag_base = base_drag(rocket, dynamic_pressure, mach_number)
+        # Calculate drag forces
+        drag_nosecone, drag_coefficient_nose = nosecone_pressure_drag(rocket, dynamic_pressure)
+        drag_base = base_drag(rocket, dynamic_pressure, mach_number)
 
-    if stage == 0:  # Total Stage
-        drag_shoulder = shoulder_pressure_drag(rocket, drag_coefficient_nose, dynamic_pressure, mach_number)
-        drag_friction = skin_friction_drag(rocket, True, True, velocity, dynamic_pressure, mach_number)
-        drag_fin1, drag_fin2 = fin_pressure_drag(rocket, True, True, dynamic_pressure, mach_number)
-        drag_force = drag_friction + drag_nosecone + drag_shoulder + drag_fin1 + drag_fin2 + drag_base
-        # print(f"Shoulder {drag_shoulder}\nNosecone {drag_nosecone}\nBase {drag_base}\nFriction {drag_friction}\nFin1 {drag_fin1}\nFin2 {drag_fin2}\nTotal {drag_force}")
-    elif stage == 1:  # Stage 1
-        drag_shoulder = shoulder_pressure_drag(rocket, drag_coefficient_nose, dynamic_pressure, mach_number)
-        drag_friction = skin_friction_drag(rocket, True, False, velocity, dynamic_pressure, mach_number)
-        drag_fin1, drag_fin2 = fin_pressure_drag(rocket, True, False, dynamic_pressure, mach_number)
-        drag_force = drag_friction + drag_shoulder + drag_fin1 + drag_base
-        # print(f"Shoulder {drag_shoulder}\nNosecone {drag_nosecone}\nBase {drag_base}\nFriction {drag_friction}\nFin1 {drag_fin1}\nFin2 {drag_fin2}\nTotal {drag_force}")
-    else:  # Stage 2
-        drag_friction = skin_friction_drag(rocket, False, True, velocity, dynamic_pressure, mach_number)
-        drag_fin1, drag_fin2 = fin_pressure_drag(rocket, False, True, dynamic_pressure, mach_number)
-        drag_force = drag_friction + drag_nosecone + drag_fin2 + drag_base
-        # print(f"\nNosecone {drag_nosecone}\nBase {drag_base}\nFriction {drag_friction}\nFin1 {drag_fin1}\nFin2 {drag_fin2}\nTotal {drag_force}")
+        if stage == 0:  # Total Stage
+            drag_shoulder = shoulder_pressure_drag(rocket, drag_coefficient_nose, dynamic_pressure, mach_number)
+            drag_friction = skin_friction_drag(rocket, True, True, velocity, dynamic_pressure, mach_number)
+            drag_fin1, drag_fin2 = fin_pressure_drag(rocket, True, True, dynamic_pressure, mach_number)
+            drag_force = drag_friction + drag_nosecone + drag_shoulder + drag_fin1 + drag_fin2 + drag_base
+            # print(f"Shoulder {drag_shoulder}\nNosecone {drag_nosecone}\nBase {drag_base}\nFriction {drag_friction}\nFin1 {drag_fin1}\nFin2 {drag_fin2}\nTotal {drag_force}")
+        elif stage == 1:  # Stage 1
+            drag_shoulder = shoulder_pressure_drag(rocket, drag_coefficient_nose, dynamic_pressure, mach_number)
+            drag_friction = skin_friction_drag(rocket, True, False, velocity, dynamic_pressure, mach_number)
+            drag_fin1, drag_fin2 = fin_pressure_drag(rocket, True, False, dynamic_pressure, mach_number)
+            drag_force = drag_friction + drag_shoulder + drag_fin1 + drag_base
+            # print(f"Shoulder {drag_shoulder}\nNosecone {drag_nosecone}\nBase {drag_base}\nFriction {drag_friction}\nFin1 {drag_fin1}\nFin2 {drag_fin2}\nTotal {drag_force}")
+        else:  # Stage 2
+            drag_friction = skin_friction_drag(rocket, False, True, velocity, dynamic_pressure, mach_number)
+            drag_fin1, drag_fin2 = fin_pressure_drag(rocket, False, True, dynamic_pressure, mach_number)
+            drag_force = drag_friction + drag_nosecone + drag_fin2 + drag_base
+            # print(f"\nNosecone {drag_nosecone}\nBase {drag_base}\nFriction {drag_friction}\nFin1 {drag_fin1}\nFin2 {drag_fin2}\nTotal {drag_force}")
 
-    # print(f"Total Simple {dynamic_pressure * np.pi * (rocket.diameter / 2) ** 2 * rocket.cd}")
-
-    # print("==")
+        # print(f"Total Simple {dynamic_pressure * np.pi * (rocket.diameter / 2) ** 2 * rocket.cd}")
+        # print("==")
+    else:
+        drag_force = 0
 
     return drag_force
 

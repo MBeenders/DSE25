@@ -260,11 +260,29 @@ def update_masses(rocket):
     rocket.stage1.fins.mass = rocket.stage1.fins.wetted_area * rocket.stage1.fins.thickness * rocket.stage1.fins.density
 
 
+def initialize(rocket):
+    # Calculate CG
+    calculate_cg_locations(rocket)
+    calculate_total_cg(rocket)
+
+    # Calculate the wetted area of the rocket
+    calculate_wetted_area(rocket)
+
+    # Calculate CP and flow area of the rocket
+    calculate_cp_locations(rocket)
+    calculate_flow_area(rocket)
+    calculate_total_cp(rocket)
+
+    # Calculate masses
+    update_masses(rocket)
+
+
 def run(rocket):
     """
     :param rocket: Original Rocket class
     :return: Updated Rocket class
     """
+    # Calculate CG
     calculate_cg_locations(rocket)
     calculate_total_cg(rocket)
 

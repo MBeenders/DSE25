@@ -6,7 +6,7 @@ import numpy as np
 
 
 # computing the initial acceleration dictated by the launch tower length and exit velocity [m/s^2]
-def initial_acceleration(length, velocity):
+def initial_acceleration(length: float, velocity: float) -> float:
     launch_tower_acceleration = velocity ** 2 / (2 * length)
     return launch_tower_acceleration
 
@@ -220,7 +220,7 @@ def optimize(rocket, max_iterations, apogee_goal, accuracy):
             break
 
 
-def initialize_engines(rocket):
+def initialize(rocket):
     create_stage1_engine(rocket)
     create_stage2_engine(rocket)
     return rocket
