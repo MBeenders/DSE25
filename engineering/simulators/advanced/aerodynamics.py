@@ -221,7 +221,7 @@ def skin_friction_drag(rocket, stage1: bool, stage2: bool, velocity: float, dyna
 
 
 @njit()
-def nosecone_pressure_drag(rocket, dynamic_pressure: float, mach_number: float) -> (float, float):
+def nosecone_pressure_drag(rocket, dynamic_pressure: float, mach_number: float) -> tuple[float, float]:
     # 5:1 L-D Haack Nosecone
     if mach_number <= 1:
         reference_cd = 0
@@ -309,6 +309,7 @@ def drag(rocket, velocity: float, temperature: float, density: float, stage: int
         speed_of_sound = np.sqrt(1.4 * 287 * temperature)  # [m/s]
         mach_number = velocity / speed_of_sound  # [-]
         dynamic_pressure = 0.5 * density * velocity ** 2  # [Pa]
+
 
         # Calculate drag forces
         drag_nosecone, drag_coefficient_nose = nosecone_pressure_drag(rocket, dynamic_pressure, mach_number)

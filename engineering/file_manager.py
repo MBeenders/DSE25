@@ -99,7 +99,7 @@ def import_rocket_iteration(file_name: str) -> Rocket:
     :return Rocket class
     Imports a Rocket class from a previous iteration
     """
-    with open(f"{current_file_path}/files/{file_name}.pickle", 'rb') as file:
+    with open(os.path.join(current_file_path, f"files/{file_name}.pickle"), 'rb') as file:
         return pickle.load(file)
 
 
@@ -140,7 +140,12 @@ def export_to_csv(folder_name: str, file_name: str, rocket: Rocket, variables: d
         parameters = rocket.export_all_values()
 
     data = pd.DataFrame.from_dict(parameters, orient="index").transpose()
-    output_path = f"{current_file_path}/files/{folder_name}/{file_name}.csv"
+    output_dir = os.path.join(current_file_path, f"files/{folder_name}")
+    output_path = os.path.join(current_file_path, f"files/{folder_name}/{file_name}.csv")
+    
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    
     data.to_csv(output_path, mode='a', header=not os.path.exists(output_path), index=False)
 
 
@@ -154,7 +159,7 @@ def load_variable(run_number: int, variable: list):
         else:
             get_variable(rocket[variable[i]], i)
 
-    files = os.listdir(f"{current_file_path}/files/archive/run_{run_number}")
+    files = os.listdir(os.path.join(current_file_path, f"files/archive/run_{run_number}"))
     for file in files:
         iteration = import_rocket_iteration(f"archive/run_{run_number}/{file.split('.')[0]}")
         get_variable(iteration, -1)

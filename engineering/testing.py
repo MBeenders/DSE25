@@ -66,5 +66,28 @@ def test_fin_pressure_drag0():
     assert 2 < drag_fin2 < 2.1
 
 
+
+def test_nosecone_drag():
+
+    rocket = FlightData(int(10E6))
+
+    rocket.diameter2 = 0.2
+    rocket.joint_angle = 0.0
+     
+    q = 0.5 * 1.225 * 100 ** 2 # 100 m/s at sea level
+    mach = 100 / 343
+    drag, cd = aerodynamics.nosecone_pressure_drag(rocket, q, mach)
+    assert drag < 0.1 # Should be zero at subsonic
+    assert cd == 0
+
+    # Try at above mach, CD around 0.08
+    q = 0.5 * 1.225 * 500 ** 2
+    mach = 500 / 343
+    drag, cd = aerodynamics.nosecone_pressure_drag(rocket, q, mach)
+    assert drag > 0.1 # Should be zero at subsonic
+    print(cd)
+    assert 0.04 < cd < 0.08
+
+
 if __name__ == "__main__":
     pass
