@@ -175,7 +175,7 @@ def isa(height: float) -> tuple[float, float, float]:
 
 @njit()
 def skin_friction_drag(rocket, stage1: bool, stage2: bool, velocity: float, dynamic_pressure: float, mach_number: float) -> float:
-    surface_roughness: float = 50
+    surface_roughness: float = 50E-6
     critical_reynolds: float = 500E3
     transition_position: float = (1.5E-5 * critical_reynolds) / velocity
 
@@ -205,23 +205,22 @@ def skin_friction_drag(rocket, stage1: bool, stage2: bool, velocity: float, dyna
     if stage1 and stage2:
         drag_coefficient_friction = c_friction_c * (((1 + (1 / (2 * rocket.fineness_ratio))) * rocket.wetted_area_body)
                                                     + ((1 + (2 * rocket.fin_thickness1 / rocket.fin_mac1)) * rocket.wetted_area_fins1)
-                                                    + ((1 + (2 * rocket.fin_thickness2 / rocket.fin_mac2)) * rocket.wetted_area_fins2)) / rocket.wetted_area
+                                                    + ((1 + (2 * rocket.fin_thickness2 / rocket.fin_mac2)) * rocket.wetted_area_fins2)) / rocket.reference_area
     elif stage1:
         drag_coefficient_friction = c_friction_c * (((1 + (1 / (2 * rocket.fineness_ratio))) * rocket.wetted_area_body)
-                                                    + ((1 + (2 * rocket.fin_thickness1 / rocket.fin_mac1)) * rocket.wetted_area_fins1)) / rocket.wetted_area
+                                                    + ((1 + (2 * rocket.fin_thickness1 / rocket.fin_mac1)) * rocket.wetted_area_fins1)) / rocket.reference_area
     elif stage2:
         drag_coefficient_friction = c_friction_c * (((1 + (1 / (2 * rocket.fineness_ratio))) * rocket.wetted_area_body)
-                                                    + ((1 + (2 * rocket.fin_thickness2 / rocket.fin_mac2)) * rocket.wetted_area_fins2)) / rocket.wetted_area
+                                                    + ((1 + (2 * rocket.fin_thickness2 / rocket.fin_mac2)) * rocket.wetted_area_fins2)) / rocket.reference_area
     else:
         drag_coefficient_friction = 0
 
-    print(drag_coefficient_friction, rocket.wetted_area, dynamic_pressure)
-    drag_friction = drag_coefficient_friction * rocket.wetted_area * dynamic_pressure
+    drag_friction = drag_coefficient_friction * rocket.reference_area * dynamic_pressure
 
-    print("Friction: ", drag_coefficient_friction)
     return drag_friction
 
 
+@njit()
 def nosecone_pressure_drag(rocket, dynamic_pressure: float, mach_number: float) -> (float, float):
     # 5:1 L-D Haack Nosecone
     if mach_number <= 1:
@@ -245,6 +244,7 @@ def nosecone_pressure_drag(rocket, dynamic_pressure: float, mach_number: float) 
     return drag_nosecone, drag_coefficient_nosecone
 
 
+@njit()
 def shoulder_pressure_drag(rocket, drag_coefficient_nose: float, dynamic_pressure: float, mach_number: float) -> float:
     if mach_number <= 1:
         drag_coefficient_shoulder = drag_coefficient_nose
@@ -287,6 +287,7 @@ def fin_pressure_drag(rocket, stage1: bool, stage2: bool, dynamic_pressure: floa
     return drag_fin1, drag_fin2
 
 
+@njit()
 def base_drag(rocket, dynamic_pressure: float, mach_number: float) -> float:
     if mach_number <= 1:
         drag_coefficient = 0.12 + 0.13 * (mach_number ** 2)
@@ -301,13 +302,13 @@ def base_drag(rocket, dynamic_pressure: float, mach_number: float) -> float:
     return drag_base
 
 
+@njit()
 def drag(rocket, velocity: float, temperature: float, density: float, stage: int) -> float:
     if velocity > 0:
         # Taking into account compressibility and geometry effects
         speed_of_sound = np.sqrt(1.4 * 287 * temperature)  # [m/s]
         mach_number = velocity / speed_of_sound  # [-]
         dynamic_pressure = 0.5 * density * velocity ** 2  # [Pa]
-        print(f"q = 0.5 * {density} * {velocity}**2 = {dynamic_pressure}")
 
         # Calculate drag forces
         drag_nosecone, drag_coefficient_nose = nosecone_pressure_drag(rocket, dynamic_pressure, mach_number)
@@ -318,7 +319,7 @@ def drag(rocket, velocity: float, temperature: float, density: float, stage: int
             drag_friction = skin_friction_drag(rocket, True, True, velocity, dynamic_pressure, mach_number)
             drag_fin1, drag_fin2 = fin_pressure_drag(rocket, True, True, dynamic_pressure, mach_number)
             drag_force = drag_friction + drag_nosecone + drag_shoulder + drag_fin1 + drag_fin2 + drag_base
-            print(f"Shoulder {drag_shoulder}\nNosecone {drag_nosecone}\nBase {drag_base}\nFriction {drag_friction}\nFin1 {drag_fin1}\nFin2 {drag_fin2}\nTotal {drag_force}")
+            # print(f"Shoulder {drag_shoulder}\nNosecone {drag_nosecone}\nBase {drag_base}\nFriction {drag_friction}\nFin1 {drag_fin1}\nFin2 {drag_fin2}\nTotal {drag_force}")
         elif stage == 1:  # Stage 1
             drag_shoulder = shoulder_pressure_drag(rocket, drag_coefficient_nose, dynamic_pressure, mach_number)
             drag_friction = skin_friction_drag(rocket, True, False, velocity, dynamic_pressure, mach_number)
@@ -331,9 +332,6 @@ def drag(rocket, velocity: float, temperature: float, density: float, stage: int
             drag_force = drag_friction + drag_nosecone + drag_fin2 + drag_base
             # print(f"\nNosecone {drag_nosecone}\nBase {drag_base}\nFriction {drag_friction}\nFin1 {drag_fin1}\nFin2 {drag_fin2}\nTotal {drag_force}")
 
-        print(f"Total Advanced {drag_force}")
-        print(f"Total Simple {dynamic_pressure * np.pi * (rocket.diameter / 2) ** 2 * rocket.cd}")
-        print("==")
     else:
         drag_force = 0
 

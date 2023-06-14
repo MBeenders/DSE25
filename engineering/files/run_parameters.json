@@ -16,12 +16,14 @@
   {
     "rocket.mass": "[kg]",
     "rocket.length": "[m]",
+    "rocket.stage2.engine.length": "[m]",
     "rocket.stage1.engine.mass": "[kg]",
     "rocket.stage2.engine.mass": "[kg]",
     "rocket.stage1.fins.mass": "[kg]",
-    "rocket.simulator.max_velocity_tot": "[m/s]"
+    "rocket.simulator.max_velocity_tot": "[m/s]",
+    "rocket.simulator.apogee": "[m]"
   },
-  "sizing_selection": ["recovery", "electronics", "stability"],
+  "sizing_selection": ["recovery", "electronics", "engine"],
   "engine_chemicals":
   {
     "stage1":

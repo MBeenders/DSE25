@@ -120,7 +120,7 @@ class Runner:
             if print_sub:
                 print("\tRunning Simulation")
             self.rocket.simulator.run()
-            self.rocket.simulator.plot_trajectory()
+            #  self.rocket.simulator.plot_trajectory()
             if print_sub:
                 print(f"\t\tInitial apogee: {round(self.rocket.simulator.apogee, 3)} m")
 

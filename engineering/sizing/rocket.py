@@ -393,7 +393,7 @@ class Rocket:
         # List of attributes in the Subsystem parent class
         # Exclude variables that should not be summed
         self.excluded_variables: list = ["id", "name", "max_cg_location", "min_cg_location", "cp_location",
-                                         "length", "diameter", "stability_margin"]
+                                         "diameter", "stability_margin"]
 
         sample_subsystem: Subsystem = Subsystem("Sample")
         self.compare_list: list = []
@@ -453,6 +453,8 @@ class Rocket:
                     if isinstance(subsystem_value, Subsystem):
                         for variable_key, variable_value in subsystem_value.__dict__.items():
                             if variable_key in self.compare_list:
+                                if variable_key == "dry_mass" and subsystem_key != "engine":  # Dry mass is the same as actual mass for everything except the engine
+                                    self[stage_key][subsystem_key].dry_mass = self[stage_key][subsystem_key].mass
                                 if variable_value is None:
                                     if print_warnings:
                                         print(Fore.YELLOW + f"\t\tWarning! '{stage_key}.{subsystem_key}.{variable_key}' is None")
@@ -461,13 +463,6 @@ class Rocket:
                                         print(Fore.YELLOW + f"\t\tWarning! '{stage_key}.{subsystem_key}.{variable_key}' smaller than zero: {variable_value}")
                                 else:
                                     self[stage_key][variable_key] += variable_value  # Add all the Subsystems
-
-                for subsystem_key, subsystem_value in stage_value.__dict__.items():
-                    if isinstance(subsystem_value, Subsystem):
-                        for variable_key, variable_value in subsystem_value.__dict__.items():
-                            if variable_key in self.compare_list:
-                                if variable_key == "dry_mass" and subsystem_key != "engine":  # Dry mass is the same as actual mass for everything except the engine
-                                    self[stage_key][variable_key] = self[stage_key].mass
 
                 # Sum all shared Stage parameters into Rocket parameters
                 for variable_key, variable_value in self[stage_key].__dict__.items():

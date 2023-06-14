@@ -2,7 +2,7 @@ import numpy as np
 from numba import njit
 
 
-#@njit()
+@njit()
 def run(flight, stage: int, gravity, drag, isa, dt: float = 0.1, start_time: float = 0, end_time: float = 1000, coast: bool = False, delay: float = 0):
     mass_rocket: float = flight.mass[0]
     mass_fuel: float = flight.fuel_mass_curve[0]
@@ -24,7 +24,10 @@ def run(flight, stage: int, gravity, drag, isa, dt: float = 0.1, start_time: flo
                 force_thrust: float = 0
                 mass_fuel: float = 0
             else:
-                if (start_time + delay) <= time < (flight.burn_time + start_time + delay - dt):
+                if (start_time + delay) > time:
+                    mass_fuel: float = flight.fuel_mass_curve[0]
+                    force_thrust: float = 0
+                elif (start_time + delay) <= time < (flight.burn_time + start_time + delay - dt):
                     delay_i += 1
                     force_thrust = flight.thrust_curve[delay_i]
                     mass_fuel = flight.fuel_mass_curve[delay_i]
@@ -35,11 +38,8 @@ def run(flight, stage: int, gravity, drag, isa, dt: float = 0.1, start_time: flo
             # New mass
             mass_total: float = mass_rocket + mass_fuel
 
-            print(force_thrust, force_drag, force_gravity, mass_rocket)
-
             force_x = (force_thrust - force_drag) * np.sin(flight.angles[i][0])
             force_y = (force_thrust - force_drag) * np.cos(flight.angles[i][0]) - force_gravity
-            # print(force_drag, force_thrust, force_gravity)
 
             # Append forces to flight
             flight.force_drag[i] = force_drag

@@ -203,6 +203,7 @@ def stage2_iteration(rocket, apogee_goal):
     engine.thrust = engine.impulse / engine.burn_time
 
     create_stage2_engine(rocket)
+    rocket.update(print_warnings=False)
 
     # Simulate
     simulator.create_stages(rocket)
@@ -214,11 +215,9 @@ def stage2_iteration(rocket, apogee_goal):
 def optimize(rocket, max_iterations, apogee_goal, accuracy):
     create_stage1_engine(rocket)  # stage1 engine sizing
 
-    # ToDo: Thrust is calculate
-
     for i in range(max_iterations):
         difference = stage2_iteration(rocket, apogee_goal)
-        if difference < accuracy:
+        if abs(difference) < accuracy:
             break
 
 
