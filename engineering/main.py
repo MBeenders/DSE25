@@ -95,6 +95,7 @@ class Runner:
 
         # Run stability sizing before doing simulations
         initialize_stability(self.rocket)
+        initialize_stability(self.new_rocket)
 
         # Check Rocket for missing parameters
         self.check_rocket_class()

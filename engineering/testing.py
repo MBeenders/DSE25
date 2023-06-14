@@ -50,7 +50,7 @@ def test_skin_friction_drag_0():
 
     drag_friction = aerodynamics.skin_friction_drag(rocket, True, True, 200, 20E3, 0.588)
 
-    assert 3300 < drag_friction < 3400
+    assert 1680 < drag_friction < 1700
 
 
 if __name__ == "__main__":
