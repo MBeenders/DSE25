@@ -1,3 +1,5 @@
+# Deprecated!! Use Stability.py instead!!
+
 
 # Centre of pressure calculator
 # Assume that the C_P acts at the centre of planform area

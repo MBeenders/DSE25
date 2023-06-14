@@ -1,4 +1,6 @@
 import numpy as np
+# Deprecated!! Use Stability.py instead (The rest of the code moved to the simulation)!!
+
 
 def do_stuff(rocket):
     """
@@ -12,7 +14,7 @@ def do_stuff(rocket):
     # Maximum fin flutter must lie above the maximum rocket speed
 
     G = 26900000000  # shear modulus [Pa]
-    a = 220 # speed of sound [m/s]
+    a = 220  # speed of sound [m/s]
     t = 0.005  # wing thickness [m]
     c_rl = 0.4  # root chord length [m]
     c_tl = 0.1  # tip chord length [m]
@@ -50,7 +52,7 @@ def do_stuff(rocket):
     centroidlower = rocket.stage1.diameter/2 + ((c_rl +2*c_tl)/(3*(c_rl+c_tl))*bl)
     centroidupper = rocket.stage2.diameter/2 + ((c_ru +2*c_tu)/(3*(c_ru+c_tu))*bu)
 
-    #Lower stage
+    # Lower stage
     if t < t_separation:
         AOA_fin_lower = fincantlower - np.arctan(centroidlower*rotrate/v) # Effective angle of attack of the centroid of the fin
         mu = 1.458 * 10**(-6) * Temp_air**(1.5) / (Temp_air + 110.4) # Kinematic viscosity of the air
@@ -79,6 +81,16 @@ def do_stuff(rocket):
     rotrate += angacc * dt #Rate of rotation is updated
     rotratelist += [rotrate]
 
+
+def calculate_span(rocket):
+    # Calculate the CP location using the maximum CG location and an assumed SM
+    rocket.cp_location = rocket.simulator.max_cg_location2 + rocket.stage2.diameter * rocket.stage2.stability_margin
+
+
+    # sweep_leading_edge
+
+    sweep_leading_edge = np.deg2rad(rocket.sweep_leading_edge)
+    area_l = t * (semi_span / np.cos(sweep_leading_edge))
 
 def run(rocket):
     """

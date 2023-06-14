@@ -15,7 +15,7 @@ def import_chemical(chemical_name: str) -> dict:
     :param chemical_name: Name of the chemical
     :return: Dictionary with information about the chemical
     """
-    chemical_file = open(f"{current_file_path}/files/chemicals/{chemical_name}.json")
+    chemical_file = open(os.path.join(current_file_path, f"files/chemicals/{chemical_name}.json"))
     return json.load(chemical_file)
 
 
@@ -34,7 +34,7 @@ def import_csv(file_name: str) -> pd.DataFrame:
     :param file_name: Name of csv file, must be in "files" folder
     :return: Pandas dataframe of the file
     """
-    return pd.read_csv(f"{current_file_path}/files/{file_name}.csv")
+    return pd.read_csv(os.path.join(current_file_path, f"files/{file_name}.csv"))
 
 
 def insert_values(data: pd.DataFrame, rocket: Rocket):
@@ -103,20 +103,21 @@ def import_rocket_iteration(file_name: str) -> Rocket:
         return pickle.load(file)
 
 
-def export_rocket_iteration(file_name: str, rocket: Rocket, run_id: int):
+def export_rocket_iteration(file_name: str, rocket: Rocket):
     """
     :param file_name: Name under which the file will be exported
     :param rocket: The filled Rocket class
-    :param run_id: ID of the current run
     Saves the entire class in the archive as a pickle file.
     """
+
     rocket.simulator.delete_stages()
-    with open(f"{current_file_path}/files/archive/{file_name}_{run_id}.{rocket.id}.pickle", 'wb') as file:
+    with open(os.path.join(current_file_path, f"files/archive/{file_name}.pickle"), 'wb') as file:
         pickle.dump(rocket, file)
 
 
-def export_catia_parameters(file_name: str, rocket: Rocket, variables: dict):
+def export_to_csv(folder_name: str, file_name: str, rocket: Rocket, variables: dict):
     """
+    :param folder_name: Directory name of the file the csv will be saved in
     :param file_name: Name under which the file will be exported
     :param rocket: The filled Rocket class
     :param variables: A list of strings linked to the variables that will be exported to catia
@@ -132,12 +133,33 @@ def export_catia_parameters(file_name: str, rocket: Rocket, variables: dict):
         else:
             parameters[f"{total_name} {item}"] = subsystem
 
-    for name, value in variables.items():
-        get_info(name, value, rocket[name])
+    if variables:
+        for name, value in variables.items():
+            get_info(name, value, rocket[name])
+    else:
+        parameters = rocket.export_all_values()
 
     data = pd.DataFrame.from_dict(parameters, orient="index").transpose()
-    output_path = f"{current_file_path}/files/catia/{file_name}.csv"
+    output_path = f"{current_file_path}/files/{folder_name}/{file_name}.csv"
     data.to_csv(output_path, mode='a', header=not os.path.exists(output_path), index=False)
+
+
+def load_variable(run_number: int, variable: list):
+    data: list = []
+
+    def get_variable(rocket, i):
+        i += 1
+        if len(variable) == i + 1:
+            data.append(rocket[variable[i]])
+        else:
+            get_variable(rocket[variable[i]], i)
+
+    files = os.listdir(f"{current_file_path}/files/archive/run_{run_number}")
+    for file in files:
+        iteration = import_rocket_iteration(f"archive/run_{run_number}/{file.split('.')[0]}")
+        get_variable(iteration, -1)
+
+    return data
 
 
 if __name__ == "__main__":
