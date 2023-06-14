@@ -87,7 +87,7 @@ def calculate_wetted_area(rocket):
         stage.engine.wetted_area = stage.engine.length * stage.engine.diameter * np.pi
 
         # Fins
-        stage.fins.wetted_area = stage.fins.span * (stage.fins.chord_root + stage.fins.chord_tip)
+        stage.fins.wetted_area = 2 * stage.fins.amount * stage.fins.span * (stage.fins.chord_root + stage.fins.chord_tip)
 
     # Nosecone
     rocket.stage2.nosecone.length = 5 * rocket.stage2.nosecone.diameter
@@ -222,7 +222,7 @@ def calculate_fin_span(rocket):
     # Area needed to reach the CP value
     fin_flow_area = (needed_cp * rocket.flow_area - nosecone - shoulder - recovery1 - recovery2 - engine1 - engine2) / rocket.stage1.fins.cp_location
     # Span needed to reach the flow area value
-    rocket.stage1.fins.span = fin_flow_area / (0.5 * (rocket.stage1.fins.chord_root + rocket.stage1.fins.chord_tip) * rocket.stage1.fins.amount)
+    rocket.stage1.fins.span = fin_flow_area / (0.5 * (rocket.stage1.fins.chord_root + rocket.stage1.fins.chord_tip) * rocket.stage1.fins.amount * 2)
 
 
 def calculate_fin_thickness(rocket):
