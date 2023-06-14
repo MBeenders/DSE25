@@ -18,7 +18,7 @@ def run(flight, stage: int, gravity, drag, isa, dt: float = 0.1, start_time: flo
 
             # Calculate forces
             force_gravity = gravity(flight.locations[i][1], mass_total)
-            force_drag = drag(flight, flight.total_velocities[i][0], flight.density[i], flight.temperature[i], stage)
+            force_drag = drag(flight, flight.total_velocities[i][0], flight.temperature[i], flight.density[i], stage)
 
             if coast:
                 force_thrust: float = 0
@@ -34,6 +34,8 @@ def run(flight, stage: int, gravity, drag, isa, dt: float = 0.1, start_time: flo
 
             # New mass
             mass_total: float = mass_rocket + mass_fuel
+
+            print(force_thrust, force_drag, force_gravity, mass_rocket)
 
             force_x = (force_thrust - force_drag) * np.sin(flight.angles[i][0])
             force_y = (force_thrust - force_drag) * np.cos(flight.angles[i][0]) - force_gravity

@@ -173,8 +173,9 @@ def isa(height: float) -> tuple[float, float, float]:
 #     return force_drag
 
 
+@njit()
 def skin_friction_drag(rocket, stage1: bool, stage2: bool, velocity: float, dynamic_pressure: float, mach_number: float) -> float:
-    surface_roughness: float = 0.5
+    surface_roughness: float = 50
     critical_reynolds: float = 500E3
     transition_position: float = (1.5E-5 * critical_reynolds) / velocity
 
@@ -214,32 +215,34 @@ def skin_friction_drag(rocket, stage1: bool, stage2: bool, velocity: float, dyna
     else:
         drag_coefficient_friction = 0
 
+    print(drag_coefficient_friction, rocket.wetted_area, dynamic_pressure)
     drag_friction = drag_coefficient_friction * rocket.wetted_area * dynamic_pressure
 
+    print("Friction: ", drag_coefficient_friction)
     return drag_friction
 
 
-def nosecone_pressure_drag(rocket, dynamic_pressure: float) -> (float, float):
-    # 5:1 L-D Haack minimum drag noses
-    c: float = 0  # Optimisation coefficient [-]
-    axial_distance: float = 0.024  # Axial distance from the nose [m]
-    model_length: float = 5 * rocket.diameter2  # [m]
-    base_radius: float = 0.075  # Model base radius [m]
+def nosecone_pressure_drag(rocket, dynamic_pressure: float, mach_number: float) -> (float, float):
+    # 5:1 L-D Haack Nosecone
+    if mach_number <= 1:
+        reference_cd = 0
+        stagnation_factor = 1 + (mach_number**2 / 4) + (mach_number**4 / 40)
+    else:
+        reference_cd = 0.1
+        stagnation_factor = 1.84 - (0.76 / mach_number**2) + (0.166 / mach_number ** 4) + (0.035 / mach_number ** 6)
 
-    # Geometric parameters of the nosecone
-    phi = np.arccos(1 - 2 * (axial_distance / model_length))  # [rad]
-    r = (base_radius / np.sqrt(np.pi)) * np.sqrt(phi - 0.5 * np.sin(2 * phi) + c * np.sin(phi) ** 3)  # Model local radius [m]
+    # Blunt cylinder
+    blunt_cd = 0.85 * stagnation_factor
 
-    fineness_ratio_nose = 5  # Fineness ratio of nose
-    phi = np.deg2rad(rocket.joint_angle)  # Nose cone joint angle [rad] ===== MAKE VARIABLE FORM
-    drag_coefficient_nose = 0.8 * np.sin(phi) ** 2  # Approximate nose pressure drag coefficient at M=0, phi<30 [deg]
-    b = 0.3  # ===== I HAVE NO IDEA WHAT THIS EMPIRICAL CONSTANT IS!!!
-    drag_coefficient_nose_super = rocket.drag_coefficient_nosecone * (4 ** b) ** (np.log(fineness_ratio_nose + 1) / np.log(4))  # Includes supersonic factor
-    drag_coefficient_nose = drag_coefficient_nose_super + drag_coefficient_nose  # Includes compressibility correction for sub and supersonic speeds
-    nosecone_surface_area = np.pi * rocket.diameter2 * r  # Surface area of nose cone [m^2]
-    drag_nosecone = drag_coefficient_nose * dynamic_pressure * nosecone_surface_area  # Nose cone pressure drag [N]
+    # Corrected pressure
+    fineness_ratio = 5
+    drag_coefficient_nosecone = blunt_cd * (reference_cd / blunt_cd) ** (np.log(fineness_ratio + 1) / np.log(4))
 
-    return drag_nosecone, drag_coefficient_nose
+    frontal_area = np.pi * (rocket.diameter2 / 2)**2
+    drag_nosecone = drag_coefficient_nosecone * dynamic_pressure * frontal_area
+
+    # print("Nosecone: ", drag_coefficient_nosecone)
+    return drag_nosecone, drag_coefficient_nosecone
 
 
 def shoulder_pressure_drag(rocket, drag_coefficient_nose: float, dynamic_pressure: float, mach_number: float) -> float:
@@ -252,9 +255,11 @@ def shoulder_pressure_drag(rocket, drag_coefficient_nose: float, dynamic_pressur
     shoulder_wetted_area = np.pi * rocket.diameter2 * rocket.shoulder_length * np.cos(theta)  # Shoulder wet surface area [m^2]
     drag_shoulder = drag_coefficient_shoulder * dynamic_pressure * shoulder_wetted_area  # Shoulder pressure drag [N]
 
+    # print("Shoulder: ", drag_coefficient_shoulder)
     return drag_shoulder
 
 
+@njit()
 def fin_pressure_drag(rocket, stage1: bool, stage2: bool, dynamic_pressure: float, mach_number: float) -> (float, float):
     if mach_number <= 0.9:
         drag_coefficient_leading_edge = -1 + (1 - mach_number ** 2) ** (-0.417)
@@ -263,8 +268,8 @@ def fin_pressure_drag(rocket, stage1: bool, stage2: bool, dynamic_pressure: floa
     else:
         drag_coefficient_leading_edge = 1.214 - 0.502 / (mach_number ** 2) + 0.1095 / (mach_number ** 4)
 
-    leading_edge_angle = np.deg2rad(45)  # Leading edge angle of slanted fin [rad]
-    drag_coefficient_leading_edge = drag_coefficient_leading_edge * np.cos(leading_edge_angle) ** 2  # Slanted fin cross-flow principle [-]
+    leading_edge_angle = np.deg2rad(30)  # Make it a variable - Leading edge angle of slanted fin [rad]
+    drag_coefficient_leading_edge = drag_coefficient_leading_edge * (np.cos(leading_edge_angle) ** 2)  # Slanted fin cross-flow principle [-]
 
     if stage1:
         fin_surface1 = rocket.fin_thickness1 * rocket.fin_span1 / np.cos(leading_edge_angle)  # Surface area of fins that the flow sees [m^2]
@@ -278,6 +283,7 @@ def fin_pressure_drag(rocket, stage1: bool, stage2: bool, dynamic_pressure: floa
     else:
         drag_fin2 = 0
 
+    # print("Fins: ", drag_coefficient_leading_edge)
     return drag_fin1, drag_fin2
 
 
@@ -291,6 +297,7 @@ def base_drag(rocket, dynamic_pressure: float, mach_number: float) -> float:
     surface_area = np.pi * rocket.diameter2 * t  # Surface area of base (Diameter of lower stage * thickness * PI) [m^2]
     drag_base = drag_coefficient * dynamic_pressure * surface_area  # Base drag [N]
 
+    # print("BaseDrag: ", drag_coefficient)
     return drag_base
 
 
@@ -300,9 +307,10 @@ def drag(rocket, velocity: float, temperature: float, density: float, stage: int
         speed_of_sound = np.sqrt(1.4 * 287 * temperature)  # [m/s]
         mach_number = velocity / speed_of_sound  # [-]
         dynamic_pressure = 0.5 * density * velocity ** 2  # [Pa]
+        print(f"q = 0.5 * {density} * {velocity}**2 = {dynamic_pressure}")
 
         # Calculate drag forces
-        drag_nosecone, drag_coefficient_nose = nosecone_pressure_drag(rocket, dynamic_pressure)
+        drag_nosecone, drag_coefficient_nose = nosecone_pressure_drag(rocket, dynamic_pressure, mach_number)
         drag_base = base_drag(rocket, dynamic_pressure, mach_number)
 
         if stage == 0:  # Total Stage
@@ -310,7 +318,7 @@ def drag(rocket, velocity: float, temperature: float, density: float, stage: int
             drag_friction = skin_friction_drag(rocket, True, True, velocity, dynamic_pressure, mach_number)
             drag_fin1, drag_fin2 = fin_pressure_drag(rocket, True, True, dynamic_pressure, mach_number)
             drag_force = drag_friction + drag_nosecone + drag_shoulder + drag_fin1 + drag_fin2 + drag_base
-            # print(f"Shoulder {drag_shoulder}\nNosecone {drag_nosecone}\nBase {drag_base}\nFriction {drag_friction}\nFin1 {drag_fin1}\nFin2 {drag_fin2}\nTotal {drag_force}")
+            print(f"Shoulder {drag_shoulder}\nNosecone {drag_nosecone}\nBase {drag_base}\nFriction {drag_friction}\nFin1 {drag_fin1}\nFin2 {drag_fin2}\nTotal {drag_force}")
         elif stage == 1:  # Stage 1
             drag_shoulder = shoulder_pressure_drag(rocket, drag_coefficient_nose, dynamic_pressure, mach_number)
             drag_friction = skin_friction_drag(rocket, True, False, velocity, dynamic_pressure, mach_number)
@@ -323,8 +331,9 @@ def drag(rocket, velocity: float, temperature: float, density: float, stage: int
             drag_force = drag_friction + drag_nosecone + drag_fin2 + drag_base
             # print(f"\nNosecone {drag_nosecone}\nBase {drag_base}\nFriction {drag_friction}\nFin1 {drag_fin1}\nFin2 {drag_fin2}\nTotal {drag_force}")
 
-        # print(f"Total Simple {dynamic_pressure * np.pi * (rocket.diameter / 2) ** 2 * rocket.cd}")
-        # print("==")
+        print(f"Total Advanced {drag_force}")
+        print(f"Total Simple {dynamic_pressure * np.pi * (rocket.diameter / 2) ** 2 * rocket.cd}")
+        print("==")
     else:
         drag_force = 0
 
