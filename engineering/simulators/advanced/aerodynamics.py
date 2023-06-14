@@ -219,7 +219,7 @@ def skin_friction_drag(rocket, stage1: bool, stage2: bool, velocity: float, dyna
     return drag_friction
 
 
-def nosecone_pressure_drag(rocket, dynamic_pressure: float) -> (float, float):
+def nosecone_pressure_drag(rocket, dynamic_pressure: float) -> tuple[float, float]:
     # 5:1 L-D Haack minimum drag noses
     c: float = 0  # Optimisation coefficient [-]
     axial_distance: float = 0.024  # Axial distance from the nose [m]

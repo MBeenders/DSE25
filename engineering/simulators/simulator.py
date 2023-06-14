@@ -172,6 +172,7 @@ class Simulator:
             self.stages["Total"].fineness_ratio = rocket.fineness_ratio
             self.stages["Total"].joint_angle = rocket.stage2.nosecone.joint_angle
             self.stages["Total"].wetted_area = rocket.wetted_area
+            print(rocket.wetted_area , rocket.stage1.fins.wetted_area, rocket.stage2.fins.wetted_area,rocket.stage2.nosecone.wetted_area,rocket.stage1.shoulder.wetted_area)
             wetted_area_body = rocket.wetted_area - rocket.stage1.fins.wetted_area - rocket.stage2.fins.wetted_area - rocket.stage2.nosecone.wetted_area - rocket.stage1.shoulder.wetted_area
             self.stages["Total"].wetted_area_body = wetted_area_body
             self.stages["Total"].wetted_area_fins1 = rocket.stage1.fins.wetted_area
