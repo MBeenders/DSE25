@@ -18,7 +18,6 @@ rocket_specs = [("max_iterations", int32),
                 ("diameter1", float64),
                 ("diameter2", float64),
                 ("shoulder_length", float64),
-                ("drag_coefficient_nosecone", float64),
                 ("fineness_ratio", float64),
                 ("joint_angle", float64),
                 ("wetted_area", float64),
@@ -66,7 +65,6 @@ class FlightData:
 
         self.shoulder_length: float64 = 0
 
-        self.drag_coefficient_nosecone: float64 = 0
         self.fineness_ratio: float64 = 0
         self.joint_angle: float64 = 0
 
@@ -161,19 +159,18 @@ class Simulator:
     def create_stages(self, rocket, show_params=True):
         if self.mission_profile["stages"] == 2:
             # Total stage
+            print(f"ChordRoot: {rocket.stage1.fins.chord_root}")
             self.stages["Total"] = FlightData(int(self.maximum_iterations))
-            self.stages["Total"].mass[0] = rocket.mass
+            self.stages["Total"].mass[0] = rocket.dry_mass
             self.stages["Total"].cd = rocket.cd
             self.stages["Total"].diameter = rocket.diameter
             self.stages["Total"].diameter1 = rocket.stage1.diameter
             self.stages["Total"].diameter2 = rocket.stage2.diameter
             self.stages["Total"].shoulder_length = rocket.stage1.shoulder.length
-            self.stages["Total"].drag_coefficient_nosecone = rocket.stage2.nosecone.drag_coefficient
             self.stages["Total"].fineness_ratio = rocket.fineness_ratio
             self.stages["Total"].joint_angle = rocket.stage2.nosecone.joint_angle
             self.stages["Total"].wetted_area = rocket.wetted_area
-            print(rocket.wetted_area , rocket.stage1.fins.wetted_area, rocket.stage2.fins.wetted_area,rocket.stage2.nosecone.wetted_area,rocket.stage1.shoulder.wetted_area)
-            wetted_area_body = rocket.wetted_area - rocket.stage1.fins.wetted_area - rocket.stage2.fins.wetted_area - rocket.stage2.nosecone.wetted_area - rocket.stage1.shoulder.wetted_area
+            wetted_area_body = rocket.wetted_area - rocket.stage1.fins.wetted_area - rocket.stage2.fins.wetted_area
             self.stages["Total"].wetted_area_body = wetted_area_body
             self.stages["Total"].wetted_area_fins1 = rocket.stage1.fins.wetted_area
             self.stages["Total"].wetted_area_fins2 = rocket.stage2.fins.wetted_area
@@ -195,11 +192,10 @@ class Simulator:
 
             # Stage 2
             self.stages["Stage2"] = FlightData(int(self.maximum_iterations))
-            self.stages["Stage2"].mass[0] = rocket.stage2.mass
+            self.stages["Stage2"].mass[0] = rocket.stage2.dry_mass
             self.stages["Stage2"].cd = rocket.stage2.cd
             self.stages["Stage2"].diameter = rocket.stage2.diameter
             self.stages["Stage2"].diameter2 = rocket.stage2.diameter
-            self.stages["Stage2"].drag_coefficient_nosecone = rocket.stage2.nosecone.drag_coefficient
             self.stages["Stage2"].fineness_ratio = rocket.fineness_ratio
             self.stages["Stage2"].joint_angle = rocket.stage2.nosecone.joint_angle
             self.stages["Stage2"].wetted_area = rocket.stage2.wetted_area

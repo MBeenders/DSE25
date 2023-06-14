@@ -50,7 +50,20 @@ def test_skin_friction_drag_0():
 
     drag_friction = aerodynamics.skin_friction_drag(rocket, True, True, 200, 20E3, 0.588)
 
-    assert 3300 < drag_friction < 3400
+    assert 1680 < drag_friction < 1700
+
+
+def test_fin_pressure_drag0():
+    rocket = FlightData(int(10E6))
+    rocket.fin_thickness1 = 0.005
+    rocket.fin_thickness2 = 0.005
+    rocket.fin_span1 = 0.15
+    rocket.fin_span2 = 0.15
+
+    drag_fin1, drag_fin2 = aerodynamics.fin_pressure_drag(rocket, True, True, 20E3, 0.588)
+
+    assert 2 < drag_fin1 < 2.1
+    assert 2 < drag_fin2 < 2.1
 
 
 if __name__ == "__main__":

@@ -21,7 +21,7 @@
     "rocket.stage1.fins.mass": "[kg]",
     "rocket.simulator.max_velocity_tot": "[m/s]"
   },
-  "sizing_selection": ["recovery", "electronics", "engine", "stability"],
+  "sizing_selection": ["recovery", "electronics", "stability"],
   "engine_chemicals":
   {
     "stage1":

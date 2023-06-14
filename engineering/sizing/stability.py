@@ -87,7 +87,7 @@ def calculate_wetted_area(rocket):
         stage.engine.wetted_area = stage.engine.length * stage.engine.diameter * np.pi
 
         # Fins
-        stage.fins.wetted_area = stage.fins.span * (stage.fins.chord_root + stage.fins.chord_tip)
+        stage.fins.wetted_area = 2 * stage.fins.amount * stage.fins.span * (stage.fins.chord_root + stage.fins.chord_tip)
 
     # Nosecone
     rocket.stage2.nosecone.length = 5 * rocket.stage2.nosecone.diameter
@@ -100,8 +100,8 @@ def calculate_wetted_area(rocket):
     body(rocket.stage2)
 
     # Shoulder
-    theta = np.arcsin((rocket.stage2.diameter - rocket.stage1.diameter) / (2 * rocket.stage1.shoulder.length))
-    rocket.stage1.shoulder.wetted_area = np.pi * rocket.stage2.diameter * rocket.stage1.shoulder.length * np.cos(theta)
+    theta = np.arctan((rocket.stage1.diameter - rocket.stage2.diameter) / (2 * rocket.stage1.shoulder.length))
+    rocket.stage1.shoulder.wetted_area = np.pi * rocket.stage1.diameter * rocket.stage1.shoulder.length / np.cos(theta)
 
     # Stage 1 Body + Fins
     body(rocket.stage1)
@@ -110,6 +110,15 @@ def calculate_wetted_area(rocket):
     rocket.stage1.electronics.wetted_area = 0
     rocket.stage2.electronics.wetted_area = 0
     rocket.stage2.payload.wetted_area = 0
+
+
+def calculate_mac(rocket):
+    def calc(stage):
+        taper = stage.fins.chord_tip / stage.fins.chord_root
+        stage.fins.mac = stage.fins.chord_root * (2/3) * ((1 + taper + taper**2)/(1 + taper))
+
+    calc(rocket.stage1)
+    calc(rocket.stage2)
 
 
 def calculate_cp_locations(rocket):
@@ -130,7 +139,7 @@ def calculate_cp_locations(rocket):
     datum: float = 0
 
     # Nosecone (5:1 Haack Nosecone)
-    rocket.stage2.nosecone.cp_location = (25 / 8) * rocket.stage2.nosecone.diameter
+    rocket.stage2.nosecone.cp_location = 2.5 * rocket.stage2.nosecone.diameter
     rocket.stage2.nosecone.length = 5 * rocket.stage2.nosecone.diameter
     datum += rocket.stage2.nosecone.length
 
@@ -222,7 +231,7 @@ def calculate_fin_span(rocket):
     # Area needed to reach the CP value
     fin_flow_area = (needed_cp * rocket.flow_area - nosecone - shoulder - recovery1 - recovery2 - engine1 - engine2) / rocket.stage1.fins.cp_location
     # Span needed to reach the flow area value
-    rocket.stage1.fins.span = fin_flow_area / (0.5 * (rocket.stage1.fins.chord_root + rocket.stage1.fins.chord_tip) * rocket.stage1.fins.amount)
+    rocket.stage1.fins.span = fin_flow_area / (0.5 * (rocket.stage1.fins.chord_root + rocket.stage1.fins.chord_tip) * rocket.stage1.fins.amount * 2)
 
 
 def calculate_fin_thickness(rocket):
@@ -251,13 +260,13 @@ def update_masses(rocket):
     rocket.stage2.nosecone.mass = rocket.stage2.nosecone.wetted_area * rocket.stage2.nosecone.thickness * rocket.stage2.nosecone.density
 
     # Stage2 Fins
-    rocket.stage2.fins.mass = rocket.stage2.fins.wetted_area * rocket.stage2.fins.thickness * rocket.stage2.fins.density
+    rocket.stage2.fins.mass = (rocket.stage2.fins.wetted_area / 2) * rocket.stage2.fins.thickness * rocket.stage2.fins.density
 
     # Shoulder
     rocket.stage1.shoulder.mass = rocket.stage1.shoulder.wetted_area * rocket.stage1.shoulder.thickness * rocket.stage1.shoulder.density
 
     # Stage1 Fins
-    rocket.stage1.fins.mass = rocket.stage1.fins.wetted_area * rocket.stage1.fins.thickness * rocket.stage1.fins.density
+    rocket.stage1.fins.mass = (rocket.stage1.fins.wetted_area / 2) * rocket.stage1.fins.thickness * rocket.stage1.fins.density
 
 
 def initialize(rocket):
@@ -267,6 +276,7 @@ def initialize(rocket):
 
     # Calculate the wetted area of the rocket
     calculate_wetted_area(rocket)
+    calculate_mac(rocket)
 
     # Calculate CP and flow area of the rocket
     calculate_cp_locations(rocket)
@@ -288,6 +298,7 @@ def run(rocket):
 
     # Calculate the wetted area of the rocket
     calculate_wetted_area(rocket)
+    calculate_mac(rocket)
 
     # Calculate CP and flow area of the rocket
     calculate_cp_locations(rocket)
