@@ -3,34 +3,36 @@ import numpy as np
 
 
 # ENGINE SIZING FUNCTIONS
+g_earth = 9.80665
 
 
 # computing the initial acceleration dictated by the launch tower length and exit velocity [m/s^2]
-def initial_acceleration(length, velocity):
+def initial_acceleration(length: float, velocity: float) -> float:
     launch_tower_acceleration = velocity ** 2 / (2 * length)
     return launch_tower_acceleration
 
 
 # computing the amount of thrust based on tower exit velocity [N]
 def thrust_force(vehicle_mass, acceleration):
-    thrust = vehicle_mass * acceleration
+    resultant = vehicle_mass * acceleration
+    thrust = resultant + vehicle_mass * g_earth
     return thrust
 
 
 # computing the effective exhaust velocity based on ProPep outputs [m/s]
-def eff_exhaust_velocity(specific_impulse, g_earth, cc):
+def eff_exhaust_velocity(specific_impulse, cc):
     effective_exhaust_velocity = cc * specific_impulse * g_earth
     return effective_exhaust_velocity
 
 
 # calculating the effective propellant mass [kg]
-def propellant_mass(specific_impulse, total_impulse, g_earth):
+def propellant_mass(specific_impulse, total_impulse):
     mass_propellant = total_impulse / (specific_impulse * g_earth)
     return mass_propellant
 
 
 # calculating the mass flow based on ProPep info [kg/s]
-def mass_flow(specific_impulse, g_earth, thrust):
+def mass_flow(specific_impulse, thrust):
     # mass_p = propellant_mass(Isp, I1, g)
     m_dot = thrust / (specific_impulse * g_earth)
     return m_dot
@@ -128,8 +130,8 @@ def calculate_engine_specs(engine, ambient_pressure):
     Calculates the main specs of the Engine, like propellant_mass, engine length, and engine mass.
     """
     # Calculate propellant mass
-    engine.propellant_mass = propellant_mass(engine.isp, engine.impulse, 9.80665)
-    engine.mass_flow = mass_flow(engine.isp, 9.80665, engine.thrust)
+    engine.propellant_mass = propellant_mass(engine.isp, engine.impulse)
+    engine.mass_flow = mass_flow(engine.isp, engine.thrust)
 
     # Chamber
     engine.casing_thickness = casing_thickness(engine.yield_strength, engine.diameter, engine.chamber_pressure * engine.safety_factor, engine.liner_thickness)
@@ -201,6 +203,7 @@ def stage2_iteration(rocket, apogee_goal):
     engine.thrust = engine.impulse / engine.burn_time
 
     create_stage2_engine(rocket)
+    rocket.update(print_warnings=False)
 
     # Simulate
     simulator.create_stages(rocket)
@@ -212,15 +215,13 @@ def stage2_iteration(rocket, apogee_goal):
 def optimize(rocket, max_iterations, apogee_goal, accuracy):
     create_stage1_engine(rocket)  # stage1 engine sizing
 
-    # ToDo: Thrust is calculate
-
     for i in range(max_iterations):
         difference = stage2_iteration(rocket, apogee_goal)
-        if difference < accuracy:
+        if abs(difference) < accuracy:
             break
 
 
-def initialize_engines(rocket):
+def initialize(rocket):
     create_stage1_engine(rocket)
     create_stage2_engine(rocket)
     return rocket

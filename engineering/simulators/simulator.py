@@ -18,10 +18,9 @@ rocket_specs = [("max_iterations", int32),
                 ("diameter1", float64),
                 ("diameter2", float64),
                 ("shoulder_length", float64),
-                ("drag_coefficient_nosecone", float64),
                 ("fineness_ratio", float64),
                 ("joint_angle", float64),
-                ("wetted_area", float64),
+                ("reference_area", float64),
                 ("wetted_area_body", float64),
                 ("wetted_area_fins1", float64),
                 ("wetted_area_fins2", float64),
@@ -66,11 +65,10 @@ class FlightData:
 
         self.shoulder_length: float64 = 0
 
-        self.drag_coefficient_nosecone: float64 = 0
         self.fineness_ratio: float64 = 0
         self.joint_angle: float64 = 0
 
-        self.wetted_area: float64 = 0  # Total wetted area of Stage 2
+        self.reference_area: float64 = 0  # Total wetted area of Stage 2
         self.wetted_area_body: float64 = 0  # Excludes the Nosecone (Should it?)
 
         self.wetted_area_fins1: float64 = 0
@@ -117,6 +115,12 @@ class Simulator:
         self.velocities: np.array = np.zeros(self.maximum_iterations, dtype=float)
         self.speed_of_sound: np.array = np.zeros(self.maximum_iterations, dtype=float)
 
+        self.forces_drag: np.array = np.zeros(self.maximum_iterations, dtype=float)
+        self.force_gravity: np.array = np.zeros(self.maximum_iterations, dtype=float)
+        self.force_thrust: np.array = np.zeros(self.maximum_iterations, dtype=float)
+
+        self.density: np.array = np.zeros(self.maximum_iterations, dtype=float)
+
         # Values
         self.apogee: float = 0
 
@@ -162,17 +166,17 @@ class Simulator:
         if self.mission_profile["stages"] == 2:
             # Total stage
             self.stages["Total"] = FlightData(int(self.maximum_iterations))
-            self.stages["Total"].mass[0] = rocket.mass
+            self.stages["Total"].mass[0] = rocket.stage1.dry_mass + rocket.stage2.mass
             self.stages["Total"].cd = rocket.cd
             self.stages["Total"].diameter = rocket.diameter
             self.stages["Total"].diameter1 = rocket.stage1.diameter
             self.stages["Total"].diameter2 = rocket.stage2.diameter
             self.stages["Total"].shoulder_length = rocket.stage1.shoulder.length
-            self.stages["Total"].drag_coefficient_nosecone = rocket.stage2.nosecone.drag_coefficient
             self.stages["Total"].fineness_ratio = rocket.fineness_ratio
             self.stages["Total"].joint_angle = rocket.stage2.nosecone.joint_angle
-            self.stages["Total"].wetted_area = rocket.wetted_area
-            self.stages["Total"].wetted_area_body = rocket.wetted_area - rocket.stage1.fins.wetted_area - rocket.stage2.fins.wetted_area
+            self.stages["Total"].reference_area = np.pi * (rocket.stage1.diameter / 2)**2
+            wetted_area_body = rocket.wetted_area - rocket.stage1.fins.wetted_area - rocket.stage2.fins.wetted_area
+            self.stages["Total"].wetted_area_body = wetted_area_body
             self.stages["Total"].wetted_area_fins1 = rocket.stage1.fins.wetted_area
             self.stages["Total"].wetted_area_fins2 = rocket.stage2.fins.wetted_area
             self.stages["Total"].fin_thickness1 = rocket.stage1.fins.thickness
@@ -193,14 +197,13 @@ class Simulator:
 
             # Stage 2
             self.stages["Stage2"] = FlightData(int(self.maximum_iterations))
-            self.stages["Stage2"].mass[0] = rocket.stage2.mass
+            self.stages["Stage2"].mass[0] = rocket.stage2.dry_mass
             self.stages["Stage2"].cd = rocket.stage2.cd
             self.stages["Stage2"].diameter = rocket.stage2.diameter
             self.stages["Stage2"].diameter2 = rocket.stage2.diameter
-            self.stages["Stage2"].drag_coefficient_nosecone = rocket.stage2.nosecone.drag_coefficient
             self.stages["Stage2"].fineness_ratio = rocket.fineness_ratio
             self.stages["Stage2"].joint_angle = rocket.stage2.nosecone.joint_angle
-            self.stages["Stage2"].wetted_area = rocket.stage2.wetted_area
+            self.stages["Stage2"].reference_area = np.pi * (rocket.stage2.diameter / 2)**2
             self.stages["Stage2"].wetted_area_body = rocket.stage2.wetted_area - rocket.stage2.fins.wetted_area
             self.stages["Stage2"].wetted_area_fins2 = rocket.stage2.fins.wetted_area
             self.stages["Stage2"].fin_thickness2 = rocket.stage2.fins.thickness
@@ -221,6 +224,16 @@ class Simulator:
                                           self.stages["Stage2"].velocities.transpose()[1]), axis=0)
         self.speed_of_sound = np.concatenate((self.stages["Total"].speed_of_sound.transpose(),
                                               self.stages["Stage2"].speed_of_sound.transpose()), axis=0)
+
+        self.forces_drag = np.concatenate((self.stages["Total"].force_drag.transpose(),
+                                           self.stages["Stage2"].force_drag.transpose()), axis=0)
+        self.forces_gravity = np.concatenate((self.stages["Total"].force_gravity.transpose(),
+                                              self.stages["Stage2"].force_gravity.transpose()), axis=0)
+        self.forces_thrust = np.concatenate((self.stages["Total"].force_thrust.transpose(),
+                                             self.stages["Stage2"].force_thrust.transpose()), axis=0)
+
+        self.density = np.concatenate((self.stages["Total"].density.transpose(),
+                                       self.stages["Stage2"].density.transpose()), axis=0)
 
     def update(self):
         self.combine_lists()
@@ -245,12 +258,30 @@ class Simulator:
         rocket.locations = rocket.locations[~np.all(rocket.locations == 0, axis=1)]
         rocket.velocities = rocket.velocities[~np.all(rocket.velocities == 0, axis=1)]
 
+        rocket.force_drag = rocket.force_drag[:len(rocket.time)]
+        rocket.force_gravity = rocket.force_gravity[:len(rocket.time)]
+        rocket.force_thrust = rocket.force_thrust[:len(rocket.time)]
+
+        rocket.density = rocket.density[:len(rocket.time)]
+
     def plot_trajectory(self):
         self.combine_lists()
         plt.plot(self.times, self.altitudes)
         plt.show()
 
         plt.plot(self.times, self.velocities[:-1])
+        plt.show()
+
+        plt.plot(self.times, self.forces_drag)
+        plt.show()
+
+        plt.plot(self.times, self.forces_gravity)
+        plt.show()
+
+        plt.plot(self.times, self.forces_thrust)
+        plt.show()
+
+        plt.plot(self.times, self.density)
         plt.show()
 
     def delete_stages(self):
