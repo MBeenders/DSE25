@@ -50,6 +50,10 @@ def test_casing_mass():
     calc_mass = 8168.140899
     assert abs(pyth_mass-calc_mass) <= 1E-6
 
+def test_nozzle_mass():
+    pyth_mass = engine.nozzle_mass(4,0.5,0.8,0.05,20)
+    calc_mass = 17.4589725
+    assert abs(pyth_mass-calc_mass) <= 1E-6
 
 # Aerodynamics
 def test_skin_friction_drag_0():
