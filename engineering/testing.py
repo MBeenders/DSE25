@@ -214,8 +214,4 @@ def test_electronics_Wh_to_Ah():
 
 
 if __name__ == "__main__":
-    test_electronics_min_bw()
-    test_electronics_noise()
-    test_electronics_doppler_shift()
-    test_electronics_Wh_to_Ah()
 
