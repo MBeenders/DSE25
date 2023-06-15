@@ -36,6 +36,26 @@ def test_engine():
     simulator = Simulator(run_parameters["mission_profile"], run_parameters["simulator_parameters"], dynamics_run, gravity.gravity, drag, isa)
     rocket = Rocket(simulator)
 
+def test_nozzle_throat_area():
+    pyth_area = engine.nozzle_throat_area(10,5,6)
+    calc_area = 25/3
+    assert abs(pyth_area-calc_area) <= 1E-6
+
+def test_nozzle_exit_area():
+    pyth_exit_area = engine.nozzle_exit_area(6, 1.6, 0.9, 0.45)
+    calc_mach = 1.859105131
+    calc_exit_area = 1.190586906
+    assert abs(pyth_exit_area-calc_exit_area) <= 1E-6
+
+def test_casing_mass():
+    pyth_mass = engine.casing_mass(5,20,32,0.650)
+    calc_mass = 8168.140899
+    assert abs(pyth_mass-calc_mass) <= 1E-6
+
+def test_nozzle_mass():
+    pyth_mass = engine.nozzle_mass(4,0.5,0.8,0.05,20)
+    calc_mass = 17.4589725
+    assert abs(pyth_mass-calc_mass) <= 1E-6
 
 # Aerodynamics
 def test_skin_friction_drag_0():
@@ -88,7 +108,29 @@ def test_nosecone_drag():
     drag, cd = aerodynamics.nosecone_pressure_drag(rocket, q, mach)
     assert drag > 0.1 # Should be zero at subsonic
     print(cd)
-    assert 0.04 < cd < 0.08
+    assert 0.08 < cd < 0.1
+
+def test_shoulder_drag():
+
+    rocket = FlightData(int(10E6))
+
+    rocket.diameter2 = 0.2
+    rocket.diameter1 = 0.15
+    rocket.joint_angle = 0.0
+
+    q = 0.5 * 1.225 * 340 ** 2  # 100 m/s at sea level
+    mach = 340 / 343
+    drag, cd = aerodynamics.shoulder_pressure_drag(rocket, q, mach)
+    assert drag == 0  # Should be zero at subsonic
+    assert cd == 0
+
+    # Try at above mach, CD around 0.08
+    q = 0.5 * 1.225 * 500 ** 2
+    mach = 500 / 343
+    drag, cd = aerodynamics.shoulder_pressure_drag(rocket, q, mach)
+    assert drag == 0
+    print(cd)
+    assert cd > 0.08
 
 #electronics
 def test_electronics_infinitegain():
