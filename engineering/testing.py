@@ -17,9 +17,9 @@ import simulators.advanced.dynamics as dynamics
 
 
 
-# current_file_path = os.path.split(sys.argv[0])[0]
-# run_parameters_file = open(os.path.join("files/run_parameters_testing.json"))
-# run_parameters: dict = json.load(run_parameters_file)
+current_file_path = os.path.split(sys.argv[0])[0]
+run_parameters_file = open(os.path.join("files/run_parameters_testing.json"))
+run_parameters: dict = json.load(run_parameters_file)
 
 
 # Engine
