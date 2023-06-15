@@ -34,6 +34,22 @@ def test_engine():
     simulator = Simulator(run_parameters["mission_profile"], run_parameters["simulator_parameters"], dynamics_run, gravity.gravity, drag, isa)
     rocket = Rocket(simulator)
 
+def test_nozzle_throat_area():
+    pyth_area = engine.nozzle_throat_area(10,5,6)
+    calc_area = 25/3
+    assert abs(pyth_area-calc_area) <= 1E-6
+
+def test_nozzle_exit_area():
+    pyth_exit_area = engine.nozzle_exit_area(6, 1.6, 0.9, 0.45)
+    calc_mach = 1.859105131
+    calc_exit_area = 1.190586906
+    assert abs(pyth_exit_area-calc_exit_area) <= 1E-6
+
+def test_casing_mass():
+    pyth_mass = engine.casing_mass(5,20,32,0.650)
+    calc_mass = 8168.140899
+    assert abs(pyth_mass-calc_mass) <= 1E-6
+
 
 # Aerodynamics
 def test_skin_friction_drag_0():
