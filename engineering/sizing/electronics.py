@@ -10,6 +10,7 @@ modulation = {
 }
 
 
+
 def dB_to_W(value_dB):
     watt = 10 ** (value_dB / 10)
     return watt
@@ -110,8 +111,10 @@ def stage1_electronics(rocket, text):
     storage = datarate * time * (1 + rocket.stage1.electronics.blackbox.margin)
     
     rocket.stage1.electronics.blackbox.storage = storage
+    temp = power_rec - gain_rx_db - gain_tx_db + other - power
 
     if text == True:
+        print("Link budget: \n", power, "\n", gain_tx_db,"\n", temp, "\n", gain_rx_db,"\n", other, "\n", power_rec )
         print("Stage 1 maximum allowable datarate is: ", (capacity/10**6), "Mbit/s")
         print("Stage 1 total signal to noise ratio: ", SNR)
         print("Expected doppler shift stage 1: ", (delta_freq/10**3), "kHz")
@@ -176,10 +179,14 @@ def stage2_electronics(rocket, text):
     storage = datarate * time * (1 + rocket.stage2.electronics.blackbox.margin)
     
     rocket.stage2.electronics.blackbox.storage = storage
+    temp = power_rec - gain_rx_db - gain_tx_db + other - power
 
     if text == True:
+        print("Link budget stage 2: \n", power, "\n", gain_tx_db,"\n", temp, "\n", gain_rx_db,"\n", other, "\n", power_rec )
+        print("Stage 2 total required Datarate for payload: ",rocket.stage2.electronics.datarate , "bits/s")
+        print("Link budget: \n", power, "\n", gain_tx_db,"\n", temp, "\n", gain_rx_db, other )
         print("Stage 2 maximum allowable datarate is: ", (capacity/10**6), "Mbit/s")
-        print("Stage 2 total signal to noise ratio: ", SNR)
+        print("Stage 2 total signal to noise ratio: ", W_to_dB(SNR))
         print("Expected doppler shift Stage 2: ", (delta_freq/10**3), "kHz")
         print("Stage 2 total required bandwidth: ", min_bw/10**6, "MHz")
         print("Stage 2 total required battery power: ", rocket.stage2.electronics.powersystem.tot_power, "W")
@@ -212,6 +219,7 @@ def stage2_payload(rocket, text):
     rocket.stage2.payload.blackbox.storage = storage
 
     if text == True:
+        print("Stage 2 total required Datarate for payload: ",rocket.stage2.payload.datarate , "bits/s")
         print("Stage 2 total required battery power for payload: ", rocket.stage2.payload.powersystem.tot_power, "W")
         print("Stage 2 total required battery mass for payload: ", rocket.stage2.payload.powersystem.mass_bat, "Kg")
         print("Stage 2 total required battery volume for payload: ", rocket.stage2.payload.powersystem.volume_bat*10**3, "L")
@@ -219,7 +227,7 @@ def stage2_payload(rocket, text):
         print("Stage 2 total required storage for the payload: ", storage/(8*10**9), "Gbytes")
 
 
-def run(rocket, print_sizing=False):
+def run(rocket, print_sizing=True):
     """
     :param rocket: Original Rocket class
     :param print_sizing: Print the sizing process
