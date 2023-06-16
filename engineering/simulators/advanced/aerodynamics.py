@@ -245,16 +245,9 @@ def nosecone_pressure_drag(rocket, dynamic_pressure: float, mach_number: float) 
 
 
 @njit()
-def shoulder_pressure_drag(rocket, drag_coefficient_nose: float, dynamic_pressure: float, mach_number: float) -> float:
-    if mach_number <= 1:
-        drag_coefficient_shoulder = drag_coefficient_nose
-    else:
-        drag_coefficient_shoulder = drag_coefficient_nose
-
-    theta = np.arctan((rocket.diameter1 - rocket.diameter2) / (2 * rocket.shoulder_length))
-    shoulder_wetted_area = np.pi * rocket.diameter2 * rocket.shoulder_length * np.cos(theta)  # Shoulder wet surface area [m^2]
+def shoulder_pressure_drag(rocket, drag_coefficient_nose: float, dynamic_pressure: float) -> float:
     shoulder_ref_area = np.pi / 4 * (rocket.diameter1 ** 2 - rocket.diameter2 ** 2)
-    drag_shoulder = drag_coefficient_shoulder * dynamic_pressure * shoulder_ref_area  # Shoulder pressure drag [N]
+    drag_shoulder = drag_coefficient_nose * dynamic_pressure * shoulder_ref_area  # Shoulder pressure drag [N]
 
     # print("Shoulder: ", drag_coefficient_shoulder)
     return drag_shoulder
@@ -303,7 +296,7 @@ def base_drag(rocket, dynamic_pressure: float, mach_number: float) -> float:
     return drag_base
 
 
-@njit()
+#@njit()
 def drag(rocket, velocity: float, temperature: float, density: float, stage: int) -> float:
     if velocity > 0:
         # Taking into account compressibility and geometry effects

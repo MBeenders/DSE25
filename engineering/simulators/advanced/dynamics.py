@@ -2,7 +2,7 @@ import numpy as np
 from numba import njit
 
 
-@njit()
+#@njit()
 def run(flight, stage: int, gravity, drag, isa, dt: float = 0.1, start_time: float = 0, end_time: float = 1000, coast: bool = False, delay: float = 0):
     mass_rocket: float = flight.mass[0]
     mass_fuel: float = flight.fuel_mass_curve[0]
