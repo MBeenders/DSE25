@@ -196,6 +196,7 @@ class Recovery(Subsystem):
             self.descent_rate: float | None = None  # [m/s]
             self.line_l_d: float | None = None  # [-] Suspension line length over nominal diameter ratio
             self.n_line: float | None = None  # [-] Number of suspension lines
+            self.packing_density: float | None = None  # [kg/m^3]
 
             # Final output
             self.area: float | None = 0  # [m^2]
@@ -213,6 +214,7 @@ class Recovery(Subsystem):
             self.descent_rate: float | None = None  # [m/s]
             self.line_l_d: float | None = None  # [-] Suspension line length over nominal diameter ratio
             self.n_line: float | None = None  # [-] Number of suspension lines
+            self.packing_density: float | None = None  # [kg/m^3]
 
             # Final output
             self.area: float | None = 0  # [m^2]

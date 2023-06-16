@@ -229,7 +229,7 @@ def create_stage1_engine(rocket):
     _, pressure, _ = calc_pressure(rocket.simulator.apogee_1)
 
     # Calculate stage1 engine specs
-    calculate_engine_specs(rocket.stage1.engine, 7500)
+    calculate_engine_specs(rocket.stage1.engine, 40000)
 
     # Create curves
     rocket.stage1.engine.thrust_curve = create_thrust_curve(rocket.stage1.engine, rocket.simulator.dt)
@@ -241,7 +241,7 @@ def create_stage2_engine(rocket):
     _, pressure, _ = calc_pressure(rocket.simulator.apogee)
 
     # Calculate engine specs with new Thrust
-    calculate_engine_specs(rocket.stage2.engine, 7500)
+    calculate_engine_specs(rocket.stage2.engine, 4000)
 
     # Create curves
     rocket.stage2.engine.thrust_curve = create_thrust_curve(rocket.stage2.engine, rocket.simulator.dt)

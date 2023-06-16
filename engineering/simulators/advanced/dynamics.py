@@ -8,6 +8,8 @@ def run(flight, stage: int, gravity, drag, isa, dt: float = 0.1, start_time: flo
     mass_fuel: float = flight.fuel_mass_curve[0]
     mass_total: float = mass_rocket + mass_fuel
 
+    left_tower: bool = False
+
     delay_i: float = 0
 
     for i, time in enumerate(np.linspace(start_time, end_time, int((end_time-start_time) / dt))):
@@ -38,8 +40,8 @@ def run(flight, stage: int, gravity, drag, isa, dt: float = 0.1, start_time: flo
             # New mass
             mass_total: float = mass_rocket + mass_fuel
 
-            force_x = (force_thrust - force_drag) * np.sin(flight.angles[i][0])
-            force_y = (force_thrust - force_drag) * np.cos(flight.angles[i][0]) - force_gravity
+            force_x = (force_thrust - force_drag) * np.sin(flight.angles[i])
+            force_y = (force_thrust - force_drag) * np.cos(flight.angles[i]) - force_gravity
 
             # Append forces to flight
             flight.force_drag[i] = force_drag
@@ -53,10 +55,14 @@ def run(flight, stage: int, gravity, drag, isa, dt: float = 0.1, start_time: flo
 
             total_velocity: float = np.linalg.norm(flight.velocities[i])
             flight.total_velocities[i + 1] = total_velocity
-            if total_velocity == 0:
-                flight.angles[i][0] = 0
+            if total_velocity >= 40 or left_tower:
+                left_tower = True
+                if total_velocity == 0:
+                    flight.angles[i + 1] = flight.angles[i]
+                else:
+                    flight.angles[i + 1] = np.arcsin(flight.velocities[i][0] / total_velocity)
             else:
-                flight.angles[i][0] = np.arcsin(flight.velocities[i][0] / total_velocity)
+                flight.angles[i + 1] = flight.angles[i]
 
             flight.time[i + 1] = time
             time += dt

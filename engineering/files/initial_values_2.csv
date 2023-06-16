@@ -156,9 +156,9 @@ Stage,Subsystem,Variable,Value,Unit,Locked
 1,"recovery,main_parachute",n_line,8,-,TRUE
 2,"recovery,drogue",n_line,24,-,TRUE
 2,"recovery,main_parachute",n_line,24,-,TRUE
-1,"recovery,main_parachute",packing_factor,0.0007,m^3/m^2,TRUE
-2,"recovery,main_parachute",packing_factor,0.0007,m^3/m^2,TRUE
-2,"recovery,drogue",packing_factor,0.0007,m^3/m^2,TRUE
+1,"recovery,main_parachute",packing_density,217.27,kg/m^3,TRUE
+2,"recovery,main_parachute",packing_density,217.27,kg/m^3,TRUE
+2,"recovery,drogue",packing_density,217.27,kg/m^3,TRUE
 1,"recovery,main_parachute",diameter,0.2,m,TRUE
 2,"recovery,main_parachute",diameter,0.15,m,TRUE
 2,"recovery,drogue",diameter,0.15,m,TRUE

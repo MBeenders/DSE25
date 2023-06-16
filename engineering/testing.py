@@ -91,7 +91,6 @@ def test_lines():
     rocket.stage1.recovery.line_density = 0.005
     rocket.stage1.recovery.line_cost = 1.0
 
-
     m_main1, m_drogue2, m_main2, cost_main1, cost_drogue2, cost_main2 = recovery.lines(rocket, [1, 0.6, 1])
 
     # Hand calculated values

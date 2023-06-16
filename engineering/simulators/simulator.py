@@ -9,7 +9,7 @@ rocket_specs = [("max_iterations", int32),
                 ("time", float64[:]),
                 ("locations", float64[:, :]),
                 ("velocities", float64[:, :]),
-                ("angles", float64[:, :]),
+                ("angles", float64[:]),
                 ("total_velocities", float64[:, :]),
                 ("speed_of_sound", float64[:]),
                 ("mass", float64[:]),
@@ -49,7 +49,7 @@ class FlightData:
         self.time: np.array = np.zeros(max_iterations, float64)
         self.locations: np.array = np.zeros((max_iterations, 2), float64)
         self.velocities: np.array = np.zeros((max_iterations, 2), float64)
-        self.angles: np.array = np.zeros((max_iterations, 1), float64)
+        self.angles: np.array = np.zeros(max_iterations, float64)
 
         self.total_velocities: np.array = np.zeros((max_iterations, 2), float64)
         self.speed_of_sound: np.array = np.zeros(max_iterations, float64)
@@ -110,6 +110,7 @@ class Simulator:
 
         # Curves (Total Stage to 2nd Stage after separation)
         self.times: np.array = np.zeros(self.maximum_iterations, dtype=float)  # List with all th time stamps
+        self.angles: np.array = np.zeros(self.maximum_iterations, dtype=float)
 
         self.altitudes: np.array = np.zeros(self.maximum_iterations, dtype=float)
         self.velocities: np.array = np.zeros(self.maximum_iterations, dtype=float)
@@ -167,6 +168,7 @@ class Simulator:
         if self.mission_profile["stages"] == 2:
             # Total stage
             self.stages["Total"] = FlightData(int(self.maximum_iterations))
+            self.stages["Total"].angles[0] = np.deg2rad(7)  # 83 degree tower angle
             self.stages["Total"].mass[0] = rocket.stage1.dry_mass + rocket.stage2.mass
             self.stages["Total"].cd = rocket.cd
             self.stages["Total"].diameter = rocket.diameter
@@ -219,10 +221,12 @@ class Simulator:
 
     def combine_lists(self):
         self.times = np.concatenate((self.stages["Total"].time, self.stages["Stage2"].time), axis=0)
+        self.angles = np.concatenate((self.stages["Total"].angles, self.stages["Stage2"].angles), axis=0)
         self.altitudes = np.concatenate((self.stages["Total"].locations.transpose()[1],
                                          self.stages["Stage2"].locations.transpose()[1]), axis=0)
         self.velocities = np.concatenate((self.stages["Total"].velocities.transpose()[1],
                                           self.stages["Stage2"].velocities.transpose()[1]), axis=0)
+
         self.speed_of_sound = np.concatenate((self.stages["Total"].speed_of_sound.transpose(),
                                               self.stages["Stage2"].speed_of_sound.transpose()), axis=0)
 
@@ -258,6 +262,7 @@ class Simulator:
     @staticmethod
     def trim_lists(rocket: FlightData):
         rocket.time = rocket.time[rocket.time != 0]
+        rocket.angles = rocket.angles[:len(rocket.time)]
         rocket.locations = rocket.locations[~np.all(rocket.locations == 0, axis=1)]
         rocket.velocities = rocket.velocities[~np.all(rocket.velocities == 0, axis=1)]
 
@@ -284,7 +289,7 @@ class Simulator:
         plt.plot(self.times, self.forces_thrust)
         plt.show()
 
-        plt.plot(self.times, self.density)
+        plt.plot(self.times, self.angles)
         plt.show()
 
     def delete_stages(self):
