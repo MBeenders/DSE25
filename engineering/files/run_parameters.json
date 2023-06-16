@@ -4,8 +4,8 @@
     "stages": 2,
     "launch": {"exact": 0},
     "engine1_ignition": {"exact": 0},
-    "engine2_ignition": {"delay": 1},
-    "separation": {"delay": 1}
+    "engine2_ignition": {"delay": 15},
+    "separation": {"delay": 0}
   },
   "simulator_parameters":
   {

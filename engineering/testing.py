@@ -110,34 +110,64 @@ def test_nozzle_mass():
 
 
 # Aerodynamics
-def test_skin_friction_drag_0():
+def test_skin_friction_drag():
     rocket = FlightData(int(10E6))
     rocket.fineness_ratio = 5
-    rocket.wetted_area = 2
-    rocket.wetted_area_body = 1.2
-    rocket.wetted_area_fins1 = 0.1472
-    rocket.wetted_area_fins2 = 0.1472
+    rocket.reference_area = 0.2
+    rocket.wetted_area_body = 2
+    rocket.wetted_area_fins1 = 0.3
+    rocket.wetted_area_fins2 = 0.2
     rocket.fin_thickness1 = 0.005
-    rocket.fin_thickness2 = 0.005
-    rocket.fin_mac1 = 0.17
-    rocket.fin_mac2 = 0.17
+    rocket.fin_thickness2 = 0.001
+    rocket.fin_mac1 = 0.3
+    rocket.fin_mac2 = 0.15
 
-    drag_friction = aerodynamics.skin_friction_drag(rocket, True, True, 200, 20E3, 0.588)
+    drag_friction_sub_tot = aerodynamics.skin_friction_drag(rocket, True, True, 200, 20E3, 200 / 340)
+    drag_friction_sub_1 = aerodynamics.skin_friction_drag(rocket, True, False, 200, 20E3, 200 / 340)
+    drag_friction_sub_2 = aerodynamics.skin_friction_drag(rocket, False, True, 200, 20E3, 200 / 340)
+    drag_friction_sup_tot = aerodynamics.skin_friction_drag(rocket, True, True, 400, 80E3, 400 / 340)
+    drag_friction_sup_1 = aerodynamics.skin_friction_drag(rocket, True, False, 400, 80E3, 400 / 340)
+    drag_friction_sup_2 = aerodynamics.skin_friction_drag(rocket, False, True, 400, 80E3, 400 / 340)
 
-    assert 1680 < drag_friction < 1700
+    calc_drag_friction_sub_tot = 445.933924486
+    calc_drag_friction_sub_1 = 412.617651927
+    calc_drag_friction_sub_2 = 394.973178631
+    calc_drag_friction_sup_tot = 1902.44514731
+    calc_drag_friction_sup_1 = 1760.31112795
+    calc_drag_friction_sup_2 = 1685.03620322
+
+    assert abs(drag_friction_sub_tot - calc_drag_friction_sub_tot) <= 1E-5
+    assert abs(drag_friction_sub_1 - calc_drag_friction_sub_1) <= 1E-5
+    assert abs(drag_friction_sub_2 - calc_drag_friction_sub_2) <= 1E-5
+    assert abs(drag_friction_sup_tot - calc_drag_friction_sup_tot) <= 1E-5
+    assert abs(drag_friction_sup_1 - calc_drag_friction_sup_1) <= 1E-5
+    assert abs(drag_friction_sup_2 - calc_drag_friction_sup_2) <= 1E-5
 
 
-def test_fin_pressure_drag0():
+def test_fin_pressure_drag():
     rocket = FlightData(int(10E6))
     rocket.fin_thickness1 = 0.005
-    rocket.fin_thickness2 = 0.005
-    rocket.fin_span1 = 0.15
-    rocket.fin_span2 = 0.15
+    rocket.fin_thickness2 = 0.001
+    rocket.fin_span1 = 0.2
+    rocket.fin_span2 = 0.1
 
-    drag_fin1, drag_fin2 = aerodynamics.fin_pressure_drag(rocket, True, True, 20E3, 0.588)
+    drag_fin1_sub, drag_fin2_sub = aerodynamics.fin_pressure_drag(rocket, True, True, 20E3, 200 / 340)
+    drag_fin1_trn, drag_fin2_trn = aerodynamics.fin_pressure_drag(rocket, True, True, 51200, 320 / 340)
+    drag_fin1_sup, drag_fin2_sup = aerodynamics.fin_pressure_drag(rocket, True, True, 80E3, 400 / 340)
 
-    assert 2 < drag_fin1 < 2.1
-    assert 2 < drag_fin2 < 2.1
+    drag_fin1_calc_sub = 3.35567911858
+    drag_fin2_calc_sub = 0.335567911858
+    drag_fin1_calc_trn = 41.0814738742
+    drag_fin2_calc_trn = 4.10814738742
+    drag_fin1_calc_sup = 62.9402796088
+    drag_fin2_calc_sup = 6.29402796088
+
+    assert abs(drag_fin1_sub - drag_fin1_calc_sub) <= 1E-6
+    assert abs(drag_fin2_sub - drag_fin2_calc_sub) <= 1E-6
+    assert abs(drag_fin1_trn - drag_fin1_calc_trn) <= 1E-6
+    assert abs(drag_fin2_trn - drag_fin2_calc_trn) <= 1E-6
+    assert abs(drag_fin1_sup - drag_fin1_calc_sup) <= 1E-6
+    assert abs(drag_fin2_sup - drag_fin2_calc_sup) <= 1E-6
 
 
 def test_nosecone_drag():
@@ -239,7 +269,7 @@ def test_electronics_doppler_shift():
 def test_electronics_shannon_capacity():
     bw = 500
     SNR = 20
-    capacity = electronics.capacity(bw, SNR)
+    capacity = electronics.calc_capacity(bw, SNR)
     assert (capacity > 2180 and capacity < 2197), f"expected nr instead is {capacity}"
 
 
@@ -255,7 +285,7 @@ def test_electronics_total_power():
 def test_electronics_energy():
     p_tot = 20
     time = 120
-    energy = electronics.energy(p_tot, time)
+    energy = electronics.calc_energy(p_tot, time)
     assert energy == (20 * 2), f"energy is not 40 instead energy is {p_tot}"
 
 
