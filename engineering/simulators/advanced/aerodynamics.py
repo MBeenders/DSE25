@@ -296,7 +296,7 @@ def base_drag(rocket, dynamic_pressure: float, mach_number: float) -> float:
     return drag_base
 
 
-#@njit()
+@njit()
 def drag(rocket, velocity: float, temperature: float, density: float, stage: int) -> float:
     if velocity > 0:
         # Taking into account compressibility and geometry effects

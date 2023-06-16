@@ -57,7 +57,7 @@ def doppler_shift(vel, frequency):
     shift = vel / wavelenght
     return shift
 
-def capacity(min_bw, SNR):
+def calc_capacity(min_bw, SNR):
     cap = (min_bw * np.log2(1 + SNR))
     return cap
 
@@ -65,7 +65,7 @@ def total_power(power_total, dod, margin):
     p_tot = (power_total/dod)*(1+margin)
     return p_tot
 
-def energy(tot_power, time):
+def calc_energy(tot_power, time):
     en = tot_power*time/3600
     return en
 
@@ -91,7 +91,7 @@ def stage1_electronics(rocket, text):
 
     SNR = power_rec_W / N0
 
-    capacity = capacity(min_bw, SNR)
+    capacity = calc_capacity(min_bw, SNR)
 
     assert capacity > (datarate * (1 + margin)), f" max capacity less than {datarate * (1 + margin)} expected, got: {capacity}"
 
@@ -110,7 +110,7 @@ def stage1_electronics(rocket, text):
     power_total = rocket.stage1.electronics.communicationsystem.power_com + rocket.stage1.electronics.power_sensors
     time = rocket.stage1.electronics.time
     rocket.stage1.electronics.powersystem.tot_power = total_power(power_total ,rocket.stage1.electronics.powersystem.dod,rocket.stage1.electronics.powersystem.margin)
-    energy = energy(rocket.stage1.electronics.powersystem.tot_power ,time )
+    energy = calc_energy(rocket.stage1.electronics.powersystem.tot_power ,time )
 
     
    
@@ -158,7 +158,7 @@ def stage2_electronics(rocket, text):
 
     SNR = power_rec_W / N0
 
-    capacity = capacity(min_bw, SNR)
+    capacity = calc_capacity(min_bw, SNR)
 
     assert capacity > (datarate * (1 + margin)), f" max capacity less than {datarate * (1 + margin)} expected, got: {capacity}"
 
@@ -179,7 +179,7 @@ def stage2_electronics(rocket, text):
     power_total = rocket.stage2.electronics.communicationsystem.power_com + rocket.stage2.electronics.power_sensors
     time = rocket.stage2.electronics.time
     rocket.stage2.electronics.powersystem.tot_power = total_power(power_total, rocket.stage2.electronics.powersystem.dod, rocket.stage2.electronics.powersystem.margin)
-    energy = energy(rocket.stage2.electronics.powersystem.tot_power, time)
+    energy = calc_energy(rocket.stage2.electronics.powersystem.tot_power, time)
 
     
     
@@ -218,7 +218,7 @@ def stage2_payload(rocket, text):
     time = rocket.stage2.payload.time
 
     rocket.stage2.payload.powersystem.tot_power = total_power(power_total, rocket.stage2.payload.powersystem.dod, rocket.stage2.payload.powersystem.margin)
-    energy = energy(rocket.stage2.payload.powersystem.tot_power,time)
+    energy = calc_energy(rocket.stage2.payload.powersystem.tot_power,time)
     
     rocket.stage2.payload.powersystem.mass_bat = energy / rocket.stage2.payload.powersystem.power_density
     
