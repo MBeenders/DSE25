@@ -141,6 +141,9 @@ Stage,Subsystem,Variable,Value,Unit,Locked
 1,"recovery,main_parachute",mass,3,kg,FALSE
 2,"recovery,main_parachute",mass,3,kg,FALSE
 2,"recovery,drogue",mass,1,kg,FALSE
+1,"recovery,main_parachute",rho,1.225,kg/m^3,TRUE
+2,"recovery,drogue",rho,1.0065,kg/m^3,TRUE
+2,"recovery,main_parachute",rho,1.225,kg/m^3,TRUE
 1,"recovery,main_parachute",descent_rate,8,m/s,TRUE
 2,"recovery,drogue",descent_rate,25,m/s,TRUE
 2,"recovery,main_parachute",descent_rate,8,m/s,TRUE
