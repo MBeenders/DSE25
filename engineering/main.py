@@ -120,7 +120,8 @@ class Runner:
             if print_sub:
                 print("\tRunning Simulation")
             self.rocket.simulator.run()
-            #  self.rocket.simulator.plot_trajectory()
+            if self.iteration_id == 100:
+                self.rocket.simulator.plot_trajectory()
             if print_sub:
                 print(f"\t\tInitial apogee: {round(self.rocket.simulator.apogee, 3)} m")
 
@@ -159,6 +160,7 @@ class Runner:
             if print_iteration:
                 print(f"Finished iteration {i + 1}, after {round(time.time() - last_time, 2)} s")
 
+        print(self.rocket.simulator.apogee_1)
         # Close
         print(f"Finished after {round(time.time() - self.start_time, 2)} s\n\tClosing program ...")
         self.close()
@@ -361,4 +363,4 @@ if __name__ == "__main__":
     runner = Runner("initial_values_2")
     # runner.test_sizing()
     runner.run(100, export_summary=True)
-    runner.show_plots(3)
+    # runner.show_plots(7)

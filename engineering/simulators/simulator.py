@@ -123,6 +123,7 @@ class Simulator:
 
         # Values
         self.apogee: float = 0
+        self.apogee_1: float = 0
 
         self.max_velocity1: float = 0
         self.max_velocity2: float = 0
@@ -236,6 +237,8 @@ class Simulator:
                                        self.stages["Stage2"].density.transpose()), axis=0)
 
     def update(self):
+        self.apogee_1 = self.stages["Total"].locations.transpose()[1].max()
+
         self.combine_lists()
         self.apogee = self.stages["Stage2"].locations.transpose()[1].max()
 

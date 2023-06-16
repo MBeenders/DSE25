@@ -90,8 +90,8 @@ Stage,Subsystem,Variable,Value,Unit,Locked
 1,engine,launch_tower_length,14,m,TRUE
 1,engine,molecular_weight,100,-,TRUE
 2,engine,molecular_weight,100,-,TRUE
-1,engine,chamber_gamma,8.3,-,TRUE
-2,engine,chamber_gamma,8.3,-,TRUE
+1,engine,chamber_gamma,1.2861,-,TRUE
+2,engine,chamber_gamma,1.2861,-,TRUE
 1,engine,chamber_temperature,3000,K,TRUE
 2,engine,chamber_temperature,3000,K,TRUE
 1,engine,yield_strength,2.30E+08,Pa,TRUE

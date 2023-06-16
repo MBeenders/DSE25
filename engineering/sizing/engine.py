@@ -6,6 +6,58 @@ import numpy as np
 g_earth = 9.80665
 
 
+# Atmospheric layers with ceiling height and lapse rate
+layers: np.ndarray = np.array([[0, -0.0065],  # ground
+                               [11000, -0.0065],  # Troposphere
+                               [20000, 0],  # Tropopause
+                               [32000, 0.001],  # Stratosphere
+                               [47000, 0.0028],  # Stratosphere
+                               [51000, 0],  # Stratopause
+                               [71000, -0.0028],  # Mesosphere
+                               [86000, -0.0020],  # Mesosphere
+                               [400000, 0],  # Assume constant from here
+                               ])
+
+
+def calc_pressure(height: float) -> tuple[float, float, float]:
+    g0 = 9.80665  # m/s^2
+    R = 287.0  # J/kgK
+
+    T0 = 288.15
+    p0 = 101325
+    T = T0
+    p = p0
+
+    if height > layers[-1][0]:
+        return 0.0, 0.0, 0.0
+
+    h = min(height, layers[-1][0])
+
+    for i in range(1, len(layers)):  # Start in troposphere
+        layer = layers[i]
+        alpha = layer[1]
+        delta_h = layer[0] - layers[i - 1][0]  # Full layer thickness
+        if h <= layer[0]:
+            # Final layer
+            delta_h = h - layers[i - 1][0]
+
+        last_T = T
+        T += alpha * delta_h
+        if alpha == 0:  # isothermal
+            p *= np.exp(-g0 / (R * T) * delta_h)
+        else:
+            p *= (T / last_T) ** (-g0 / (alpha * R))
+
+        if h <= layer[0]:
+            break
+
+    rho0 = p0 / (R * T0)
+
+    rho = p / (R * T)
+
+    return T, p, rho
+
+
 # computing the initial acceleration dictated by the launch tower length and exit velocity [m/s^2]
 def initial_acceleration(length: float, velocity: float) -> float:
     launch_tower_acceleration = velocity ** 2 / (2 * length)
@@ -173,8 +225,11 @@ def create_stage1_engine(rocket):
                                         rocket.stage1.engine.launch_exit_velocity)
     rocket.stage1.engine.thrust = thrust_force(rocket.mass, acceleration)
 
+    # Calculate Pressure
+    _, pressure, _ = calc_pressure(rocket.simulator.apogee_1)
+
     # Calculate stage1 engine specs
-    calculate_engine_specs(rocket.stage1.engine, 41060)
+    calculate_engine_specs(rocket.stage1.engine, 7500)
 
     # Create curves
     rocket.stage1.engine.thrust_curve = create_thrust_curve(rocket.stage1.engine, rocket.simulator.dt)
@@ -182,8 +237,11 @@ def create_stage1_engine(rocket):
 
 
 def create_stage2_engine(rocket):
+    # Calculate Pressure
+    _, pressure, _ = calc_pressure(rocket.simulator.apogee)
+
     # Calculate engine specs with new Thrust
-    calculate_engine_specs(rocket.stage2.engine, 41060)
+    calculate_engine_specs(rocket.stage2.engine, 7500)
 
     # Create curves
     rocket.stage2.engine.thrust_curve = create_thrust_curve(rocket.stage2.engine, rocket.simulator.dt)
