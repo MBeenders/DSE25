@@ -127,6 +127,8 @@ class Runner:
             # Sizing
             self.run_sizing(print_sub)
 
+            print(f"\tAltitude {self.rocket.simulator.apogee}")
+
             # Sum the Subsystems into the Stages and main Rocket
             if print_sub:
                 print("\tSumming Rocket Parameters")
@@ -358,5 +360,5 @@ class Runner:
 if __name__ == "__main__":
     runner = Runner("initial_values_2")
     # runner.test_sizing()
-    runner.run(10, testing=True, export_summary=True)
-    runner.show_plots(1)
+    runner.run(100, export_summary=True)
+    runner.show_plots(3)

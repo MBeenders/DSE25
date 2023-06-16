@@ -233,7 +233,7 @@ def run(rocket):
     :return: Updated Rocket class
     """
 
-    optimize(rocket, 30, 90E3, 1)
+    optimize(rocket, 30, 110E3, 1)
 
     # Cost
     rocket.stage1.engine.cost = 0  # Maybe expand?

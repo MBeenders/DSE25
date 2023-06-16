@@ -207,9 +207,9 @@ Stage,Subsystem,Variable,Value,Unit,Locked
 1,fins,amount,4,-,TRUE
 2,fins,amount,4,,TRUE
 1,fins,chord_root,0.5,m,TRUE
-2,fins,chord_root,0.25,m,TRUE
+2,fins,chord_root,0.35,m,TRUE
 1,fins,chord_tip,0.23,m,TRUE
-2,fins,chord_tip,0.08,m,TRUE
+2,fins,chord_tip,0.1,m,TRUE
 1,fins,span,0.22,m,FALSE
 2,fins,span,0.115,m,FALSE
 1,fins,sweep,30,deg,TRUE

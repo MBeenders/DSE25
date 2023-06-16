@@ -8,6 +8,7 @@ from sizing.rocket import Rocket
 from simulators.simulator import Simulator, FlightData
 
 import sizing.engine as engine
+import sizing.stability as stability
 import sizing.electronics as electronics
 
 import simulators.advanced.aerodynamics as aerodynamics
@@ -66,7 +67,6 @@ def test_fin_pressure_drag0():
     assert 2 < drag_fin2 < 2.1
 
 
-
 def test_nosecone_drag():
 
     rocket = FlightData(int(10E6))
@@ -84,9 +84,39 @@ def test_nosecone_drag():
     q = 0.5 * 1.225 * 500 ** 2
     mach = 500 / 343
     drag, cd = aerodynamics.nosecone_pressure_drag(rocket, q, mach)
-    assert drag > 0.1 # Should be zero at subsonic
+    assert drag > 0.1  # Should be zero at subsonic
     print(cd)
     assert 0.04 < cd < 0.08
+
+
+def test_stab():
+    dynamics_run = dynamics.run
+    drag = aerodynamics.drag
+    isa = aerodynamics.isa
+
+    simulator = Simulator(run_parameters["mission_profile"], run_parameters["simulator_parameters"], dynamics_run, gravity.gravity, drag, isa)
+    rocket = Rocket(simulator)
+
+    rocket.stage2.diameter = 0.15
+    rocket.stage2.nosecone.diameter = 0.15
+    rocket.stage2.engine.diameter = 0.15
+    rocket.stage2.payload.diameter = 0.15
+    rocket.stage2.recovery.diameter = 0.15
+
+    rocket.stage2.nosecone.length = 0.5
+    rocket.stage2.engine.length = 1
+    rocket.stage2.payload.length = 0
+    rocket.stage2.recovery.length = 0
+
+    rocket.stage2.fins.chord_root = 0.25
+    rocket.stage2.fins.chord_tip = 0.25
+    rocket.stage2.fins.span = 0.115
+
+    stability.calculate_cp_locations(rocket)
+    stability.calculate_flow_area(rocket)
+    cp_location = stability.calculate_total_cp(rocket)
+
+    assert cp_location < 1
 
 
 if __name__ == "__main__":

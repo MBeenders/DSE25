@@ -312,14 +312,13 @@ def drag(rocket, velocity: float, temperature: float, density: float, stage: int
         drag_base = base_drag(rocket, dynamic_pressure, mach_number)
 
         if stage == 0:  # Total Stage
-            drag_shoulder = shoulder_pressure_drag(rocket, drag_coefficient_nose, dynamic_pressure, mach_number)
+            drag_shoulder = shoulder_pressure_drag(rocket, drag_coefficient_nose, dynamic_pressure)
             drag_friction = skin_friction_drag(rocket, True, True, velocity, dynamic_pressure, mach_number)
             drag_fin1, drag_fin2 = fin_pressure_drag(rocket, True, True, dynamic_pressure, mach_number)
-            drag_fin2 = 0
             drag_force = drag_friction + drag_nosecone + drag_shoulder + drag_fin1 + drag_fin2 + drag_base
             # print(f"Shoulder {drag_shoulder}\nNosecone {drag_nosecone}\nBase {drag_base}\nFriction {drag_friction}\nFin1 {drag_fin1}\nFin2 {drag_fin2}\nTotal {drag_force}")
         elif stage == 1:  # Stage 1
-            drag_shoulder = shoulder_pressure_drag(rocket, drag_coefficient_nose, dynamic_pressure, mach_number)
+            drag_shoulder = shoulder_pressure_drag(rocket, drag_coefficient_nose, dynamic_pressure)
             drag_friction = skin_friction_drag(rocket, True, False, velocity, dynamic_pressure, mach_number)
             drag_fin1, drag_fin2 = fin_pressure_drag(rocket, True, False, dynamic_pressure, mach_number)
             drag_force = drag_friction + drag_shoulder + drag_fin1 + drag_base
@@ -327,7 +326,6 @@ def drag(rocket, velocity: float, temperature: float, density: float, stage: int
         else:  # Stage 2
             drag_friction = skin_friction_drag(rocket, False, True, velocity, dynamic_pressure, mach_number)
             drag_fin1, drag_fin2 = fin_pressure_drag(rocket, False, True, dynamic_pressure, mach_number)
-            drag_fin2 = 0
             drag_force = drag_friction + drag_nosecone + drag_fin2 + drag_base
             # print(f"\nNosecone {drag_nosecone}\nBase {drag_base}\nFriction {drag_friction}\nFin1 {drag_fin1}\nFin2 {drag_fin2}\nTotal {drag_force}")
 

@@ -17,9 +17,11 @@
     "rocket.mass": "[kg]",
     "rocket.length": "[m]",
     "rocket.stage1.fins.span": "[m]",
-    "rocket.stage2.fins.span": "[m]"
+    "rocket.stage2.fins.span": "[m]",
+    "rocket.stage2.max_cg_location": "[m]",
+    "rocket.stage2.cp_location": "[m]"
   },
-  "sizing_selection": ["recovery", "electronics", "engine", "stability"],
+  "sizing_selection": ["recovery", "engine", "electronics", "stability"],
   "engine_chemicals":
   {
     "stage1":

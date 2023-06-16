@@ -1,4 +1,5 @@
 import numpy as np
+import scipy
 
 
 def calculate_cg_locations(rocket):
@@ -14,12 +15,16 @@ def calculate_cg_locations(rocket):
         length_before += stage.recovery.length
 
         # Engine
-        bulkhead_cg = length_before * stage.engine.bulkhead_mass / stage.engine.mass  # Assume bulkhead has no thickness
-        casing_cg = ((length_before + 0.5 * stage.engine.chamber_length) * stage.engine.casing_mass) / stage.engine.mass
-        nozzle_cg = ((length_before + 0.5 * (stage.engine.chamber_length + stage.engine.nozzle_length)) * stage.engine.nozzle_mass) / stage.engine.mass
-        propellant_cg = ((length_before + 0.5 * stage.engine.chamber_length) * stage.engine.propellant_mass) / stage.engine.mass
+        bulkhead_cg_dry = length_before * stage.engine.bulkhead_mass / stage.engine.dry_mass  # Assume bulkhead has no thickness
+        casing_cg_dry = ((length_before + 0.5 * stage.engine.chamber_length) * stage.engine.casing_mass) / stage.engine.dry_mass
+        nozzle_cg_dry = ((length_before + 0.5 * (stage.engine.chamber_length + stage.engine.nozzle_length)) * stage.engine.nozzle_mass) / stage.engine.dry_mass
 
-        locations = [bulkhead_cg + casing_cg + nozzle_cg, bulkhead_cg + casing_cg + nozzle_cg + propellant_cg]
+        bulkhead_cg_wet = length_before * stage.engine.bulkhead_mass / stage.engine.mass  # Assume bulkhead has no thickness
+        casing_cg_wet = ((length_before + 0.5 * stage.engine.chamber_length) * stage.engine.casing_mass) / stage.engine.mass
+        nozzle_cg_wet = ((length_before + 0.5 * (stage.engine.chamber_length + stage.engine.nozzle_length)) * stage.engine.nozzle_mass) / stage.engine.mass
+        propellant_cg_wet = ((length_before + 0.5 * stage.engine.chamber_length) * stage.engine.propellant_mass) / stage.engine.mass
+
+        locations = [bulkhead_cg_dry + casing_cg_dry + nozzle_cg_dry, bulkhead_cg_wet + casing_cg_wet + nozzle_cg_wet + propellant_cg_wet]
         stage.engine.min_cg_location = min(locations)
         stage.engine.max_cg_location = max(locations)
         length_before += stage.engine.length
@@ -95,7 +100,8 @@ def calculate_wetted_area(rocket):
         stage.engine.wetted_area = stage.engine.length * stage.engine.diameter * np.pi
 
         # Fins
-        stage.fins.wetted_area = 2 * stage.fins.amount * stage.fins.span * (stage.fins.chord_root + stage.fins.chord_tip)
+        stage.fins.wetted_area = 0.5
+        # stage.fins.wetted_area = 2 * stage.fins.amount * stage.fins.span * (stage.fins.chord_root + stage.fins.chord_tip)
 
     # Nosecone
     rocket.stage2.nosecone.length = 5 * rocket.stage2.nosecone.diameter
@@ -170,25 +176,29 @@ def calculate_cp_locations(rocket):
 def calculate_flow_area(rocket):
     def body(stage):
         # Recovery
-        stage.recovery.flow_area = stage.recovery.length * stage.recovery.diameter
+        stage.recovery.flow_area = 0  # stage.recovery.length * stage.recovery.diameter
 
         # Engine
-        stage.engine.flow_area = stage.engine.length * stage.engine.diameter
+        stage.engine.flow_area = 0  # stage.engine.length * stage.engine.diameter
 
         # Fins
-        stage.fins.flow_area = stage.fins.span * (stage.fins.chord_root + stage.fins.chord_tip)
+        # stage.fins.span * (stage.fins.chord_root + stage.fins.chord_tip)
+        area_fin = stage.fins.span * 0.5 * (stage.fins.chord_root + stage.fins.chord_tip)
+        stage.fins.flow_area = 2 * (2 * np.pi * (stage.fins.span ** 2)) / (1 + np.sqrt(1 + (stage.fins.span ** 2 / area_fin) ** 2))  # Fin sweep is assumed 0
 
     # Nosecone
-    rocket.stage2.nosecone.flow_area = (10 / 3) * rocket.stage2.nosecone.diameter ** 2
+    section_area = np.pi * (rocket.stage2.nosecone.diameter / 2) ** 2
+    rocket.stage2.nosecone.flow_area = section_area * 2  # (10 / 3) * rocket.stage2.nosecone.diameter ** 2
 
     # Payload
-    rocket.stage2.payload.flow_area = rocket.stage2.payload.length * rocket.stage2.payload.diameter
+    rocket.stage2.payload.flow_area = 0  # rocket.stage2.payload.length * rocket.stage2.payload.diameter
 
     # Stage 2 Body + Fins
     body(rocket.stage2)
 
     # Shoulder
-    rocket.stage1.shoulder.flow_area = 0.5 * rocket.stage1.shoulder.length * (rocket.stage1.diameter + rocket.stage2.diameter)
+    0.5 * rocket.stage1.shoulder.length * (rocket.stage1.diameter + rocket.stage2.diameter)
+    rocket.stage1.shoulder.flow_area = 2 * (np.pi * ((rocket.stage1.diameter / 2)**2 - (rocket.stage2.diameter / 2)**2))
 
     # Stage 1 Body + FIns
     body(rocket.stage1)
@@ -219,8 +229,10 @@ def calculate_total_cp(rocket):
     rocket.flow_area = flow_area1 + flow_area2
     rocket.cp_location = (cp_location1 * flow_area1 + cp_location2 * flow_area2) / rocket.flow_area
 
+    return cp_location2
 
-def calculate_fin_span(rocket):
+
+def calculate_fin_span(rocket, update):
     # Stage 2
     # Calculate needed CP to maintain set SM
     needed_cp = rocket.stage2.diameter * rocket.stage2.stability_margin + rocket.stage2.max_cg_location
@@ -235,18 +247,31 @@ def calculate_fin_span(rocket):
     engine2 = rocket.stage2.engine.cp_location * rocket.stage2.engine.flow_area
 
     # Area needed to reach the CP value
-    fin_flow_area = (needed_cp * rocket.stage2.flow_area - nosecone - payload - recovery2 - engine2) / rocket.stage2.fins.cp_location
+    target_flow_area_2 = (needed_cp * rocket.stage2.flow_area - nosecone - payload - recovery2 - engine2) / rocket.stage2.fins.cp_location
     # Span needed to reach the flow area value
-    rocket.stage2.fins.span = fin_flow_area / (rocket.stage2.fins.chord_root + rocket.stage2.fins.chord_tip)
+
+    def fin_flow_function_2(x):
+        return 2 * (2 * np.pi * (x ** 2)) / (1 + np.sqrt(1 + (x ** 2 / area_fin_2) ** 2))
+
+    area_fin_2 = rocket.stage2.fins.span * 0.5 * (rocket.stage2.fins.chord_root + rocket.stage2.fins.chord_tip)
+    rocket.stage2.fins.span = scipy.optimize.fsolve(lambda x: fin_flow_function_2(x) - target_flow_area_2, rocket.stage2.fins.span)[0]
+
+    update(rocket)
 
     # Stage 1
     # Calculate needed CP to maintain set SM
     needed_cp = rocket.diameter * rocket.stability_margin + rocket.max_cg_location
 
+    fins2 = rocket.stage2.fins.cp_location * rocket.stage2.fins.flow_area
+
+    def fin_flow_function_1(x):
+        return 2 * (2 * np.pi * (x ** 2)) / (1 + np.sqrt(1 + (x ** 2 / area_fin_1) ** 2))
+
     # Area needed to reach the CP value
-    fin_flow_area = (needed_cp * rocket.flow_area - nosecone - payload - shoulder - recovery1 - recovery2 - engine1 - engine2) / rocket.stage1.fins.cp_location
+    target_flow_area_1 = (needed_cp * rocket.flow_area - nosecone - payload - shoulder - recovery1 - recovery2 - engine1 - engine2 - fins2) / rocket.stage1.fins.cp_location
     # Span needed to reach the flow area value
-    rocket.stage1.fins.span = fin_flow_area / (rocket.stage1.fins.chord_root + rocket.stage1.fins.chord_tip)
+    area_fin_1 = rocket.stage1.fins.span * 0.5 * (rocket.stage1.fins.chord_root + rocket.stage1.fins.chord_tip)
+    rocket.stage1.fins.span = scipy.optimize.fsolve(lambda x: fin_flow_function_1(x) - target_flow_area_1, rocket.stage1.fins.span)[0]
 
 
 def calculate_fin_thickness(rocket):
@@ -269,19 +294,21 @@ def calculate_fin_thickness(rocket):
     thickness_stage(rocket.stage1, "_tot")
     thickness_stage(rocket.stage2, "2")
 
+    print(f"Thickness 1 and 2: {rocket.stage1.fins.thickness}, {rocket.stage2.fins.thickness}")
+
 
 def update_masses(rocket):
     # Nosecone
     rocket.stage2.nosecone.mass = rocket.stage2.nosecone.wetted_area * rocket.stage2.nosecone.thickness * rocket.stage2.nosecone.density
 
     # Stage2 Fins
-    rocket.stage2.fins.mass = (rocket.stage2.fins.wetted_area / 2) * rocket.stage2.fins.thickness * rocket.stage2.fins.density * rocket.stage2.fins.amount
+    rocket.stage2.fins.mass = (rocket.stage2.fins.wetted_area / 2) * rocket.stage2.fins.thickness * rocket.stage2.fins.density
 
     # Shoulder
     rocket.stage1.shoulder.mass = rocket.stage1.shoulder.wetted_area * rocket.stage1.shoulder.thickness * rocket.stage1.shoulder.density
 
     # Stage1 Fins
-    rocket.stage1.fins.mass = (rocket.stage1.fins.wetted_area / 2) * rocket.stage1.fins.thickness * rocket.stage1.fins.density * rocket.stage1.fins.amount
+    rocket.stage1.fins.mass = (rocket.stage1.fins.wetted_area / 2) * rocket.stage1.fins.thickness * rocket.stage1.fins.density
 
 
 def initialize(rocket):
@@ -302,11 +329,7 @@ def initialize(rocket):
     update_masses(rocket)
 
 
-def run(rocket):
-    """
-    :param rocket: Original Rocket class
-    :return: Updated Rocket class
-    """
+def update_cg_cp(rocket):
     # Calculate CG
     calculate_cg_locations(rocket)
     calculate_total_cg(rocket)
@@ -324,9 +347,18 @@ def run(rocket):
     update_masses(rocket)
     rocket.update(False)
 
+
+def run(rocket):
+    """
+    :param rocket: Original Rocket class
+    :return: Updated Rocket class
+    """
+
     # Calculate the span and thickness of the fins
-    calculate_fin_span(rocket)
+    calculate_fin_span(rocket, update_cg_cp)
     calculate_fin_thickness(rocket)
+
+    update_cg_cp(rocket)
 
     # Calculate masses
     update_masses(rocket)
