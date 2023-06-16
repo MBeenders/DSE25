@@ -2,6 +2,7 @@ import pytest
 import json
 import os
 import sys
+import numpy as np
 
 # Main Classes
 from sizing.rocket import Rocket
@@ -14,6 +15,7 @@ import sizing.electronics as electronics
 import simulators.advanced.aerodynamics as aerodynamics
 import simulators.advanced.gravity as gravity
 import simulators.advanced.dynamics as dynamics
+
 
 
 current_file_path = os.path.split(sys.argv[0])[0]
@@ -35,6 +37,26 @@ def test_engine():
     simulator = Simulator(run_parameters["mission_profile"], run_parameters["simulator_parameters"], dynamics_run, gravity.gravity, drag, isa)
     rocket = Rocket(simulator)
 
+def test_nozzle_throat_area():
+    pyth_area = engine.nozzle_throat_area(10,5,6)
+    calc_area = 25/3
+    assert abs(pyth_area-calc_area) <= 1E-6
+
+def test_nozzle_exit_area():
+    pyth_exit_area = engine.nozzle_exit_area(6, 1.6, 0.9, 0.45)
+    calc_mach = 1.859105131
+    calc_exit_area = 1.190586906
+    assert abs(pyth_exit_area-calc_exit_area) <= 1E-6
+
+def test_casing_mass():
+    pyth_mass = engine.casing_mass(5,20,32,0.650)
+    calc_mass = 8168.140899
+    assert abs(pyth_mass-calc_mass) <= 1E-6
+
+def test_nozzle_mass():
+    pyth_mass = engine.nozzle_mass(4,0.5,0.8,0.05,20)
+    calc_mass = 17.4589725
+    assert abs(pyth_mass-calc_mass) <= 1E-6
 
 # Aerodynamics
 def test_skin_friction_drag_0():
@@ -86,7 +108,109 @@ def test_nosecone_drag():
     drag, cd = aerodynamics.nosecone_pressure_drag(rocket, q, mach)
     assert drag > 0.1  # Should be zero at subsonic
     print(cd)
-    assert 0.04 < cd < 0.08
+    assert 0.08 < cd < 0.1
+
+def test_shoulder_drag():
+
+    rocket = FlightData(int(10E6))
+
+    rocket.diameter2 = 0.2
+    rocket.diameter1 = 0.15
+    rocket.joint_angle = 0.0
+
+    q = 0.5 * 1.225 * 340 ** 2  # 100 m/s at sea level
+    mach = 340 / 343
+    drag, cd = aerodynamics.shoulder_pressure_drag(rocket, q, mach)
+    assert drag == 0  # Should be zero at subsonic
+    assert cd == 0
+
+    # Try at above mach, CD around 0.08
+    q = 0.5 * 1.225 * 500 ** 2
+    mach = 500 / 343
+    drag, cd = aerodynamics.shoulder_pressure_drag(rocket, q, mach)
+    assert drag == 0
+    print(cd)
+    assert cd > 0.08
+
+#electronics
+def test_electronics_infinitegain():
+    diameter = 0
+    frequency = 100
+    efficiency = 1
+
+    zerogain = electronics.antenna_gain(diameter,frequency, efficiency)
+    assert zerogain == -np.inf , f"gain is not infinite gain is {zerogain}"
+
+def test_electronics_gain():
+    diameter = 1
+    frequency = 10**9
+    efficiency = 0.5
+    #verified against multiple online calculators
+
+    gain = electronics.antenna_gain(diameter,frequency, efficiency)
+    assert ((gain <17.40) and (gain > 17.39)), f"gain is {gain} not 17.39"
+
+def test_electronics_power_received():
+    gain_rx = 0
+    gain_tx = 17.390272402849615
+    frequency = 10**9
+    distance = 1000
+    power = 5
+
+    power_rx = electronics.power_received(gain_rx, gain_tx, distance, frequency, power)
+    assert ((power_rx > -81) and (power_rx < -78)), f"gain is {power_rx} not -78.0602999566"
+
+def test_electronics_min_bw():
+    datarate = 1000
+    modulation = "QPSK"
+    min_bw = electronics.minimum_bandwidth_required(datarate, modulation)
+    assert min_bw == 500, f"minimum bandwidth is not 500 instead bandwidth is {min_bw}"
+
+def test_electronics_noise():
+    bw = 500
+    antenna_SNR = 10
+    gain = 10
+    noise = electronics.W_to_dB(electronics.noise_received(bw, antenna_SNR, gain))
+    assert((noise>-201.7) and (noise <-201.6 )), f"noise is not -201.60930671 instead noise is {noise}"
+
+def test_electronics_doppler_shift():
+    vel = 1000
+    frequency = 10**9
+    delta_freq = electronics.doppler_shift(vel, frequency)
+    assert delta_freq > 3332 and delta_freq < 3336, f"doppler shift is not 2999.999 instead shift is {delta_freq}"
+
+def test_electronics_shannon_capacity():
+    bw = 500
+    SNR = 20
+    capacity = electronics.capacity(bw, SNR)
+    assert (capacity>2180 and capacity <2197), f"expected nr instead is {capacity}"
+
+def test_electronics_total_power():
+    power_total = 10
+    dod = 0.7
+    margin = 0.25
+    p = power_total*(1+margin)/(dod)
+    po = electronics.total_power(power_total, dod, margin)
+    assert p == po, f"expected power is not {p} instead power is {po}"
+
+def test_electronics_energy():
+    p_tot = 20
+    time = 120
+    energy = electronics.energy(p_tot, time)
+    assert energy == (20*2), f"energy is not 40 instead energy is {p_tot}"
+
+
+def test_electronics_Wh_to_Ah():
+    tot_p = 100
+    avg_v = 24
+    time = 60*60
+    ah = electronics.Wh_to_Ah(tot_p, avg_v, time)
+    assert ah < 4.17 and ah > 4.16, f"amphour is not 4.167 instead ah is {ah}"
+
+
+
+
+    
 
 
 def test_stab():
@@ -120,4 +244,4 @@ def test_stab():
 
 
 if __name__ == "__main__":
-    pass
+

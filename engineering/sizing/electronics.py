@@ -2,7 +2,7 @@ import numpy as np
 
 # Constant values:
 k = 1.38E-23  # boltzman constant
-c = 3.0E8  # m/s
+c = 299792458  # m/s
 other = 10
 
 modulation = {
@@ -57,6 +57,21 @@ def doppler_shift(vel, frequency):
     shift = vel / wavelenght
     return shift
 
+def capacity(min_bw, SNR):
+    cap = (min_bw * np.log2(1 + SNR))
+    return cap
+
+def total_power(power_total, dod, margin):
+    p_tot = (power_total/dod)*(1+margin)
+    return p_tot
+
+def energy(tot_power, time):
+    en = tot_power*time/3600
+    return en
+
+def Wh_to_Ah(tot_p, avg_volt, time):
+    amphour = (tot_p/avg_volt)*(time/3600)
+    return amphour
 
 def stage1_electronics(rocket, text):
     # telemetry
@@ -76,7 +91,7 @@ def stage1_electronics(rocket, text):
 
     SNR = power_rec_W / N0
 
-    capacity = (min_bw * np.log10(1 + SNR))
+    capacity = capacity(min_bw, SNR)
 
     assert capacity > (datarate * (1 + margin)), f" max capacity less than {datarate * (1 + margin)} expected, got: {capacity}"
 
@@ -94,8 +109,8 @@ def stage1_electronics(rocket, text):
     # power
     power_total = rocket.stage1.electronics.communicationsystem.power_com + rocket.stage1.electronics.power_sensors
     time = rocket.stage1.electronics.time
-    rocket.stage1.electronics.powersystem.tot_power = (power_total / (rocket.stage1.electronics.powersystem.dod))*(1+rocket.stage1.electronics.powersystem.margin)
-    energy = rocket.stage1.electronics.powersystem.tot_power * time / 3600
+    rocket.stage1.electronics.powersystem.tot_power = total_power(power_total ,rocket.stage1.electronics.powersystem.dod,rocket.stage1.electronics.powersystem.margin)
+    energy = energy(rocket.stage1.electronics.powersystem.tot_power ,time )
 
     
    
@@ -103,7 +118,7 @@ def stage1_electronics(rocket, text):
     
     rocket.stage1.electronics.powersystem.volume_bat = energy / rocket.stage1.electronics.powersystem.power_volume
     
-    bat_Ah = ((rocket.stage1.electronics.powersystem.tot_power) / rocket.stage1.electronics.powersystem.avg_voltage) * time/3600
+    bat_Ah = Wh_to_Ah( rocket.stage1.electronics.powersystem.tot_power, rocket.stage1.electronics.powersystem.avg_voltage, time)
     rocket.stage1.electronics.powersystem.bat_size = bat_Ah
     
 
@@ -143,7 +158,7 @@ def stage2_electronics(rocket, text):
 
     SNR = power_rec_W / N0
 
-    capacity = (min_bw * np.log10(1 + SNR))
+    capacity = capacity(min_bw, SNR)
 
     assert capacity > (datarate * (1 + margin)), f" max capacity less than {datarate * (1 + margin)} expected, got: {capacity}"
 
@@ -163,8 +178,8 @@ def stage2_electronics(rocket, text):
     # power
     power_total = rocket.stage2.electronics.communicationsystem.power_com + rocket.stage2.electronics.power_sensors
     time = rocket.stage2.electronics.time
-    rocket.stage2.electronics.powersystem.tot_power = (power_total / (rocket.stage2.electronics.powersystem.dod))*(1+rocket.stage2.electronics.powersystem.margin)
-    energy = rocket.stage2.electronics.powersystem.tot_power * time / 3600
+    rocket.stage2.electronics.powersystem.tot_power = total_power(power_total, rocket.stage2.electronics.powersystem.dod, rocket.stage2.electronics.powersystem.margin)
+    energy = energy(rocket.stage2.electronics.powersystem.tot_power, time)
 
     
     
@@ -172,7 +187,7 @@ def stage2_electronics(rocket, text):
    
     rocket.stage2.electronics.powersystem.volume_bat = energy / rocket.stage2.electronics.powersystem.power_volume
     
-    bat_Ah = ((rocket.stage2.electronics.powersystem.tot_power) / rocket.stage2.electronics.powersystem.avg_voltage) * time/3600
+    bat_Ah = Wh_to_Ah(rocket.stage2.electronics.powersystem.tot_power, rocket.stage2.electronics.powersystem.avg_voltage, time)
     rocket.stage2.electronics.powersystem.bat_size = bat_Ah
     
     # blackbox
@@ -202,14 +217,14 @@ def stage2_payload(rocket, text):
     power_total = rocket.stage2.payload.power_sensors
     time = rocket.stage2.payload.time
 
-    rocket.stage2.payload.powersystem.tot_power = (power_total / (rocket.stage2.payload.powersystem.dod))*(1+rocket.stage2.payload.powersystem.margin)
-    energy = rocket.stage2.payload.powersystem.tot_power * time / 3600
+    rocket.stage2.payload.powersystem.tot_power = total_power(power_total, rocket.stage2.payload.powersystem.dod, rocket.stage2.payload.powersystem.margin)
+    energy = energy(rocket.stage2.payload.powersystem.tot_power,time)
     
     rocket.stage2.payload.powersystem.mass_bat = energy / rocket.stage2.payload.powersystem.power_density
     
     rocket.stage2.payload.powersystem.volume_bat = energy / rocket.stage2.payload.powersystem.power_volume
     
-    bat_Ah = ((rocket.stage2.payload.powersystem.tot_power) / rocket.stage2.payload.powersystem.avg_voltage) * time/3600
+    bat_Ah = Wh_to_Ah(rocket.stage2.payload.powersystem.tot_power, rocket.stage2.payload.powersystem.avg_voltage, time)
     rocket.stage2.payload.powersystem.bat_size = bat_Ah
    
 

@@ -245,11 +245,16 @@ def nosecone_pressure_drag(rocket, dynamic_pressure: float, mach_number: float) 
 
 
 @njit()
-def shoulder_pressure_drag(rocket, drag_coefficient_nose: float, dynamic_pressure: float) -> float:
-    drag_coefficient_shoulder = drag_coefficient_nose
+def shoulder_pressure_drag(rocket, drag_coefficient_nose: float, dynamic_pressure: float, mach_number: float) -> float:
+    if mach_number <= 1:
+        drag_coefficient_shoulder = drag_coefficient_nose
+    else:
+        drag_coefficient_shoulder = drag_coefficient_nose
 
-    pressure_area = np.pi/4 * (rocket.diameter2**2 - rocket.diameter1**2)
-    drag_shoulder = drag_coefficient_shoulder * dynamic_pressure * pressure_area  # Shoulder pressure drag [N]
+    theta = np.arctan((rocket.diameter1 - rocket.diameter2) / (2 * rocket.shoulder_length))
+    shoulder_wetted_area = np.pi * rocket.diameter2 * rocket.shoulder_length * np.cos(theta)  # Shoulder wet surface area [m^2]
+    shoulder_ref_area = np.pi / 4 * (rocket.diameter1 ** 2 - rocket.diameter2 ** 2)
+    drag_shoulder = drag_coefficient_shoulder * dynamic_pressure * shoulder_ref_area  # Shoulder pressure drag [N]
 
     # print("Shoulder: ", drag_coefficient_shoulder)
     return drag_shoulder
