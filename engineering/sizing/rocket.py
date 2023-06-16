@@ -192,6 +192,7 @@ class Recovery(Subsystem):
 
             # Specific parameters
             self.c_D: float | None = None
+            self.rho: float | None = None
             self.descent_rate: float | None = None  # [m/s]
             self.line_l_d: float | None = None  # [-] Suspension line length over nominal diameter ratio
             self.n_line: float | None = None  # [-] Number of suspension lines
@@ -208,6 +209,7 @@ class Recovery(Subsystem):
 
             # Specific parameters
             self.c_D: float | None = None
+            self.rho: float | None = None
             self.descent_rate: float | None = None  # [m/s]
             self.line_l_d: float | None = None  # [-] Suspension line length over nominal diameter ratio
             self.n_line: float | None = None  # [-] Number of suspension lines

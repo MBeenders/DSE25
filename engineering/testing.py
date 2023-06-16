@@ -38,6 +38,8 @@ def test_parachutes():
 
     rocket.stage1.dry_mass = 50
     rocket.stage2.dry_mass = 30
+    rocket.stage1.recovery.main_parachute.rho = 1.225
+    rocket.stage2.recovery.drogue.rho = 1.0
     rocket.stage1.recovery.main_parachute.descent_rate = 20
     rocket.stage2.recovery.drogue.descent_rate = 20
     rocket.stage2.recovery.main_parachute.descent_rate = 5
@@ -58,13 +60,12 @@ def test_parachutes():
     m_main1, m_drogue2, m_main2, cost_main1, cost_drogue2, cost_main2, d_parachutes = recovery.parachutes(rocket)
 
     # Hand calculated values
-    calc_m_main1 = 0
-    calc_m_drogue2 = 0
-    calc_m_main2 = 0
-    calc_cost_main1 = 0
-    calc_cost_drogue2 = 0
-    calc_cost_main2 = 0
-    calc_d_parachutes = 0
+    calc_m_main1 = 0.1000678571
+    calc_m_drogue2 = 0.102969825
+    calc_m_main2 = 1.12076
+    calc_cost_main1 = 28.59081631
+    calc_cost_drogue2 = 29.41995
+    calc_cost_main2 = 320.2171429
 
     assert abs(m_main1 - calc_m_main1) <= 1E-6
     assert abs(m_drogue2 - calc_m_drogue2) <= 1E-6
@@ -72,7 +73,69 @@ def test_parachutes():
     assert abs(cost_main1 - calc_cost_main1) <= 1E-6
     assert abs(cost_drogue2 - calc_cost_drogue2) <= 1E-6
     assert abs(cost_main2 - calc_cost_main2) <= 1E-6
-    assert abs(d_parachutes - calc_d_parachutes) <= 1E-6
+
+def test_lines():
+    dynamics_run = dynamics.run
+    drag = aerodynamics.drag
+    isa = aerodynamics.isa
+
+    simulator = Simulator(run_parameters["mission_profile"], run_parameters["simulator_parameters"], dynamics_run, gravity.gravity, drag, isa)
+    rocket = Rocket(simulator)
+
+    rocket.stage1.recovery.main_parachute.line_l_d = 1.4
+    rocket.stage2.recovery.drogue.line_l_d = 1.5
+    rocket.stage2.recovery.main_parachute.line_l_d = 2.0
+    rocket.stage1.recovery.main_parachute.n_line = 8
+    rocket.stage2.recovery.drogue.n_line = 24
+    rocket.stage2.recovery.main_parachute.n_line = 24
+    rocket.stage1.recovery.line_density = 0.005
+    rocket.stage1.recovery.line_cost = 1.0
+
+
+    m_main1, m_drogue2, m_main2, cost_main1, cost_drogue2, cost_main2 = recovery.lines(rocket, [1, 0.6, 1])
+
+    # Hand calculated values
+    calc_m_main1 = 0.056
+    calc_m_drogue2 = 0.108
+    calc_m_main2 = 0.24
+    calc_cost_main1 = 11.2
+    calc_cost_drogue2 = 21.6
+    calc_cost_main2 = 48
+
+    assert abs(m_main1 - calc_m_main1) <= 1E-6
+    assert abs(m_drogue2 - calc_m_drogue2) <= 1E-6
+    assert abs(m_main2 - calc_m_main2) <= 1E-6
+    assert abs(cost_main1 - calc_cost_main1) <= 1E-6
+    assert abs(cost_drogue2 - calc_cost_drogue2) <= 1E-6
+    assert abs(cost_main2 - calc_cost_main2) <= 1E-6
+
+def test_cold_gas():
+    dynamics_run = dynamics.run
+    drag = aerodynamics.drag
+    isa = aerodynamics.isa
+
+    simulator = Simulator(run_parameters["mission_profile"], run_parameters["simulator_parameters"], dynamics_run, gravity.gravity, drag, isa)
+    rocket = Rocket(simulator)
+
+    rocket.stage1.recovery.m_gas = 1
+    rocket.stage1.recovery.gas_cost = 300
+    rocket.stage1.recovery.n_gas = 2
+    rocket.stage2.recovery.n_gas = 3
+
+    m_total1, m_total2, gas_total_cost1, gas_total_cost2 = recovery.cold_gas(rocket)
+
+    # Hand calculated values
+    calc_m_total1 = 2
+    calc_m_total2 = 3
+
+    calc_cost_1 = 600
+    calc_cost_drogue2 = 900
+
+    assert abs(m_total1 - calc_m_total1) <= 1E-6
+    assert abs(m_total2 - calc_m_total2) <= 1E-6
+    assert abs(gas_total_cost1 - calc_cost_1) <= 1E-6
+    assert abs(gas_total_cost2 - calc_cost_drogue2) <= 1E-6
+
 
 
 def test_engine():
