@@ -47,6 +47,14 @@ def test_parachutes():
     rocket.stage1.recovery.material_density = 0.035  # Assume material density is the same for both stages
     rocket.stage1.recovery.material_cost = 10
 
+    rocket.stage1.recovery.main_parachute.packing_factor = 0.007
+    rocket.stage2.recovery.drogue.packing_factor = 0.007
+    rocket.stage2.recovery.main_parachute.packing_factor = 0.007
+
+    rocket.stage1.recovery.main_parachute.diameter = 0.2
+    rocket.stage2.recovery.drogue.diameter = 0.15
+    rocket.stage2.recovery.main_parachute.diameter = 0.15
+
     m_main1, m_drogue2, m_main2, cost_main1, cost_drogue2, cost_main2, d_parachutes = recovery.parachutes(rocket)
 
     # Hand calculated values
