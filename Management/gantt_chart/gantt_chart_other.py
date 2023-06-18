@@ -5,7 +5,7 @@ import json
 
 
 class GanttChartGenerator:
-    def __init__(self, file_name: str, style: str, figure_size=(11.7, 16.5), start_count: int = 0, cut_off: int | None = None):
+    def __init__(self, file_name: str, style: str, figure_size=(8.3, 2.9), start_count: int = 0, cut_off: int | None = None):
         self.directory = file_name
         self.figure, self.ax = plt.subplots(1, figsize=figure_size)
         self.ax_top = self.ax.twiny()
@@ -20,6 +20,7 @@ class GanttChartGenerator:
                                 parse_dates=['Started', 'Due'], dayfirst=True)
 
         self.amount_of_tasks = len(self.data["Task"].tolist())
+        self.start_day = None
 
     @staticmethod
     def __add_spaces(frame):
@@ -84,6 +85,7 @@ class GanttChartGenerator:
     def __calculate_dates(self, show_confirm):
         # project start date
         self.project_start = self.data["Started"].min()
+        self.start_day = (self.data["Started"].min() - pd.Timestamp('2023-01-01T00')).days
         # number of days from project start to task start
         self.data['start_num'] = (self.data.Started - self.project_start).dt.days
         # number of days from project start to end of tasks
@@ -107,8 +109,8 @@ class GanttChartGenerator:
         max_indent = 4
         for i, row in enumerate(description_data):
             indent = row[1].count('.')
-            task = f'{row[1].strip()}. {row[0]}'
-            changed = f'{" " * indent}{task:<57}{" " * (max_indent - indent)}{row[2]:>10}{row[3]:>10}'
+            task = f'{row[1].strip()} {row[0]}'
+            changed = f'{"" * indent}{task:<47}{row[3]:>6}'
             descriptions.append(changed)
 
         self.data["Description"] = descriptions
@@ -187,18 +189,18 @@ class GanttChartGenerator:
         # Align x axis
         self.ax.set_xlim(0, self.project_end)
         self.ax_top.set_xlim(0, self.project_end)
-        # Top ticks (markings)
-        x_ticks_top_minor = np.arange(0, self.project_end + 1, 7)
-        self.ax_top.set_xticks(x_ticks_top_minor, minor=True)
-        # Top ticks (label)
-        self.ax_top.set_xticks([])
-        # Week labels
-        x_ticks_top_labels = []
-        for week in range(1, len(x_ticks_top_minor) + 1):
-            x_ticks_top_labels.append(f"Week {week}\n"
-                                      f"{(self.project_start + (week - 1) * pd.Timedelta(days=7)).strftime('%d/%m/%y')}")
-        # x_ticks_top_labels.append([f"Week {i}"for i in np.arange(1, len(xticks_top_major)+1, 1)])
-        self.ax_top.set_xticklabels(x_ticks_top_labels, rotation=0, ha='left', minor=True)
+        # # Top ticks (markings)
+        # x_ticks_top_minor = np.arange(0, self.project_end + 1, 7)
+        # self.ax_top.set_xticks(x_ticks_top_minor, minor=True)
+        # # Top ticks (label)
+        # self.ax_top.set_xticks([])
+        # # Week labels
+        # x_ticks_top_labels = []
+        # for week in range(1, len(x_ticks_top_minor) + 1):
+        #     x_ticks_top_labels.append(f"Week {week}\n"
+        #                               f"{(self.project_start + (week - 1) * pd.Timedelta(days=7)).strftime('%d/%m/%y')}")
+        # # x_ticks_top_labels.append([f"Week {i}"for i in np.arange(1, len(xticks_top_major)+1, 1)])
+        # self.ax_top.set_xticklabels(x_ticks_top_labels, rotation=0, ha='left', minor=True)
 
         # Grid lines
         self.ax_top.set_axisbelow(True)
@@ -207,32 +209,32 @@ class GanttChartGenerator:
 
         # Set tick lengths and color equal for major and minor ticks
         self.ax_top.tick_params(which='major', color='k', length=2)
-        self.ax_top.tick_params(which='minor', length=2, color='k')
+        # self.ax_top.tick_params(which='minor', length=2, color='k')
 
         # Minor ticks each day, major ticks each week
-        minor_ticks = [x for x in range(0, 9 * 7 + 6) if x % 7 != 0]
-        minor_labels = ['T', 'W', 'T', 'F', 'S', 'S'] * 9 + ['T', 'W', 'T', 'F', '']
-        major_ticks = list(range(0, 9 * 7 + 5, 7))
-        major_labels = ['M'] * 10
-        self.ax_top.set_xticks(minor_ticks, minor=True, labels=minor_labels, fontsize=6, ha='left')
+        # minor_ticks = [x for x in range(0, 1096) if x % 31 != 0]
+        # minor_labels = [""]
+        major_ticks = [0, 365 - self.start_day, 731 - self.start_day]
+        major_labels = ["July 2023", "January 2024", "January 2025"]
+        # self.ax_top.set_xticks(minor_ticks, minor=True, labels=minor_labels, fontsize=6, ha='left')
         self.ax_top.set_xticks(major_ticks, labels=major_labels, fontsize=6, ha='left')
-        self.ax_top.tick_params(axis='x', which='major', pad=0)
+        self.ax_top.tick_params(axis='x', which='major', pad=2)
         self.ax_top.tick_params(axis='x', which='minor', pad=0)
 
-        # Add "Week i" labels
-        n = 7 * 9 + 5
-        for i in range(9):
-            x = 1 / n * (7 * i + 3.5)
-            self.ax_top.text(x, 1.008, f'Week {i + 1}', transform=self.ax_top.transAxes, fontsize=9, ha='center')
-        self.ax_top.text(1 / n * (7 * 9 + 2.5), 1.008, 'Week 10', transform=self.ax_top.transAxes, ha='center', fontsize=9)
+        # # Add "Week i" labels
+        # n = 365 * 3
+        # for i in range(9):
+        #     x = 1 / n * (365 * i + 150)
+        #     self.ax_top.text(x, 1.008, f'Week {i + 1}', transform=self.ax_top.transAxes, fontsize=9, ha='center')
+        # self.ax_top.text(1 / n * (7 * 9 + 2.5), 1.008, 'Week 10', transform=self.ax_top.transAxes, ha='center', fontsize=9)
 
         if show_confirm:
             print("\tAdded top axis")
 
     def __add_column_names(self, show_confirm):
-        self.figure.text(-0.62, 1.002, 'Task', transform=self.ax_top.transAxes, fontsize=8)
-        self.ax_top.text(-0.12, 1.002, 'Person', transform=self.ax_top.transAxes, fontsize=8)
-        self.ax_top.text(-0.05, 1.002, 'Time', transform=self.ax_top.transAxes, fontsize=8)
+        self.figure.text(-0.56, 1.004, 'Task', transform=self.ax_top.transAxes, fontsize=8)
+        # self.ax_top.text(-0.12, 1.002, 'Person', transform=self.ax_top.transAxes, fontsize=8)
+        self.ax_top.text(-0.07, 1.004, 'Time', transform=self.ax_top.transAxes, fontsize=8)
 
         if show_confirm:
             print("\tAdded header")
@@ -274,7 +276,7 @@ class GanttChartGenerator:
         self.__sort_data(True)
         self.__add_row_number(True)
         self.__cut_database(True, top)
-        self.__add_weekends(True)
+        # self.__add_weekends(True)
         self.__add_tasks(True)
         # self.__add_persons(True)
         self.__add_ticks(True)

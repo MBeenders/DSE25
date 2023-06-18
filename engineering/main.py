@@ -361,6 +361,8 @@ class Runner:
 
 if __name__ == "__main__":
     runner = Runner("initial_values_2")
+    test_rocket = fm.import_rocket_iteration("archive/run_1/0040_rocket")
+    print(test_rocket.simulator.altitudes[int(30 / 0.01)])
     # runner.test_sizing()
     # runner.run(40, export_summary=True)
-    runner.show_plots(12)
+    # runner.show_plots(12)
