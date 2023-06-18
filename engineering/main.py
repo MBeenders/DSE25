@@ -3,6 +3,7 @@ import json
 import os
 import sys
 import re
+import tqdm
 
 import numpy as np
 from colorama import Fore
@@ -30,7 +31,7 @@ def extract_number(file):
 
 
 class Runner:
-    def __init__(self, file_name: str):
+    def __init__(self, file_name: str, randomize: bool = False):
         """
         :param file_name: Name of the rocket initialization file
         """
@@ -49,10 +50,10 @@ class Runner:
 
         simulator: Simulator = Simulator(self.run_parameters["mission_profile"], self.run_parameters["simulator_parameters"],
                                          dynamics_run, gravity, drag, isa)
-        if file_name[:7] == "archive":  # If name starts with archive, import the class from the archive
-            self.rocket: Rocket = fm.import_rocket_iteration(file_name)
-        else:  # If not, then just create a new class from the initialization file
-            self.rocket: Rocket = fm.initialize_rocket(file_name, simulator, self.run_parameters)
+        # if file_name[:7] == "archive":  # If name starts with archive, import the class from the archive
+        #     self.rocket: Rocket = fm.import_rocket_iteration(file_name)
+        # Create a new class from the initialization file
+        self.rocket: Rocket = fm.initialize_rocket(file_name, simulator, self.run_parameters, randomize)
         # Calculate all the Engine specs
         self.rocket = initialize_engines(self.rocket)
 
@@ -390,9 +391,9 @@ class Runner:
 
 
 if __name__ == "__main__":
-    runner = Runner("initial_values_2")
+    runner = Runner("initial_values_2", randomize=True)
     # test_rocket = fm.import_rocket_iteration("archive/run_1/0040_rocket")
     # print(test_rocket.simulator.altitudes[int(30 / 0.01)])
     # runner.test_sizing()
     # runner.run(50, export_summary=True)
-    runner.show_plots(2)
+    runner.show_plots(5)

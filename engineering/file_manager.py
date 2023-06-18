@@ -2,6 +2,7 @@ from sizing.rocket import Rocket
 from simulators.simulator import Simulator
 import pandas as pd
 import pickle
+import numpy as np
 import json
 import os
 import sys
@@ -37,24 +38,29 @@ def import_csv(file_name: str) -> pd.DataFrame:
     return pd.read_csv(os.path.join(current_file_path, f"files/{file_name}.csv"))
 
 
-def insert_values(data: pd.DataFrame, rocket: Rocket):
+def insert_values(data: pd.DataFrame, rocket: Rocket, randomizer: bool = False):
     """
     :param data: Pandas Dataframe file with initialization values
     :param rocket: Rocket class
+    :param randomizer: If true this will randomize the initial values to check for sensitivity
     """
 
-    def add_value(current_value, variable, rocket_sub):
+    def add_value(current_value, variable, rocket_sub, locked):
         try:  # Check if variable exists
             try:  # Try to convert it to a float, otherwise leave it as a string
                 value = float(current_value)
             except ValueError:
                 value = current_value
 
+            if randomizer and type(value) == float and not locked:
+                random_value = np.random.uniform(0.5, 2, 1)[0]
+                value = value * random_value
+
             rocket_sub[variable] = value
         except KeyError as error:
             raise Exception(f"'{current_value}' not found in csv, error: {error}")
 
-    def add_line(subsystem, line, rocket_sub):
+    def add_line(subsystem, line, rocket_sub, locked):
         if len(subsystem) > 1:  # Dig deeper into the class system to get to the subclass
             try:
                 rocket_sub = rocket_sub[subsystem[0]]
@@ -62,31 +68,32 @@ def insert_values(data: pd.DataFrame, rocket: Rocket):
                 raise Exception(f"Subsystem '{subsystem[0]}' not found in Rocket class, error: {error}")
 
             subsystem.pop(0)
-            add_line(subsystem, line, rocket_sub)
+            add_line(subsystem, line, rocket_sub, locked)
 
         else:  # Insert the value under the right variable
-            add_value(line["Value"], line["Variable"], rocket_sub[subsystem[0]])
+            add_value(line["Value"], line["Variable"], rocket_sub[subsystem[0]], locked)
 
     for index, row in data.iterrows():
         if row["Subsystem"] == "rocket":  # If it is a global rocket value
-            add_value(row["Value"], row["Variable"], rocket)
+            add_value(row["Value"], row["Variable"], rocket, row["Locked"])
         elif row["Subsystem"] == "stage":  # If it is a stage value
-            add_value(row["Value"], row["Variable"], rocket[f"stage{int(row['Stage'])}"])
+            add_value(row["Value"], row["Variable"], rocket[f"stage{int(row['Stage'])}"], row["Locked"])
         else:  # If it is a subsystem value
-            add_line(row["Subsystem"].split(","), row, rocket[f"stage{int(row['Stage'])}"])
+            add_line(row["Subsystem"].split(","), row, rocket[f"stage{int(row['Stage'])}"], row["Locked"])
 
 
-def initialize_rocket(file_name: str, simulator: Simulator, run_parameters: dict) -> Rocket:
+def initialize_rocket(file_name: str, simulator: Simulator, run_parameters: dict, randomizer: bool) -> Rocket:
     """
     :param file_name: Name of csv file, must be in "files" folder
     :param simulator: The trajectory simulator
     :param run_parameters: The parameters that decide what the program will run
+    :param randomizer: If true this will randomize the initial values to check for sensitivity
     :return: A filled Rocket class
     """
     data = import_csv(file_name)  # Import initialization data
     rocket = Rocket(simulator)  # Initialize rocket
 
-    insert_values(data, rocket)  # Insert csv values into Rocket class
+    insert_values(data, rocket, randomizer=randomizer)  # Insert csv values into Rocket class
 
     import_engine_chemicals(run_parameters["engine_chemicals"], rocket)
 
