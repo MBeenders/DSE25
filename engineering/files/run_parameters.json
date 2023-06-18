@@ -14,12 +14,26 @@
   },
   "plot_selection":
   {
-    "rocket.mass": "[kg]",
-    "rocket.length": "[m]",
-    "rocket.stage1.fins.span": "[m]",
-    "rocket.stage2.fins.span": "[m]",
-    "rocket.stage2.max_cg_location": "[m]",
-    "rocket.stage2.cp_location": "[m]"
+    "mass":
+    {
+      "x_data": ["iteration"],
+      "y_data": ["rocket.mass", "rocket.stage1.mass", "rocket.stage2.mass"],
+      "x_label": "Iteration [-]",
+      "y_label": "Mass [kg]",
+      "x_lim": [0, 40],
+      "y_lim": [0, "None"],
+      "show_change": "True"
+    },
+    "length_vs_mass":
+    {
+      "x_data": ["rocket.length"],
+      "y_data": ["rocket.mass"],
+      "x_label": "Length [m]",
+      "y_label": "Mass [kg]",
+      "x_lim": ["None", "None"],
+      "y_lim": ["None", "None"],
+      "show_change": "False"
+    }
   },
   "sizing_selection": ["recovery", "engine", "electronics", "stability"],
   "engine_chemicals":

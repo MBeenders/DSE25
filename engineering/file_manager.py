@@ -152,6 +152,9 @@ def export_to_csv(folder_name: str, file_name: str, rocket: Rocket, variables: d
 def load_variable(run_number: int, variable: list):
     data: list = []
 
+    if variable == "iteration" or not variable:
+        return None
+
     def get_variable(rocket, i):
         i += 1
         if len(variable) == i + 1:
