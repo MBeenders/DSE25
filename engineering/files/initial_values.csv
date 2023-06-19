@@ -100,6 +100,8 @@ Stage,Subsystem,Variable,Value,Unit,
 1,recovery,mass,2,kg,
 2,recovery,mass,2,kg,
 1,"recovery,drogue",mass,1,kg,
+1,"recovery,main_parachute",rho,1.225,kg/m^3,
+1,"recovery,main_parachute",rho,1.225,kg/m^3,
 1,"recovery,main_parachute",descent_rate,14,m/s,
 2,"recovery,drogue",descent_rate,25,m/s,-
 2,"recovery,main_parachute",descent_rate,10,m/s,-

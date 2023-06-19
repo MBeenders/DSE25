@@ -245,16 +245,9 @@ def nosecone_pressure_drag(rocket, dynamic_pressure: float, mach_number: float) 
 
 
 @njit()
-def shoulder_pressure_drag(rocket, drag_coefficient_nose: float, dynamic_pressure: float, mach_number: float) -> float:
-    if mach_number <= 1:
-        drag_coefficient_shoulder = drag_coefficient_nose
-    else:
-        drag_coefficient_shoulder = drag_coefficient_nose
-
-    theta = np.arctan((rocket.diameter1 - rocket.diameter2) / (2 * rocket.shoulder_length))
-    shoulder_wetted_area = np.pi * rocket.diameter2 * rocket.shoulder_length * np.cos(theta)  # Shoulder wet surface area [m^2]
+def shoulder_pressure_drag(rocket, drag_coefficient_nose: float, dynamic_pressure: float) -> float:
     shoulder_ref_area = np.pi / 4 * (rocket.diameter1 ** 2 - rocket.diameter2 ** 2)
-    drag_shoulder = drag_coefficient_shoulder * dynamic_pressure * shoulder_ref_area  # Shoulder pressure drag [N]
+    drag_shoulder = drag_coefficient_nose * dynamic_pressure * shoulder_ref_area  # Shoulder pressure drag [N]
 
     # print("Shoulder: ", drag_coefficient_shoulder)
     return drag_shoulder
@@ -317,13 +310,13 @@ def drag(rocket, velocity: float, temperature: float, density: float, stage: int
         drag_base = base_drag(rocket, dynamic_pressure, mach_number)
 
         if stage == 0:  # Total Stage
-            drag_shoulder = shoulder_pressure_drag(rocket, drag_coefficient_nose, dynamic_pressure, mach_number)
+            drag_shoulder = shoulder_pressure_drag(rocket, drag_coefficient_nose, dynamic_pressure)
             drag_friction = skin_friction_drag(rocket, True, True, velocity, dynamic_pressure, mach_number)
             drag_fin1, drag_fin2 = fin_pressure_drag(rocket, True, True, dynamic_pressure, mach_number)
             drag_force = drag_friction + drag_nosecone + drag_shoulder + drag_fin1 + drag_fin2 + drag_base
             # print(f"Shoulder {drag_shoulder}\nNosecone {drag_nosecone}\nBase {drag_base}\nFriction {drag_friction}\nFin1 {drag_fin1}\nFin2 {drag_fin2}\nTotal {drag_force}")
         elif stage == 1:  # Stage 1
-            drag_shoulder = shoulder_pressure_drag(rocket, drag_coefficient_nose, dynamic_pressure, mach_number)
+            drag_shoulder = shoulder_pressure_drag(rocket, drag_coefficient_nose, dynamic_pressure)
             drag_friction = skin_friction_drag(rocket, True, False, velocity, dynamic_pressure, mach_number)
             drag_fin1, drag_fin2 = fin_pressure_drag(rocket, True, False, dynamic_pressure, mach_number)
             drag_force = drag_friction + drag_shoulder + drag_fin1 + drag_base

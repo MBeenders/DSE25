@@ -4,8 +4,8 @@
     "stages": 2,
     "launch": {"exact": 0},
     "engine1_ignition": {"exact": 0},
-    "engine2_ignition": {"delay": 1},
-    "separation": {"delay": 1}
+    "engine2_ignition": {"delay": 15},
+    "separation": {"delay": 0}
   },
   "simulator_parameters":
   {
@@ -14,12 +14,28 @@
   },
   "plot_selection":
   {
-    "rocket.mass": "[kg]",
-    "rocket.length": "[m]",
-    "rocket.stage1.fins.span": "[m]",
-    "rocket.stage2.fins.span": "[m]"
+    "mass":
+    {
+      "x_data": ["iteration"],
+      "y_data": ["rocket.mass", "rocket.stage1.mass", "rocket.stage2.mass"],
+      "x_label": "Iteration [-]",
+      "y_label": "Mass [kg]",
+      "x_lim": [0, 40],
+      "y_lim": [0, "None"],
+      "show_change": "True"
+    },
+    "length":
+    {
+      "x_data": ["iteration"],
+      "y_data": ["rocket.length", "rocket.stage1.length", "rocket.stage2.length"],
+      "x_label": "Iteration [-]",
+      "y_label": "Length [m]",
+      "x_lim": [0, 40],
+      "y_lim": [0, "None"],
+      "show_change": "True"
+    }
   },
-  "sizing_selection": ["recovery", "electronics", "engine", "stability"],
+  "sizing_selection": ["recovery", "engine", "electronics", "stability"],
   "engine_chemicals":
   {
     "stage1":

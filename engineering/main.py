@@ -3,10 +3,11 @@ import json
 import os
 import sys
 import re
+import tqdm
 
 import numpy as np
-import matplotlib.pyplot as plt
 from colorama import Fore
+from plotting import plot_2d
 import time
 
 import file_manager as fm
@@ -30,7 +31,7 @@ def extract_number(file):
 
 
 class Runner:
-    def __init__(self, file_name: str):
+    def __init__(self, file_name: str, randomize: bool = False):
         """
         :param file_name: Name of the rocket initialization file
         """
@@ -49,10 +50,10 @@ class Runner:
 
         simulator: Simulator = Simulator(self.run_parameters["mission_profile"], self.run_parameters["simulator_parameters"],
                                          dynamics_run, gravity, drag, isa)
-        if file_name[:7] == "archive":  # If name starts with archive, import the class from the archive
-            self.rocket: Rocket = fm.import_rocket_iteration(file_name)
-        else:  # If not, then just create a new class from the initialization file
-            self.rocket: Rocket = fm.initialize_rocket(file_name, simulator, self.run_parameters)
+        # if file_name[:7] == "archive":  # If name starts with archive, import the class from the archive
+        #     self.rocket: Rocket = fm.import_rocket_iteration(file_name)
+        # Create a new class from the initialization file
+        self.rocket: Rocket = fm.initialize_rocket(file_name, simulator, self.run_parameters, randomize)
         # Calculate all the Engine specs
         self.rocket = initialize_engines(self.rocket)
 
@@ -120,12 +121,15 @@ class Runner:
             if print_sub:
                 print("\tRunning Simulation")
             self.rocket.simulator.run()
-            #  self.rocket.simulator.plot_trajectory()
+            # if i == runs - 1:
+            #     self.rocket.simulator.plot_trajectory()
             if print_sub:
                 print(f"\t\tInitial apogee: {round(self.rocket.simulator.apogee, 3)} m")
 
             # Sizing
             self.run_sizing(print_sub)
+
+            print(f"\tAltitude {self.rocket.simulator.apogee}")
 
             # Sum the Subsystems into the Stages and main Rocket
             if print_sub:
@@ -157,6 +161,7 @@ class Runner:
             if print_iteration:
                 print(f"Finished iteration {i + 1}, after {round(time.time() - last_time, 2)} s")
 
+        print(self.rocket.simulator.apogee_1)
         # Close
         print(f"Finished after {round(time.time() - self.start_time, 2)} s\n\tClosing program ...")
         self.close()
@@ -251,13 +256,6 @@ class Runner:
         # run_structure_sizing(copy.deepcopy(self.rocket))
         run_stability_sizing(copy.deepcopy(self.rocket))
 
-    def show_plots(self, run_number: int):
-        for variable in self.run_parameters["plot_selection"]:
-            data = fm.load_variable(run_number, variable.split('.')[1:])
-            plt.plot(np.arange(0, len(data)), data)
-            plt.title(str(variable))
-            plt.show()
-
     def check_rocket_class(self, new: bool = False, general_print: bool = False):
         print("Checking Rocket Class")
 
@@ -342,6 +340,43 @@ class Runner:
             else:
                 add_line(row["Subsystem"].split(", "), row, self.rocket[f"stage{int(row['Stage'])}"])
 
+    def show_plots(self, run_number: int):
+
+        for plot_name, plot_data in self.run_parameters["plot_selection"].items():
+            sets: list = []
+            data_set = {"x_description": plot_data["x_label"], "x_data": None,
+                        "y_description": plot_data["y_label"], "y_data": None, "name": None}
+            if len(plot_data["x_data"]) > 1 and len(plot_data["y_data"]) > 1:
+                print("Plotting Error! Not allowed to both have multiple x and y values")
+
+            elif len(plot_data["x_data"]) > 1:
+                for variable in plot_data["x_data"]:
+                    new_set = data_set.copy()
+                    new_set["x_data"] = fm.load_variable(run_number, variable.split('.')[1:])
+                    new_set["y_data"] = fm.load_variable(run_number, plot_data["y_data"][0].split('.')[1:])
+                    new_set["name"] = str(variable)
+                    sets.append(new_set)
+
+            elif len(plot_data["y_data"]) > 1:
+                for variable in plot_data["y_data"]:
+                    new_set = data_set.copy()
+                    new_set["x_data"] = fm.load_variable(run_number, plot_data["x_data"][0].split('.')[1:])
+                    new_set["y_data"] = fm.load_variable(run_number, variable.split('.')[1:])
+                    new_set["name"] = str(variable)
+                    sets.append(new_set)
+
+            else:
+                new_set = data_set.copy()
+                new_set["x_data"] = fm.load_variable(run_number, plot_data["x_data"][0].split('.')[1:])
+                new_set["y_data"] = fm.load_variable(run_number, plot_data["y_data"][0].split('.')[1:])
+                new_set["name"] = ""
+                sets.append(new_set)
+
+            if plot_data["show_change"] == "True":
+                plot_2d(sets, x_lim=plot_data["x_lim"], y_lim=plot_data["y_lim"], show_change=True)
+            else:
+                plot_2d(sets, x_lim=plot_data["x_lim"], y_lim=plot_data["y_lim"])
+
     def save_iteration(self):
         fm.export_rocket_iteration("rocket", self.new_rocket)
 
@@ -356,7 +391,10 @@ class Runner:
 
 
 if __name__ == "__main__":
-    runner = Runner("initial_values_2")
+    runner = Runner("initial_values_2", randomize=False)
+    # test_rocket = fm.import_rocket_iteration("archive/run_2/0050_rocket")
+    # print(max(test_rocket.simulator.accelerations))
+    # print(test_rocket.simulator.apogee_1)
     # runner.test_sizing()
-    runner.run(10, testing=True, export_summary=True)
-    runner.show_plots(1)
+    runner.run(50, export_summary=True)
+    runner.show_plots(7)

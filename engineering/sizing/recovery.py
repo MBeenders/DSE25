@@ -2,8 +2,6 @@ import numpy as np
 
 #  Constant values:
 g = 9.80665
-rho = 1.225
-
 
 def parachutes(rocket):
     """
@@ -13,6 +11,8 @@ def parachutes(rocket):
 
     dry_mass1: float = rocket.stage1.dry_mass
     dry_mass2: float = rocket.stage2.dry_mass
+    rho: float = rocket.stage1.recovery.main_parachute.rho
+    rho2drogue: float = rocket.stage2.recovery.drogue.rho
     descent_rate1: float = rocket.stage1.recovery.main_parachute.descent_rate
     descent_rate2_drogue: float = rocket.stage2.recovery.drogue.descent_rate
     descent_rate2_main: float = rocket.stage2.recovery.main_parachute.descent_rate
@@ -27,20 +27,14 @@ def parachutes(rocket):
     # 1st stage main parachute:
     area_main1 = dry_mass1 * g / (0.5 * rho * descent_rate1 ** 2 * c_D_main1)
     diameter_main1 = np.sqrt(area_main1 / (np.pi * 0.25))
-    volume_main_parachute1 = rocket.stage1.recovery.main_parachute.packing_factor * area_main1
-    rocket.stage1.recovery.main_parachute.length = volume_main_parachute1 / (np.pi * (rocket.stage1.recovery.main_parachute.diameter / 2) ** 2)
 
     # 2nd stage drogue parachute:
-    area_drogue2 = dry_mass2 * g / (0.5 * rho * descent_rate2_drogue ** 2 * c_D_drogue2)
+    area_drogue2 = dry_mass2 * g / (0.5 * rho2drogue * descent_rate2_drogue ** 2 * c_D_drogue2)
     diameter_drogue2 = np.sqrt(area_drogue2 / (np.pi * 0.25))
-    volume_drogue2 = rocket.stage2.recovery.drogue.packing_factor * area_drogue2
-    rocket.stage2.recovery.drogue.length = volume_drogue2 / (np.pi * (rocket.stage2.recovery.drogue.diameter / 2) ** 2)
 
     # 2nd stage main parachute:
     area_main2 = dry_mass2 * g / (0.5 * rho * descent_rate2_main ** 2 * c_D_main2)
     diameter_main2 = np.sqrt(area_main2 / (np.pi * 0.25))
-    volume_main_parachute2 = rocket.stage2.recovery.main_parachute.packing_factor * area_main2
-    rocket.stage2.recovery.main_parachute.length = volume_main_parachute2 / (np.pi * (rocket.stage2.recovery.main_parachute.diameter / 2) ** 2)
 
     d_parachutes = [diameter_main1, diameter_drogue2, diameter_main2]
 
@@ -48,13 +42,16 @@ def parachutes(rocket):
 
     # 1st stage main parachute:
     m_main1 = area_main1 * material_density
-    rocket.stage1.recovery.main_parachute.mass = m_main1
 
     # 2nd stage drogue parachute:
     m_drogue2 = area_drogue2 * material_density
+    volume_stage2_drogue = m_drogue2 / rocket.stage2.recovery.drogue.packing_density
+    rocket.stage2.recovery.drogue.length = volume_stage2_drogue / (np.pi * rocket.stage2.recovery.diameter**2 / 4)
 
     # 2nd stage main parachute:
     m_main2 = area_main2 * material_density
+    volume_stage2_main_parachute = m_main2 / rocket.stage2.recovery.main_parachute.packing_density
+    rocket.stage2.recovery.main_parachute.length = volume_stage2_main_parachute / (np.pi * rocket.stage2.recovery.diameter**2 / 4)
 
     # COST OF PARACHUTES:
 
@@ -70,12 +67,11 @@ def parachutes(rocket):
     return m_main1, m_drogue2, m_main2, cost_main1, cost_drogue2, cost_main2, d_parachutes
 
 
-def lines(rocket):
+def lines(rocket, d_parachutes):
     """
     :param rocket: Rocket class
     :return: None
     """
-    d_parachutes = parachutes(rocket)[6]
     line_l_d_main1 = rocket.stage1.recovery.main_parachute.line_l_d
     line_l_d_drogue2 = rocket.stage2.recovery.drogue.line_l_d
     line_l_d_main2 = rocket.stage2.recovery.main_parachute.line_l_d
@@ -140,7 +136,7 @@ def run(rocket):
     :return: Updated Rocket class
     """
     parachute_data = parachutes(rocket)
-    line_data = lines(rocket)
+    line_data = lines(rocket, parachute_data[6])
     cold_gas_data = cold_gas(rocket)
 
     # Parachutes
