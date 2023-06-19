@@ -5,8 +5,10 @@ import scipy
 def calculate_cg_locations(rocket):
     def body(length_before, stage):
         # Electronics
-        stage.electronics.min_cg_location = length_before
-        stage.electronics.max_cg_location = length_before
+        electronics_cg = length_before + 0.5 * stage.electronics.length
+        stage.electronics.min_cg_location = electronics_cg
+        stage.electronics.max_cg_location = electronics_cg
+        length_before += stage.electronics.length
 
         # Recovery
         recovery_cg = length_before + 0.5 * stage.recovery.length
@@ -93,6 +95,9 @@ def calculate_total_cg(rocket):
 
 def calculate_wetted_area(rocket):
     def body(stage):
+        # Electronics
+        stage.electronics.wetted_area = stage.electronics.length * stage.electronics.diameter * np.pi
+
         # Recovery
         stage.recovery.wetted_area = stage.recovery.length * stage.recovery.diameter * np.pi
 
@@ -109,6 +114,9 @@ def calculate_wetted_area(rocket):
     local_radius = (rocket.stage2.nosecone.base_radius / np.sqrt(np.pi)) * np.sqrt(phi - 0.5 * np.sin(2 * phi))
     rocket.stage2.nosecone.wetted_area = np.pi * rocket.stage2.nosecone.diameter * local_radius
 
+    # Payload:
+    rocket.stage2.payload.wetted_area = rocket.stage2.payload.length * rocket.stage2.payload.diameter * np.pi
+
     # Stage 2 Body + Fins
     body(rocket.stage2)
 
@@ -118,11 +126,6 @@ def calculate_wetted_area(rocket):
 
     # Stage 1 Body + Fins
     body(rocket.stage1)
-
-    # Non exposed subsystem:
-    rocket.stage1.electronics.wetted_area = 0
-    rocket.stage2.electronics.wetted_area = 0
-    rocket.stage2.payload.wetted_area = 0
 
 
 def calculate_mac(rocket):
@@ -136,6 +139,10 @@ def calculate_mac(rocket):
 
 def calculate_cp_locations(rocket):
     def body(length_before, stage):
+        # Electronics
+        stage.electronics.cp_location = length_before + 0.5 * stage.electronics.length
+        length_before += stage.electronics.length
+
         # Recovery
         stage.recovery.cp_location = length_before + 0.5 * stage.recovery.length
         length_before += stage.recovery.length
@@ -174,6 +181,9 @@ def calculate_cp_locations(rocket):
 
 def calculate_flow_area(rocket):
     def body(stage):
+        # Electronics
+        stage.electronics.flow_area = 0
+
         # Recovery
         stage.recovery.flow_area = 0  # stage.recovery.length * stage.recovery.diameter
 
@@ -201,10 +211,6 @@ def calculate_flow_area(rocket):
 
     # Stage 1 Body + FIns
     body(rocket.stage1)
-
-    # Non exposed subsystem:
-    rocket.stage1.electronics.flow_area = 0
-    rocket.stage2.electronics.flow_area = 0
 
 
 def calculate_total_cp(rocket):
@@ -299,7 +305,7 @@ def calculate_fin_thickness(rocket):
 
 def update_masses(rocket):
     # Nosecone
-    rocket.stage2.nosecone.mass = rocket.stage2.nosecone.wetted_area * rocket.stage2.nosecone.thickness * rocket.stage2.nosecone.density
+    # rocket.stage2.nosecone.mass = rocket.stage2.nosecone.wetted_area * rocket.stage2.nosecone.thickness * rocket.stage2.nosecone.density
 
     # Stage2 Fins
     rocket.stage2.fins.mass = (rocket.stage2.fins.wetted_area / 2) * rocket.stage2.fins.thickness * rocket.stage2.fins.density

@@ -260,10 +260,9 @@ def run(rocket, print_sizing=False):
 
     # Payload
     stage2_payload(rocket, print_sizing)
-    rocket.stage2.payload.mass = rocket.stage2.payload.powersystem.mass_bat
+    # rocket.stage2.payload.mass = rocket.stage2.payload.powersystem.mass_bat
 
     # Cost
-
 
     return rocket
 

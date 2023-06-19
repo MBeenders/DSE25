@@ -393,8 +393,8 @@ class Runner:
 if __name__ == "__main__":
     runner = Runner("initial_values_2", randomize=False)
     # test_rocket = fm.import_rocket_iteration("archive/run_2/0050_rocket")
-    # print(max(test_rocket.simulator.accelerations))
+    # print(max(test_rocket.simulator.drag))
     # print(test_rocket.simulator.apogee_1)
     # runner.test_sizing()
-    runner.run(50, export_summary=True)
-    runner.show_plots(7)
+    # runner.run(50, export_summary=True)
+    runner.show_plots(2)

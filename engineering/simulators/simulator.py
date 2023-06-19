@@ -287,7 +287,7 @@ class Simulator:
         plt.plot(self.times, self.altitudes)
         plt.show()
 
-        plt.plot(self.times, self.velocities[:-1])
+        plt.plot(self.times, self.velocities)
         plt.show()
 
         plt.plot(self.times, self.forces_drag)

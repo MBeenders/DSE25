@@ -64,7 +64,7 @@ def plot_2d(data_set: list[dict] | dict, x_lim: tuple = (0, None), y_lim: tuple 
         if show_change:
             percentual_change = round(abs(data["y_data"][x_loc[1]] - data["y_data"][x_loc[1] - 1]) / data["y_data"][x_loc[1] - 1] * 100, 3)
             x_location = x_loc[1] - 0.12 * (x_loc[1] - x_loc[0])
-            y_location = data["y_data"][-1] + 0.04 * (y_loc[1] - y_loc[0])
+            y_location = data["y_data"][-1] - 0.04 * (y_loc[1] - y_loc[0])
             plt.text(x_location, y_location, f"{percentual_change}%")
 
         plt.plot(data["x_data"], data["y_data"], label=data["name"], color=colours[i], linestyle=line_types[i])

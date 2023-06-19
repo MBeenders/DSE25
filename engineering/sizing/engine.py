@@ -224,6 +224,7 @@ def create_stage1_engine(rocket):
     acceleration = initial_acceleration(rocket.stage1.engine.launch_tower_length,
                                         rocket.stage1.engine.launch_exit_velocity)
     rocket.stage1.engine.thrust = thrust_force(rocket.mass, acceleration)
+    rocket.stage1.engine.impulse = rocket.stage1.engine.thrust * rocket.stage1.engine.burn_time
 
     # Calculate Pressure
     _, pressure, _ = calc_pressure(rocket.simulator.apogee_1)
