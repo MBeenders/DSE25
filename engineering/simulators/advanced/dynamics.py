@@ -49,8 +49,8 @@ def run(flight, stage: int, gravity, drag, isa, dt: float = 0.1, start_time: flo
             flight.force_gravity[i] = force_gravity
 
             # Iteration
-            acceleration = np.array((force_x, force_y), dtype=np.float64) / mass_total
-            flight.velocities[i + 1] = acceleration * dt + flight.velocities[i]
+            flight.accelerations[i + 1] = np.array((force_x, force_y), dtype=np.float64) / mass_total
+            flight.velocities[i + 1] = flight.accelerations[i] * dt + flight.velocities[i]
             flight.locations[i + 1] = flight.velocities[i] * dt + flight.locations[i]
 
             total_velocity: float = np.linalg.norm(flight.velocities[i])

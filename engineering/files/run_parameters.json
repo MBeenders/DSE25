@@ -24,15 +24,15 @@
       "y_lim": [0, "None"],
       "show_change": "True"
     },
-    "length_vs_mass":
+    "length":
     {
-      "x_data": ["rocket.length"],
-      "y_data": ["rocket.mass"],
-      "x_label": "Length [m]",
-      "y_label": "Mass [kg]",
-      "x_lim": ["None", "None"],
-      "y_lim": ["None", "None"],
-      "show_change": "False"
+      "x_data": ["iteration"],
+      "y_data": ["rocket.length", "rocket.stage1.length", "rocket.stage2.length"],
+      "x_label": "Iteration [-]",
+      "y_label": "Length [m]",
+      "x_lim": [0, 40],
+      "y_lim": [0, "None"],
+      "show_change": "True"
     }
   },
   "sizing_selection": ["recovery", "engine", "electronics", "stability"],

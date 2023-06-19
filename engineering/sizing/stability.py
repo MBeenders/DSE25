@@ -48,7 +48,7 @@ def calculate_cg_locations(rocket):
     datum += rocket.stage2.nosecone.length
 
     # Payload
-    payload_cg = datum + rocket.stage2.payload.length * 0.5
+    payload_cg = datum  + rocket.stage2.payload.length * 0.5
     rocket.stage2.payload.min_cg_location = payload_cg
     rocket.stage2.payload.max_cg_location = payload_cg
     datum += rocket.stage2.payload.length
@@ -100,8 +100,7 @@ def calculate_wetted_area(rocket):
         stage.engine.wetted_area = stage.engine.length * stage.engine.diameter * np.pi
 
         # Fins
-        stage.fins.wetted_area = 0.5
-        # stage.fins.wetted_area = 2 * stage.fins.amount * stage.fins.span * (stage.fins.chord_root + stage.fins.chord_tip)
+        stage.fins.wetted_area = stage.fins.amount * stage.fins.span * (stage.fins.chord_root + stage.fins.chord_tip)
 
     # Nosecone
     rocket.stage2.nosecone.length = 5 * rocket.stage2.nosecone.diameter
@@ -282,14 +281,15 @@ def calculate_fin_thickness(rocket):
 
         chord_root = stage.fins.chord_root
         chord_tip = stage.fins.chord_tip
+        mac = stage.fins.mac
         span = stage.fins.span
-        aspect_ratio = 2 * (span ** 2) / stage.fins.wetted_area
+        aspect_ratio = 2 * stage.fins.amount * (span ** 2) / stage.fins.wetted_area
         taper_ratio = chord_tip / chord_root
 
         flutter_speed = stage.fins.flutter_margin * rocket.simulator[f"max_velocity{stage_num}"]
 
-        stage.fins.thickness = chord_root * ((1.337 * pressure * (1 + taper_ratio) * (aspect_ratio ** 3) * (flutter_speed / speed_of_sound) ** 2) /
-                                             (2 * (aspect_ratio + 2) * shear_modulus)) ** (1 / 3)
+        stage.fins.thickness = mac * ((1.337 * pressure * (1 + taper_ratio) * (aspect_ratio ** 3) * (flutter_speed / speed_of_sound) ** 2) /
+                                      (2 * (aspect_ratio + 2) * shear_modulus)) ** (1 / 3)
 
     thickness_stage(rocket.stage1, "_tot")
     thickness_stage(rocket.stage2, "2")

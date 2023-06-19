@@ -121,8 +121,8 @@ class Runner:
             if print_sub:
                 print("\tRunning Simulation")
             self.rocket.simulator.run()
-            if i == runs - 1:
-                self.rocket.simulator.plot_trajectory()
+            # if i == runs - 1:
+            #     self.rocket.simulator.plot_trajectory()
             if print_sub:
                 print(f"\t\tInitial apogee: {round(self.rocket.simulator.apogee, 3)} m")
 
@@ -391,9 +391,10 @@ class Runner:
 
 
 if __name__ == "__main__":
-    runner = Runner("initial_values_2", randomize=True)
-    # test_rocket = fm.import_rocket_iteration("archive/run_1/0040_rocket")
-    # print(test_rocket.simulator.altitudes[int(30 / 0.01)])
+    runner = Runner("initial_values_2", randomize=False)
+    # test_rocket = fm.import_rocket_iteration("archive/run_2/0050_rocket")
+    # print(max(test_rocket.simulator.accelerations))
+    # print(test_rocket.simulator.apogee_1)
     # runner.test_sizing()
-    # runner.run(50, export_summary=True)
-    runner.show_plots(5)
+    runner.run(50, export_summary=True)
+    runner.show_plots(7)
