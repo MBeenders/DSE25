@@ -86,6 +86,49 @@ def plot_2d(data_set: list[dict] | dict, x_lim: tuple = (0, None), y_lim: tuple 
     plt.show()
 
 
+def scatter_plot(data_set: list[dict] | dict, x_lim: tuple = (0, None), y_lim: tuple = (0, None), save: bool = False):
+    labels: dict = {"x_label": None, "y_label": None}
+
+    # Fix Limits
+    if not x_lim:
+        x_lim = (0, None)
+    if not y_lim:
+        y_lim = (0, None)
+    if x_lim[0] == "None":
+        x_lim = (None, x_lim[1])
+    if x_lim[1] == "None":
+        x_lim = (x_lim[0], None)
+    if y_lim[0] == "None":
+        y_lim = (None, y_lim[1])
+    if y_lim[1] == "None":
+        y_lim = (y_lim[0], None)
+
+    for i, data in enumerate(data_set):
+        if i == 0:
+            labels["x_label"] = data["x_description"]
+            labels["y_label"] = data["y_description"]
+        if data["x_data"] is None:
+            data["x_data"] = np.arange(0, len(data["y_data"]))
+        if data["y_data"] is None:
+            data["y_data"] = np.arange(0, len(data["x_data"]))
+
+        plt.scatter(data["x_data"][0], data["y_data"][-1], label=data["name"], color=colours[0])
+
+    plt.xlabel(labels["x_label"])
+    plt.ylabel(labels["y_label"])
+
+    plt.xlim(x_lim)
+    plt.ylim(y_lim)
+
+    plt.minorticks_on()
+    plt.grid()
+    plt.tight_layout()
+    if save:
+        plt.savefig(f"files/plots/scatter_{labels['x_label']}.pdf", dpi=300)
+    else:
+        plt.show()
+
+
 if __name__ == "__main__":
     set1 = {"x_description": "Iteration [-]", "x_data": [0, 1, 2, 3, 5, 7],
             "y_description": "Mass [kg]", "y_data": [2, 1, 5, 3, 6, 8], "name": "test1"}

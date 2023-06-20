@@ -12,6 +12,29 @@
     "maximum_iterations": 10E5,
     "dt": 0.01
   },
+  "sensitivity_plots":
+  {
+    "off":
+    {
+      "x_data": ["iteration"],
+      "y_data": ["rocket.length"],
+      "x_label": "Iteration [-]",
+      "y_label": "Length [m]",
+      "x_lim": [0, 40],
+      "y_lim": [0, "None"],
+      "show_change": "False"
+    },
+    "scatter":
+    {
+      "x_data": ["rocket.stage2.fins.span"],
+      "y_data": ["rocket.stage2.fins.span"],
+      "x_label": "Initial Stage 2 Fins Span [m]",
+      "y_label": "Converged Stage 2 Fins Span [m]",
+      "x_lim": [60, 200],
+      "y_lim": [100, 200],
+      "show_change": "False"
+    }
+  },
   "plot_selection":
   {
     "mass":

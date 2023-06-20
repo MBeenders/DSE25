@@ -87,7 +87,7 @@ Stage,Subsystem,Variable,Value,Unit,Locked
 1,engine,c_star,1496.14128,m/s,TRUE
 2,engine,c_star,1496.14128,m/s,TRUE
 1,engine,launch_exit_velocity,40,m/s,TRUE
-1,engine,launch_tower_length,14,m,TRUE
+1,engine,launch_tower_length,17,m,TRUE
 1,engine,molecular_weight,100,-,TRUE
 2,engine,molecular_weight,100,-,TRUE
 1,engine,chamber_gamma,1.26,-,TRUE

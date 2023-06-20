@@ -3,6 +3,9 @@ from numba.experimental import jitclass
 from numba import int32, float64
 import matplotlib.pyplot as plt
 import numpy as np
+import os
+import sys
+import json
 
 
 rocket_specs = [("max_iterations", int32),
@@ -274,6 +277,7 @@ class Simulator:
         rocket.angles = rocket.angles[:len(rocket.time)]
         rocket.locations = rocket.locations[:len(rocket.time)]
         rocket.velocities = rocket.velocities[:len(rocket.time)]
+        rocket.speed_of_sound = rocket.speed_of_sound[:len(rocket.time)]
         rocket.accelerations = rocket.accelerations[:len(rocket.time)]
 
         rocket.force_drag = rocket.force_drag[:len(rocket.time)]
@@ -313,4 +317,71 @@ class Simulator:
 
 
 if __name__ == "__main__":
-    pass
+    from advanced.aerodynamics import drag, isa
+    from advanced.dynamics import run as dynamics_run
+    from advanced.gravity import gravity
+
+    print(os.path.split(sys.argv[0])[0][:-10])
+    current_path = os.path.split(sys.argv[0])[0][:-10]
+    run_param_file = open(os.path.join(current_path, "files/run_parameters.json"))
+    run_params: dict = json.load(run_param_file)
+
+    sim_params = run_params["simulator_parameters"]
+    mission_params = run_params["mission_profile"]
+
+    sim = Simulator(mission_params, sim_params, dynamics_run, gravity, drag, isa)
+
+    # Total stage
+    sim.stages["Total"] = FlightData(int(sim.maximum_iterations))
+    sim.stages["Total"].angles[0] = np.deg2rad(7)  # 83 degree tower angle
+    sim.stages["Total"].mass[0] = 24.3812378852501 + 58.77570903
+    sim.stages["Total"].cd = 0.3
+    sim.stages["Total"].diameter = 0.2
+    sim.stages["Total"].diameter1 = 0.2
+    sim.stages["Total"].diameter2 = 0.15
+    sim.stages["Total"].shoulder_length = 0.2
+    sim.stages["Total"].fineness_ratio = 5
+    sim.stages["Total"].joint_angle = 22
+    sim.stages["Total"].reference_area = np.pi * (0.2 / 2) ** 2
+    wetted_area_body = 3.85385862174124 - 0.610339385591644 - 0.251695377345981
+    sim.stages["Total"].wetted_area_body = wetted_area_body
+    sim.stages["Total"].wetted_area_fins1 = 0.610339385591644
+    sim.stages["Total"].wetted_area_fins2 = 0.251695377345981
+    sim.stages["Total"].fin_thickness1 = 0.00459047873536001
+    sim.stages["Total"].fin_thickness2 = 0.00602061130869583
+    sim.stages["Total"].fin_mac1 = 0.381643835616438
+    sim.stages["Total"].fin_mac2 = 0.248148148148148
+    sim.stages["Total"].fin_span1 = 0.209020337531384
+    sim.stages["Total"].fin_span2 = 0.139830765192212
+    sim.stages["Total"].thrust_curve = 8368.66943552832 * np.ones(int(10 / 0.01))
+    sim.stages["Total"].fuel_mass_curve = np.linspace(64.0114636, 0, int(10 / 0.01))
+    sim.stages["Total"].burn_time = 15
+
+    # Separation
+    # Stage 1
+    sim.stages["Stage1"] = FlightData(int(sim.maximum_iterations))
+    sim.stages["Stage1"].mass[0] = 88.39267994
+
+    # Stage 2
+    sim.stages["Stage2"] = FlightData(int(sim.maximum_iterations))
+    sim.stages["Stage2"].mass[0] = 27.3006566830865
+    sim.stages["Stage2"].cd = 0.3
+    sim.stages["Stage2"].diameter = 0.15
+    sim.stages["Stage2"].diameter2 = 0.15
+    sim.stages["Stage2"].fineness_ratio = 5
+    sim.stages["Stage2"].joint_angle = 22
+    sim.stages["Stage2"].reference_area = np.pi * (0.15 / 2) ** 2
+    sim.stages["Stage2"].wetted_area_body = 1.61600499295142 - 0.251695377345981
+    sim.stages["Stage2"].wetted_area_fins2 = 0.251695377345981
+    sim.stages["Stage2"].fin_thickness2 = 0.00602061130869583
+    sim.stages["Stage2"].fin_mac2 = 0.248148148148148
+    sim.stages["Stage2"].fin_span2 = 0.139830765192212
+    sim.stages["Stage2"].thrust_curve = 7562.245106 * np.ones(int(10 / 0.01))
+    sim.stages["Stage2"].fuel_mass_curve = np.linspace(31.47487323, 0, int(10 / 0.01))
+    sim.stages["Stage2"].burn_time = 10
+
+    sim.run()
+
+    print(max(sim.velocities[2:-2] / sim.speed_of_sound[2:-2]))
+
+    sim.plot_trajectory()

@@ -7,7 +7,7 @@ import tqdm
 
 import numpy as np
 from colorama import Fore
-from plotting import plot_2d
+from plotting import plot_2d, scatter_plot
 import time
 
 import file_manager as fm
@@ -341,7 +341,6 @@ class Runner:
                 add_line(row["Subsystem"].split(", "), row, self.rocket[f"stage{int(row['Stage'])}"])
 
     def show_plots(self, run_number: int):
-
         for plot_name, plot_data in self.run_parameters["plot_selection"].items():
             sets: list = []
             data_set = {"x_description": plot_data["x_label"], "x_data": None,
@@ -377,6 +376,26 @@ class Runner:
             else:
                 plot_2d(sets, x_lim=plot_data["x_lim"], y_lim=plot_data["y_lim"])
 
+    def plot_sensitivity(self, runs: list[int], x_lim: tuple = (0, None), y_lim: tuple = (0, None)):
+        sets_comparison: list = []
+        sets_scatter: list = []
+        for run in runs:
+            print(f"run_{run}")
+            for plot_name, plot_data in self.run_parameters["sensitivity_plots"].items():
+                x_data = fm.load_variable(run, plot_data["x_data"][0].split('.')[1:])
+                y_data = fm.load_variable(run, plot_data["y_data"][0].split('.')[1:])
+                data_set = {"x_description": plot_data["x_label"], "x_data": x_data,
+                            "y_description": plot_data["y_label"], "y_data": y_data, "name": f"Run {run}"}
+                if plot_name == "compare":
+                    sets_comparison.append(data_set)
+                elif plot_name == "scatter":
+                    sets_scatter.append(data_set)
+
+        if sets_comparison:
+            plot_2d(sets_comparison, x_lim, y_lim, False)
+        if sets_scatter:
+            scatter_plot(sets_scatter, x_lim, y_lim, True)
+
     def save_iteration(self):
         fm.export_rocket_iteration("rocket", self.new_rocket)
 
@@ -391,10 +410,17 @@ class Runner:
 
 
 if __name__ == "__main__":
-    runner = Runner("initial_values_2", randomize=False)
     # test_rocket = fm.import_rocket_iteration("archive/run_2/0050_rocket")
     # print(max(test_rocket.simulator.drag))
     # print(test_rocket.simulator.apogee_1)
     # runner.test_sizing()
-    # runner.run(50, export_summary=True)
-    runner.show_plots(2)
+    # for i in range(20):
+    #     try:
+    #         runner = Runner("initial_values_2", randomize=True)
+    #         runner.run(50, export_summary=True)
+    #     except Exception as error:
+    #         print(error)
+    runner = Runner("initial_values_2", randomize=True)
+    # runner.show_plots(5)
+    all_runs = [i for i in range(36) if i != 1]
+    runner.plot_sensitivity(all_runs)
